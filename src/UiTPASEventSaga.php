@@ -12,6 +12,8 @@ use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
+use CultuurNet\UDB3\UiTPASService\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\Command\RemotelyRegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Command\RemotelyUpdateUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Event\AbstractUiTPASAggregateEvent;
@@ -101,6 +103,18 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
 
         $state = $this->triggerSyncWhenConditionsAreMet($state);
 
+        if ($this->uitpasAggregateHasBeenCreated($state)) {
+            // When the organizer is changed the selected distribution keys
+            // become invalid so we should dispatch a command to correct this.
+            // This command will trigger an extra sync afterwards IF any
+            // changes occurred. (It's possible there were no distribution keys
+            // selected to begin with so the aggregate will decide whether an
+            // extra event is recorded or not following this command.)
+            $this->commandBus->dispatch(
+                new ClearDistributionKeys($organizerUpdated->getItemId())
+            );
+        }
+
         return $state;
     }
 
@@ -173,14 +187,18 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $distributionKeyIds = !is_null($distributionKeyIds) ? $distributionKeyIds : [];
 
         if ($syncCount == 0) {
-            $command = new RemotelyRegisterUiTPASEvent(
+            $this->commandBus->dispatch(
+                new CreateUiTPASAggregate($aggregateId, $distributionKeyIds)
+            );
+
+            $syncCommand = new RemotelyRegisterUiTPASEvent(
                 $aggregateId,
                 $organizerId,
                 $priceInfo,
                 $distributionKeyIds
             );
         } else {
-            $command = new RemotelyUpdateUiTPASEvent(
+            $syncCommand = new RemotelyUpdateUiTPASEvent(
                 $aggregateId,
                 $organizerId,
                 $priceInfo,
@@ -188,10 +206,19 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             );
         }
 
-        $this->commandBus->dispatch($command);
+        $this->commandBus->dispatch($syncCommand);
 
         $state->set('syncCount', $syncCount + 1);
 
         return $state;
+    }
+
+    /**
+     * @param State $state
+     * @return bool
+     */
+    private function uitpasAggregateHasBeenCreated(State $state)
+    {
+        return !is_null($state->get('distributionKeyIds'));
     }
 }

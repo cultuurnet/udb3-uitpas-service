@@ -27,6 +27,8 @@ use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
+use CultuurNet\UDB3\UiTPASService\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\Command\RemotelyRegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Command\RemotelyUpdateUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
@@ -187,7 +189,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_registers_an_uitpas_event_when_an_uitpas_organizer_has_been_selected_and_price_info_is_entered()
+    public function it_creates_an_uitpas_aggregate_and_registers_an_uitpas_event_when_an_uitpas_organizer_has_been_selected_and_price_info_is_entered()
     {
         $this->scenario
             ->given(
@@ -199,6 +201,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
             ->then(
                 [
+                    new CreateUiTPASAggregate($this->eventId, []),
                     new RemotelyRegisterUiTPASEvent(
                         new StringLiteral($this->eventId),
                         new StringLiteral($this->uitpasOrganizerId),
@@ -211,7 +214,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_registers_an_uitpas_event_when_price_info_has_been_entered_and_an_uitpas_organizer_is_selected()
+    public function it_creates_an_uitpas_aggregate_and_registers_an_uitpas_event_when_price_info_has_been_entered_and_an_uitpas_organizer_is_selected()
     {
         $this->scenario
             ->given(
@@ -223,6 +226,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId))
             ->then(
                 [
+                    new CreateUiTPASAggregate($this->eventId, []),
                     new RemotelyRegisterUiTPASEvent(
                         new StringLiteral($this->eventId),
                         new StringLiteral($this->uitpasOrganizerId),
@@ -443,23 +447,31 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_does_not_register_an_uitpas_event_for_an_uitpas_aggregate_until_all_conditions_are_met()
+    public function it_clears_the_distribution_keys_if_the_organizer_is_changed()
     {
+        // Clearing the distribution keys will trigger an extra sync, but this
+        // is not tracked by the test scenario.
         $this->scenario
-            ->given([$this->eventCreated])
-            ->when($this->uitpasAggregateCreated)
-            ->then([])
-            ->when(new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId))
-            ->then([])
-            ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                    $this->uitpasAggregateCreated,
+                ]
+            )
+            ->when(
+                new OrganizerUpdated($this->eventId, $this->updatedUitpasOrganizerId)
+            )
             ->then(
                 [
-                    new RemotelyRegisterUiTPASEvent(
+                    new RemotelyUpdateUiTPASEvent(
                         $this->eventId,
-                        $this->uitpasOrganizerId,
+                        $this->updatedUitpasOrganizerId,
                         $this->priceInfo,
                         $this->distributionKeys
                     ),
+                    new ClearDistributionKeys($this->eventId),
                 ]
             );
     }
