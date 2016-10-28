@@ -22,18 +22,26 @@ class UpdateUiTPASEvent
     private $priceInfo;
 
     /**
+     * @var string[]
+     */
+    private $distributionKeyIds;
+
+    /**
      * @param $eventId
      * @param $organizerId
      * @param PriceInfo $priceInfo
+     * @param string[] $distributionKeyIds
      */
     public function __construct(
         $eventId,
         $organizerId,
-        PriceInfo $priceInfo
+        PriceInfo $priceInfo,
+        array $distributionKeyIds = []
     ) {
         $this->eventId = $eventId;
         $this->organizerId = $organizerId;
         $this->priceInfo = $priceInfo;
+        $this->distributionKeyIds = $distributionKeyIds;
     }
 
     /**

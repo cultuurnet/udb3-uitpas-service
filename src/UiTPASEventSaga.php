@@ -14,6 +14,10 @@ use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Event\AbstractUiTPASAggregateEvent;
+use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
+use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
+use CultuurNet\UDB3\UiTPASService\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 
 class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
@@ -45,9 +49,15 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public static function configuration()
     {
-        $eventCallback = function (AbstractEvent $event) {
+        $offerEventCallback = function (AbstractEvent $event) {
             return new Criteria(
-                ['eventId' => $event->getItemId()]
+                ['uitpasAggregateId' => $event->getItemId()]
+            );
+        };
+
+        $uitpasAggregateEventCallback = function (AbstractUiTPASAggregateEvent $event) {
+            return new Criteria(
+                ['uitpasAggregateId' => $event->getAggregateId()]
             );
         };
 
@@ -55,8 +65,11 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             'EventCreated' => function (EventCreated $eventCreated) {
                 return null;
             },
-            'OrganizerUpdated' => $eventCallback,
-            'PriceInfoUpdated' => $eventCallback,
+            'OrganizerUpdated' => $offerEventCallback,
+            'PriceInfoUpdated' => $offerEventCallback,
+            'UiTPASAggregateCreated' => $uitpasAggregateEventCallback,
+            'DistributionKeysUpdated' => $uitpasAggregateEventCallback,
+            'DistributionKeysCleared' => $uitpasAggregateEventCallback,
         ];
     }
 
@@ -67,7 +80,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public function handleEventCreated(EventCreated $eventCreated, State $state)
     {
-        $state->set('eventId', $eventCreated->getEventId());
+        $state->set('uitpasAggregateId', $eventCreated->getEventId());
         $state->set('syncCount', 0);
         return $state;
     }
@@ -99,9 +112,43 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     public function handlePriceInfoUpdated(PriceInfoUpdated $priceInfoUpdated, State $state)
     {
         $state->set('priceInfo', $priceInfoUpdated->getPriceInfo()->serialize());
-
         $state = $this->triggerSyncWhenConditionsAreMet($state);
+        return $state;
+    }
 
+    /**
+     * @param UiTPASAggregateCreated $aggregateCreated
+     * @param State $state
+     * @return State
+     */
+    public function handleUiTPASAggregateCreated(UiTPASAggregateCreated $aggregateCreated, State $state)
+    {
+        $state->set('distributionKeyIds', $aggregateCreated->getDistributionKeyIds());
+        $state = $this->triggerSyncWhenConditionsAreMet($state);
+        return $state;
+    }
+
+    /**
+     * @param DistributionKeysUpdated $distributionKeysUpdated
+     * @param State $state
+     * @return State
+     */
+    public function handleDistributionKeysUpdated(DistributionKeysUpdated $distributionKeysUpdated, State $state)
+    {
+        $state->set('distributionKeyIds', $distributionKeysUpdated->getDistributionKeyIds());
+        $state = $this->triggerSyncWhenConditionsAreMet($state);
+        return $state;
+    }
+
+    /**
+     * @param DistributionKeysCleared $distributionKeysCleared
+     * @param State $state
+     * @return State
+     */
+    public function handleDistributionKeysCleared(DistributionKeysCleared $distributionKeysCleared, State $state)
+    {
+        $state->set('distributionKeyIds', []);
+        $state = $this->triggerSyncWhenConditionsAreMet($state);
         return $state;
     }
 
@@ -111,10 +158,11 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     private function triggerSyncWhenConditionsAreMet(State $state)
     {
-        $eventId = $state->get('eventId');
+        $aggregateId = $state->get('uitpasAggregateId');
         $organizerId = $state->get('organizerId');
         $uitpasOrganizer = $state->get('uitpasOrganizer');
         $serializedPriceInfo = $state->get('priceInfo');
+        $distributionKeyIds = $state->get('distributionKeyIds');
         $syncCount = (int) $state->get('syncCount');
 
         if (is_null($organizerId) || empty($uitpasOrganizer) || is_null($serializedPriceInfo)) {
@@ -122,18 +170,21 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         }
 
         $priceInfo = PriceInfo::deserialize($serializedPriceInfo);
+        $distributionKeyIds = !is_null($distributionKeyIds) ? $distributionKeyIds : [];
 
         if ($syncCount == 0) {
             $command = new RegisterUiTPASEvent(
-                $eventId,
+                $aggregateId,
                 $organizerId,
-                $priceInfo
+                $priceInfo,
+                $distributionKeyIds
             );
         } else {
             $command = new UpdateUiTPASEvent(
-                $eventId,
+                $aggregateId,
                 $organizerId,
-                $priceInfo
+                $priceInfo,
+                $distributionKeyIds
             );
         }
 

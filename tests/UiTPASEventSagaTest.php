@@ -29,6 +29,9 @@ use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
+use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
+use CultuurNet\UDB3\UiTPASService\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Money\Currency;
@@ -75,6 +78,16 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     private $priceInfo;
 
     /**
+     * @var string[]
+     */
+    private $distributionKeys;
+
+    /**
+     * @var UiTPASAggregateCreated
+     */
+    private $uitpasAggregateCreated;
+
+    /**
      * @var OrganizerSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $organizerSpecification;
@@ -119,6 +132,16 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     Currency::fromNative('EUR')
                 )
             );
+
+        $this->distributionKeys = [
+            'distribution-key-123',
+            'distribution-key-456',
+        ];
+
+        $this->uitpasAggregateCreated = new UiTPASAggregateCreated(
+            $this->eventId,
+            $this->distributionKeys
+        );
 
         $this->organizerSpecification = $this->getMock(OrganizerSpecificationInterface::class);
 
@@ -326,5 +349,118 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->then([])
             ->when(new PriceInfoUpdated($this->eventId, $updatedPriceInfo))
             ->then([]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_the_uitpas_event_with_distribution_keys_when_the_uitpas_aggregate_is_created()
+    {
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                ]
+            )
+            ->when(
+                $this->uitpasAggregateCreated
+            )
+            ->then(
+                [
+                    new UpdateUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        $this->distributionKeys
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_the_uitpas_event_when_the_distribution_keys_on_the_uitpas_aggregate_have_been_updated()
+    {
+        $updatedDistributionKeys = $this->distributionKeys;
+        $updatedDistributionKeys[] = 'distribution-key-789';
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                    $this->uitpasAggregateCreated,
+                ]
+            )
+            ->when(
+                new DistributionKeysUpdated($this->eventId, $updatedDistributionKeys)
+            )
+            ->then(
+                [
+                    new UpdateUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        $updatedDistributionKeys
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_the_uitpas_event_when_the_distribution_keys_on_the_uitpas_aggregate_have_been_cleared()
+    {
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                    $this->uitpasAggregateCreated,
+                ]
+            )
+            ->when(
+                new DistributionKeysCleared($this->eventId)
+            )
+            ->then(
+                [
+                    new UpdateUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        []
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_register_an_uitpas_event_for_an_uitpas_aggregate_until_all_conditions_are_met()
+    {
+        $this->scenario
+            ->given([$this->eventCreated])
+            ->when($this->uitpasAggregateCreated)
+            ->then([])
+            ->when(new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId))
+            ->then([])
+            ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
+            ->then(
+                [
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        $this->distributionKeys
+                    ),
+                ]
+            );
     }
 }
