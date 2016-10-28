@@ -449,8 +449,9 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     public function it_clears_the_distribution_keys_if_the_organizer_is_changed()
     {
-        // Clearing the distribution keys will trigger an extra sync, but this
-        // is not tracked by the test scenario.
+        // Clearing the distribution keys might trigger an extra sync depending
+        // on the state of the aggregate, but this is not tracked by the test
+        // scenario either way.
         $this->scenario
             ->given(
                 [
