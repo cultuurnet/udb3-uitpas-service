@@ -24,4 +24,18 @@ foreach ($app['config']['bootstrap'] as $identifier => $enabled) {
     }
 }
 
+$app['mongodb_sagas_collection'] = $app->share(
+  function (Application $app) {
+    $mongoConf = $app['config']['mongo'] + array(
+      'connection' => 'mongodb://127.0.0.1',
+      'db' => 'uitpas',
+    );
+
+    $client = new MongoClient($mongoConf['connection']);
+    $connection = new Doctrine\MongoDB\Connection($client);
+
+    return $connection->selectCollection($mongoConf['db'], 'sagas');
+  }
+);
+
 return $app;
