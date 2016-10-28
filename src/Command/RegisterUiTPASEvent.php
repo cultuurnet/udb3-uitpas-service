@@ -3,17 +3,16 @@
 namespace CultuurNet\UDB3\UiTPASService\Command;
 
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
-use ValueObjects\String\String as StringLiteral;
 
 class RegisterUiTPASEvent
 {
     /**
-     * @var StringLiteral
+     * @var string
      */
     private $eventId;
 
     /**
-     * @var StringLiteral
+     * @var string
      */
     private $organizerId;
 
@@ -23,13 +22,13 @@ class RegisterUiTPASEvent
     private $priceInfo;
 
     /**
-     * @param StringLiteral $eventId
-     * @param StringLiteral $organizerId
+     * @param $eventId
+     * @param $organizerId
      * @param PriceInfo $priceInfo
      */
     public function __construct(
-        StringLiteral $eventId,
-        StringLiteral $organizerId,
+        $eventId,
+        $organizerId,
         PriceInfo $priceInfo
     ) {
         $this->eventId = $eventId;
@@ -38,7 +37,7 @@ class RegisterUiTPASEvent
     }
 
     /**
-     * @return StringLiteral
+     * @return string
      */
     public function getEventId()
     {
@@ -46,7 +45,7 @@ class RegisterUiTPASEvent
     }
 
     /**
-     * @return StringLiteral
+     * @return string
      */
     public function getOrganizerId()
     {
