@@ -1,0 +1,183 @@
+<?php
+
+namespace CultuurNet\UDB3\UiTPASService;
+
+use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\CommandHandling\Testing\TraceableCommandBus;
+use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
+use Broadway\Saga\MultipleSagaManager;
+use Broadway\Saga\State\InMemoryRepository;
+use Broadway\Saga\State\StateManager;
+use Broadway\Saga\Testing\Scenario;
+use Broadway\UuidGenerator\Rfc4122\Version4Generator;
+use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
+use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
+use CultuurNet\UDB3\PriceInfo\BasePrice;
+use CultuurNet\UDB3\PriceInfo\Price;
+use CultuurNet\UDB3\PriceInfo\PriceInfo;
+use CultuurNet\UDB3\PriceInfo\Tariff;
+use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
+use ValueObjects\Money\Currency;
+use ValueObjects\String\String as StringLiteral;
+
+/**
+ * @todo Extend SagaScenarioTestCase when we update to Broadway >= 0.9.x
+ */
+class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @var Scenario
+     */
+    private $scenario;
+
+    /**
+     * @var string
+     */
+    private $eventId;
+
+    /**
+     * @var string
+     */
+    private $regularOrganizerId;
+
+    /**
+     * @var string
+     */
+    private $uitpasOrganizerId;
+
+    /**
+     * @var PriceInfo
+     */
+    private $priceInfo;
+
+    /**
+     * @var OrganizerSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $organizerSpecification;
+
+    public function setUp()
+    {
+        $this->eventId = 'e1122fff-0f67-4042-82c3-6b5ca7af02d7';
+
+        $this->regularOrganizerId = '72de67fb-d85c-4d3a-b464-b1157b83ed95';
+        $this->uitpasOrganizerId = '6c1ac534-cd05-4ddb-a6d1-ba076aea9275';
+
+        $this->priceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(5.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->priceInfo = $this->priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Werkloze dodo kwekers'),
+                    Price::fromFloat(2.75),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $this->organizerSpecification = $this->getMock(OrganizerSpecificationInterface::class);
+
+        $this->organizerSpecification->expects($this->any())
+            ->method('isSatisfiedBy')
+            ->willReturnCallback(
+                function (StringLiteral $organizerId) {
+                    $uitpasOrganizerIds = [$this->uitpasOrganizerId];
+                    return in_array((string) $organizerId, $uitpasOrganizerIds);
+                }
+            );
+
+        $this->scenario = $this->createScenario();
+    }
+
+    /**
+     * @return Scenario
+     */
+    protected function createScenario()
+    {
+        $traceableCommandBus = new TraceableCommandBus();
+        $saga                = $this->createSaga($traceableCommandBus);
+        $sagaStateRepository = new InMemoryRepository();
+        $sagaManager         = new MultipleSagaManager(
+            $sagaStateRepository,
+            [$saga],
+            new StateManager($sagaStateRepository, new Version4Generator()),
+            new StaticallyConfiguredSagaMetadataFactory(),
+            new EventDispatcher()
+        );
+        return new Scenario($this, $sagaManager, $traceableCommandBus);
+    }
+
+    /**
+     * @param CommandBusInterface $commandBus
+     * @return UiTPASEventSaga
+     */
+    protected function createSaga(CommandBusInterface $commandBus)
+    {
+        return new UiTPASEventSaga($commandBus, $this->organizerSpecification);
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_an_uitpas_event_when_an_uitpas_organizer_has_been_selected_and_price_info_is_entered()
+    {
+        $this->scenario
+            ->given([new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId)])
+            ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
+            ->then(
+                [
+                    new RegisterUiTPASEvent(
+                        new StringLiteral($this->eventId),
+                        new StringLiteral($this->uitpasOrganizerId),
+                        $this->priceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_an_uitpas_event_when_price_info_has_been_entered_and_an_uitpas_organizer_is_selected()
+    {
+        $this->scenario
+            ->given([new PriceInfoUpdated($this->eventId, $this->priceInfo)])
+            ->when(new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId))
+            ->then(
+                [
+                    new RegisterUiTPASEvent(
+                        new StringLiteral($this->eventId),
+                        new StringLiteral($this->uitpasOrganizerId),
+                        $this->priceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_register_an_uitpas_event_when_price_info_has_been_entered_and_a_regular_organizer_is_selected()
+    {
+        $this->scenario
+            ->given([new PriceInfoUpdated($this->eventId, $this->priceInfo)])
+            ->when(new OrganizerUpdated($this->eventId, $this->regularOrganizerId))
+            ->then([]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_register_an_uitpas_event_when_a_regular_organizer_has_been_selected_and_price_info_is_entered()
+    {
+        $this->scenario
+            ->given([new OrganizerUpdated($this->eventId, $this->regularOrganizerId)])
+            ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
+            ->then([]);
+    }
+}
