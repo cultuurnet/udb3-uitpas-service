@@ -269,6 +269,40 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_updates_an_uitpas_event_when_it_has_new_price_info()
+    {
+        $updatedPriceInfo = $this->priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Extra tariff'),
+                    Price::fromFloat(1.5),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                ]
+            )
+            ->when(new PriceInfoUpdated($this->eventId, $updatedPriceInfo))
+            ->then(
+                [
+                    new UpdateUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $updatedPriceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
     public function it_never_updates_an_uitpas_event_when_it_no_longer_has_an_uitpas_organizer()
     {
         $updatedPriceInfo = $this->priceInfo
