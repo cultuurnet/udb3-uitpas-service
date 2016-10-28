@@ -4,7 +4,7 @@ namespace CultuurNet\UDB3\UiTPASService\Command;
 
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 
-class UpdateUiTPASEvent
+abstract class RemotelySyncUiTPASEvent
 {
     /**
      * @var string
@@ -66,5 +66,13 @@ class UpdateUiTPASEvent
     public function getPriceInfo()
     {
         return $this->priceInfo;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDistributionKeyIds()
+    {
+        return $this->distributionKeyIds;
     }
 }

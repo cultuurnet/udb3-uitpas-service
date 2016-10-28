@@ -27,8 +27,8 @@ use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
-use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
-use CultuurNet\UDB3\UiTPASService\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Command\RemotelyRegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Command\RemotelyUpdateUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
 use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\Event\UiTPASAggregateCreated;
@@ -199,7 +199,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
             ->then(
                 [
-                    new RegisterUiTPASEvent(
+                    new RemotelyRegisterUiTPASEvent(
                         new StringLiteral($this->eventId),
                         new StringLiteral($this->uitpasOrganizerId),
                         $this->priceInfo
@@ -223,7 +223,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId))
             ->then(
                 [
-                    new RegisterUiTPASEvent(
+                    new RemotelyRegisterUiTPASEvent(
                         new StringLiteral($this->eventId),
                         new StringLiteral($this->uitpasOrganizerId),
                         $this->priceInfo
@@ -280,7 +280,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new OrganizerUpdated($this->eventId, $this->updatedUitpasOrganizerId))
             ->then(
                 [
-                    new UpdateUiTPASEvent(
+                    new RemotelyUpdateUiTPASEvent(
                         $this->eventId,
                         $this->updatedUitpasOrganizerId,
                         $this->priceInfo
@@ -314,7 +314,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new PriceInfoUpdated($this->eventId, $updatedPriceInfo))
             ->then(
                 [
-                    new UpdateUiTPASEvent(
+                    new RemotelyUpdateUiTPASEvent(
                         $this->eventId,
                         $this->uitpasOrganizerId,
                         $updatedPriceInfo
@@ -369,7 +369,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->then(
                 [
-                    new UpdateUiTPASEvent(
+                    new RemotelyUpdateUiTPASEvent(
                         $this->eventId,
                         $this->uitpasOrganizerId,
                         $this->priceInfo,
@@ -401,7 +401,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->then(
                 [
-                    new UpdateUiTPASEvent(
+                    new RemotelyUpdateUiTPASEvent(
                         $this->eventId,
                         $this->uitpasOrganizerId,
                         $this->priceInfo,
@@ -430,7 +430,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->then(
                 [
-                    new UpdateUiTPASEvent(
+                    new RemotelyUpdateUiTPASEvent(
                         $this->eventId,
                         $this->uitpasOrganizerId,
                         $this->priceInfo,
@@ -454,7 +454,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
             ->then(
                 [
-                    new RegisterUiTPASEvent(
+                    new RemotelyRegisterUiTPASEvent(
                         $this->eventId,
                         $this->uitpasOrganizerId,
                         $this->priceInfo,

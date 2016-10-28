@@ -12,8 +12,8 @@ use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
-use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
-use CultuurNet\UDB3\UiTPASService\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Command\RemotelyRegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Command\RemotelyUpdateUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Event\AbstractUiTPASAggregateEvent;
 use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
 use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
@@ -173,14 +173,14 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $distributionKeyIds = !is_null($distributionKeyIds) ? $distributionKeyIds : [];
 
         if ($syncCount == 0) {
-            $command = new RegisterUiTPASEvent(
+            $command = new RemotelyRegisterUiTPASEvent(
                 $aggregateId,
                 $organizerId,
                 $priceInfo,
                 $distributionKeyIds
             );
         } else {
-            $command = new UpdateUiTPASEvent(
+            $command = new RemotelyUpdateUiTPASEvent(
                 $aggregateId,
                 $organizerId,
                 $priceInfo,
