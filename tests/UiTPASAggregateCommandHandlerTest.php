@@ -18,7 +18,7 @@ class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
     /**
      * @var string
      */
-    private $eventId;
+    private $aggregateId;
 
     /**
      * @var string[]
@@ -34,14 +34,14 @@ class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
     {
         parent::setUp();
 
-        $this->eventId = 'f254b13a-94b2-4c7f-aa36-c7500b542998';
+        $this->aggregateId = 'f254b13a-94b2-4c7f-aa36-c7500b542998';
 
         $this->distributionKeyIds = [
             'distribution-key-123',
             'distribution-key-456',
         ];
 
-        $this->uitpasAggregateCreated = new UiTPASAggregateCreated($this->eventId, $this->distributionKeyIds);
+        $this->uitpasAggregateCreated = new UiTPASAggregateCreated($this->aggregateId, $this->distributionKeyIds);
     }
 
     /**
@@ -67,7 +67,7 @@ class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
         $this->scenario
             ->when(
                 new CreateUiTPASAggregate(
-                    $this->eventId,
+                    $this->aggregateId,
                     $this->distributionKeyIds
                 )
             )
@@ -83,18 +83,18 @@ class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
         $updatedDistributionKeyIds[] = 'distribution-key-798';
 
         $this->scenario
-            ->withAggregateId($this->eventId)
+            ->withAggregateId($this->aggregateId)
             ->given(
                 [$this->uitpasAggregateCreated]
             )
             ->when(
-                new UpdateDistributionKeys($this->eventId, $this->distributionKeyIds)
+                new UpdateDistributionKeys($this->aggregateId, $this->distributionKeyIds)
             )
             ->then([])
             ->when(
-                new UpdateDistributionKeys($this->eventId, $updatedDistributionKeyIds)
+                new UpdateDistributionKeys($this->aggregateId, $updatedDistributionKeyIds)
             )
-            ->then([new DistributionKeysUpdated($this->eventId, $updatedDistributionKeyIds)]);
+            ->then([new DistributionKeysUpdated($this->aggregateId, $updatedDistributionKeyIds)]);
     }
 
     /**
@@ -103,14 +103,14 @@ class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
     public function it_clears_the_distribution_keys_if_they_are_not_empty_yet()
     {
         $this->scenario
-            ->withAggregateId($this->eventId)
+            ->withAggregateId($this->aggregateId)
             ->given(
                 [$this->uitpasAggregateCreated]
             )
             ->when(
-                new ClearDistributionKeys($this->eventId)
+                new ClearDistributionKeys($this->aggregateId)
             )
-            ->then([new DistributionKeysCleared($this->eventId)]);
+            ->then([new DistributionKeysCleared($this->aggregateId)]);
     }
 
     /**
@@ -119,15 +119,15 @@ class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
     public function it_does_not_clear_the_distribution_keys_if_they_are_already_empty()
     {
         $this->scenario
-            ->withAggregateId($this->eventId)
+            ->withAggregateId($this->aggregateId)
             ->given(
                 [
                     $this->uitpasAggregateCreated,
-                    new DistributionKeysCleared($this->eventId),
+                    new DistributionKeysCleared($this->aggregateId),
                 ]
             )
             ->when(
-                new ClearDistributionKeys($this->eventId)
+                new ClearDistributionKeys($this->aggregateId)
             )
             ->then([]);
     }

@@ -2,26 +2,6 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Event;
 
-class DistributionKeysCleared
+class DistributionKeysCleared extends AbstractUiTPASAggregateEvent
 {
-    /**
-     * @var string
-     */
-    private $eventId;
-
-    /**
-     * @param string $eventId
-     */
-    public function __construct($eventId)
-    {
-        $this->eventId = $eventId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventId()
-    {
-        return $this->eventId;
-    }
 }

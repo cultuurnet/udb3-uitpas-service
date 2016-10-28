@@ -81,7 +81,7 @@ class UiTPASAggregate extends EventSourcedAggregateRoot
      */
     protected function applyUiTPASAggregateCreated(UiTPASAggregateCreated $created)
     {
-        $this->aggregateId = $created->getEventId();
+        $this->aggregateId = $created->getAggregateId();
         $this->distributionKeyIds = $created->getDistributionKeyIds();
     }
 

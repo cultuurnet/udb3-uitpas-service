@@ -2,34 +2,21 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Event;
 
-class UiTPASAggregateCreated
+class UiTPASAggregateCreated extends AbstractUiTPASAggregateEvent
 {
-    /**
-     * @var string
-     */
-    private $eventId;
-
     /**
      * @var string[]
      */
     private $distributionKeyIds;
 
     /**
-     * @param string $eventId
+     * @param string $aggregateId
      * @param string[] $distributionKeyIds
      */
-    public function __construct($eventId, array $distributionKeyIds)
+    public function __construct($aggregateId, array $distributionKeyIds)
     {
-        $this->eventId = $eventId;
+        parent::__construct($aggregateId);
         $this->distributionKeyIds = $distributionKeyIds;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEventId()
-    {
-        return $this->eventId;
     }
 
     /**
