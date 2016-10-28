@@ -8,15 +8,16 @@
         "silex/silex": "~1.3",
         "deralex/yaml-config-service-provider": "~1.0",
         "knplabs/console-service-provider": "~1.0",
-        "monolog/monolog": "~1.11"
+        "monolog/monolog": "~1.11",
+        "doctrine/mongodb": "~1.3",
+        "broadway/broadway": "~0.9"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",
         "escapestudios/symfony2-coding-standard": "~2.9",
         "squizlabs/php_codesniffer": "~2.5.1",
         "phing/phing": "~2.14",
-        "satooshi/php-coveralls": "~1.0",
-        "broadway/broadway": "~0.9"
+        "satooshi/php-coveralls": "~1.0"
     },
     "autoload": {
         "psr-4": {
