@@ -28,6 +28,7 @@ use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Command\UpdateUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Money\Currency;
@@ -64,6 +65,11 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     private $uitpasOrganizerId;
 
     /**
+     * @var string
+     */
+    private $updatedUitpasOrganizerId;
+
+    /**
      * @var PriceInfo
      */
     private $priceInfo;
@@ -96,6 +102,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $this->regularOrganizerId = '72de67fb-d85c-4d3a-b464-b1157b83ed95';
         $this->uitpasOrganizerId = '6c1ac534-cd05-4ddb-a6d1-ba076aea9275';
+        $this->updatedUitpasOrganizerId = 'd5c5303b-c9c4-4fb3-8c1f-d58b5f680b9a';
 
         $this->priceInfo = new PriceInfo(
             new BasePrice(
@@ -119,7 +126,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->method('isSatisfiedBy')
             ->willReturnCallback(
                 function ($organizerId) {
-                    $uitpasOrganizerIds = [$this->uitpasOrganizerId];
+                    $uitpasOrganizerIds = [$this->uitpasOrganizerId, $this->updatedUitpasOrganizerId];
                     return in_array($organizerId, $uitpasOrganizerIds);
                 }
             );
@@ -231,6 +238,59 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
+            ->then([]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_an_uitpas_event_when_it_has_a_new_uitpas_organizer()
+    {
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                ]
+            )
+            ->when(new OrganizerUpdated($this->eventId, $this->updatedUitpasOrganizerId))
+            ->then(
+                [
+                    new UpdateUiTPASEvent(
+                        $this->eventId,
+                        $this->updatedUitpasOrganizerId,
+                        $this->priceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_never_updates_an_uitpas_event_when_it_no_longer_has_an_uitpas_organizer()
+    {
+        $updatedPriceInfo = $this->priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Extra tariff'),
+                    Price::fromFloat(1.5),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                ]
+            )
+            ->when(new OrganizerUpdated($this->eventId, $this->regularOrganizerId))
+            ->then([])
+            ->when(new PriceInfoUpdated($this->eventId, $updatedPriceInfo))
             ->then([]);
     }
 }

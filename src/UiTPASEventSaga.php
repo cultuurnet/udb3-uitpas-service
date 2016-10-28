@@ -13,6 +13,7 @@ use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\UiTPASService\Command\RegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Command\UpdateUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 
 class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
@@ -67,6 +68,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     public function handleEventCreated(EventCreated $eventCreated, State $state)
     {
         $state->set('eventId', $eventCreated->getEventId());
+        $state->set('syncCount', 0);
         return $state;
     }
 
@@ -84,7 +86,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             $this->organizerSpecification->isSatisfiedBy($organizerUpdated->getOrganizerId())
         );
 
-        $this->triggerSyncWhenConditionsAreMet($state);
+        $state = $this->triggerSyncWhenConditionsAreMet($state);
 
         return $state;
     }
@@ -98,13 +100,14 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     {
         $state->set('priceInfo', $priceInfoUpdated->getPriceInfo()->serialize());
 
-        $this->triggerSyncWhenConditionsAreMet($state);
+        $state = $this->triggerSyncWhenConditionsAreMet($state);
 
         return $state;
     }
 
     /**
      * @param State $state
+     * @return State
      */
     private function triggerSyncWhenConditionsAreMet(State $state)
     {
@@ -112,19 +115,32 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $organizerId = $state->get('organizerId');
         $uitpasOrganizer = $state->get('uitpasOrganizer');
         $serializedPriceInfo = $state->get('priceInfo');
+        $syncCount = (int) $state->get('syncCount');
 
         if (is_null($organizerId) || empty($uitpasOrganizer) || is_null($serializedPriceInfo)) {
-            return;
+            return $state;
         }
 
         $priceInfo = PriceInfo::deserialize($serializedPriceInfo);
 
-        $register = new RegisterUiTPASEvent(
-            $eventId,
-            $organizerId,
-            $priceInfo
-        );
+        if ($syncCount == 0) {
+            $command = new RegisterUiTPASEvent(
+                $eventId,
+                $organizerId,
+                $priceInfo
+            );
+        } else {
+            $command = new UpdateUiTPASEvent(
+                $eventId,
+                $organizerId,
+                $priceInfo
+            );
+        }
 
-        $this->commandBus->dispatch($register);
+        $this->commandBus->dispatch($command);
+
+        $state->set('syncCount', $syncCount + 1);
+
+        return $state;
     }
 }
