@@ -8,6 +8,7 @@ use Broadway\Saga\Saga;
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
@@ -67,6 +68,9 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             'EventCreated' => function (EventCreated $eventCreated) {
                 return null;
             },
+            'EventImportedFromUDB2' => function (EventImportedFromUDB2 $eventImported) {
+                return null;
+            },
             'OrganizerUpdated' => $offerEventCallback,
             'PriceInfoUpdated' => $offerEventCallback,
             'UiTPASAggregateCreated' => $uitpasAggregateEventCallback,
@@ -83,6 +87,18 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     public function handleEventCreated(EventCreated $eventCreated, State $state)
     {
         $state->set('uitpasAggregateId', $eventCreated->getEventId());
+        $state->set('syncCount', 0);
+        return $state;
+    }
+
+    /**
+     * @param EventImportedFromUDB2 $eventImportedFromUDB2
+     * @param State $state
+     * @return State
+     */
+    public function handleEventImportedFromUDB2(EventImportedFromUDB2 $eventImportedFromUDB2, State $state)
+    {
+        $state->set('uitpasAggregateId', $eventImportedFromUDB2->getEventId());
         $state->set('syncCount', 0);
         return $state;
     }
