@@ -56,12 +56,11 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
             );
 
             return false;
-        }
-        else (
+        } else (
             $this->logger->debug(
                 'succesfully retrieved organizer JSON-LD',
                 $logContext + array(
-                    'jsonld' => $organizer
+                    'jsonld' => $organizer,
                 )
             )
         );
@@ -80,16 +79,15 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
             $this->logger->debug(
                 'no uitpas labels present on organizer',
                 $logContext + array(
-                    'organizer_labels' => $organizerLabels
+                    'organizer_labels' => $organizerLabels,
                 )
             );
-        }
-        else {
+        } else {
             $this->logger->debug(
                 'uitpas labels present on organizer',
                 $logContext + array(
                     'organizer_labels' => $organizerLabels,
-                    'organizer_uitpas_labels' => $uitpasLabelsPresentOnOrganizer
+                    'organizer_uitpas_labels' => $uitpasLabelsPresentOnOrganizer,
                 )
             );
         }
