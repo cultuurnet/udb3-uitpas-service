@@ -5,3 +5,5 @@ install:
 - composer install
 script:
 - ./vendor/bin/phing test
+after_script:
+- ./vendor/bin/coveralls -vvv
