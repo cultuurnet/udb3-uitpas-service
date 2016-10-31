@@ -27,5 +27,4 @@ class UiTPASAggregateRepository extends EventSourcingRepository
             $eventStreamDecorators
         );
     }
-
 }

@@ -31,5 +31,4 @@ class EventStoreSchemaConfigurator implements SchemaConfiguratorInterface
             $schemaManager->createTable($table);
         }
     }
-
 }

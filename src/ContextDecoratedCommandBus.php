@@ -71,4 +71,3 @@ class ContextDecoratedCommandBus extends CommandBusDecoratorBase
         return $this->decoratee->dispatch($command);
     }
 }
-

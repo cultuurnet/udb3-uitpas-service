@@ -32,7 +32,7 @@ class CommandBusServiceProvider implements ServiceProviderInterface
                     );*/
 
                     $commandBus = new ResqueCommandBus(
-                    //$authorizedCommandBus,
+                        //$authorizedCommandBus,
                         new SimpleContextAwareCommandBus(),
                         $queueName,
                         $app['command_bus_event_dispatcher']
@@ -65,4 +65,3 @@ class CommandBusServiceProvider implements ServiceProviderInterface
     {
     }
 }
-

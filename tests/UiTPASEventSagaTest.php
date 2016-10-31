@@ -195,7 +195,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->given(
                 [
                     $this->eventCreated,
-                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId)
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
                 ]
             )
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
@@ -220,7 +220,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->given(
                 [
                     $this->eventCreated,
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
                 ]
             )
             ->when(new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId))
@@ -245,7 +245,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->given(
                 [
                     $this->eventCreated,
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
                 ]
             )
             ->when(new OrganizerUpdated($this->eventId, $this->regularOrganizerId))
@@ -261,7 +261,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->given(
                 [
                     $this->eventCreated,
-                    new OrganizerUpdated($this->eventId, $this->regularOrganizerId)
+                    new OrganizerUpdated($this->eventId, $this->regularOrganizerId),
                 ]
             )
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
@@ -278,7 +278,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     $this->eventCreated,
                     new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
                 ]
             )
             ->when(new OrganizerUpdated($this->eventId, $this->updatedUitpasOrganizerId))
@@ -312,7 +312,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     $this->eventCreated,
                     new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
                 ]
             )
             ->when(new PriceInfoUpdated($this->eventId, $updatedPriceInfo))
@@ -346,7 +346,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     $this->eventCreated,
                     new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo)
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
                 ]
             )
             ->when(new OrganizerUpdated($this->eventId, $this->regularOrganizerId))

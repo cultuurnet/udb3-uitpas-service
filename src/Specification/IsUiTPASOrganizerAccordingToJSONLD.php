@@ -22,6 +22,6 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
      */
     public function isSatisfiedBy($organizerId)
     {
-        return TRUE;
+        return true;
     }
 }
