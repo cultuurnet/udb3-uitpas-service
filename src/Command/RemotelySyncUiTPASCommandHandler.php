@@ -109,7 +109,7 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerA
             $this->logger->info(
                 'Succesfully synchronised uitpas event data',
                 [
-                    'cdbid' => $event->cdbid
+                    'cdbid' => $event->cdbid,
                 ]
             );
         }
