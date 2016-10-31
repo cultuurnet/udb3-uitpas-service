@@ -56,14 +56,14 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
             );
 
             return false;
-        } else (
+        } else {
             $this->logger->debug(
                 'succesfully retrieved organizer JSON-LD',
                 $logContext + array(
                     'jsonld' => $organizer,
                 )
-            )
-        );
+            );
+        }
 
         $organizerLabels = $organizer->labels ?: [];
 
