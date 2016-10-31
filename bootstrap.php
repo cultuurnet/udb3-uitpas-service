@@ -19,6 +19,7 @@ use CultuurNet\UDB3\UiTPASService\UiTPASAggregateRepository;
 use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Silex\Application;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
@@ -122,7 +123,7 @@ $app['logger.amqp.udb3_publisher'] = $app->share(
 
         $logFileHandler = new StreamHandler(
             __DIR__ . '/log/amqp.log',
-            \Monolog\Logger::DEBUG
+            Logger::DEBUG
         );
         $logger->pushHandler($logFileHandler);
 
@@ -271,7 +272,7 @@ $app['command_bus_event_dispatcher'] = $app->share(
 
 $app['logger.command_bus'] = $app->share(
     function ($app) {
-        $logger = new \Monolog\Logger('command_bus');
+        $logger = new Logger('command_bus');
 
         $handlers = $app['config']['log.command_bus'];
         foreach ($handlers as $handler_config) {
@@ -399,14 +400,38 @@ $app['saga_manager'] = $app->share(
 
 $app['uitpas_event_saga'] = $app->share(
     function (Application $app) {
-        $uitpasLabels = (array) $app['config']['labels'];
-
         return new UiTPASEventSaga(
             $app['uitpas_command_bus'],
-            new IsUiTPASOrganizerAccordingToJSONLD(
-                array_values($uitpasLabels)
-            )
+            $app['uitpas_organizer_spec']
         );
+    }
+);
+
+$app['uitpas_organizer_spec'] = $app->share(
+    function (Application $app) {
+        $uitpasLabels = (array) $app['config']['labels'];
+
+        $spec = new IsUiTPASOrganizerAccordingToJSONLD(
+            $app['config']['udb3_organizer_base_url'],
+            array_values($uitpasLabels)
+        );
+
+        $logger = new Logger('uitpas_organizer_spec');
+
+        $stdOut = new StreamHandler('php://stdout');
+        //$stdOut->setFormatter(new NormalizerFormatter());
+        $logger->pushHandler($stdOut);
+
+        $logFile = new StreamHandler(
+            __DIR__ . '/log/uitpas_organizer_spec.log',
+            Logger::DEBUG
+        );
+        //$logFile->setFormatter(new NormalizerFormatter());
+        $logger->pushHandler($logFile);
+
+        $spec->setLogger($logger);
+
+        return $spec;
     }
 );
 
