@@ -10,11 +10,13 @@ use CultureFeed_Uitpas;
 use CultureFeed_Uitpas_DistributionKey;
 use CultureFeed_Uitpas_Event_CultureEvent;
 use Exception;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
-class RemotelySyncUiTPASCommandHandler extends CommandHandler
+class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerAwareInterface
 {
-    const UPDATE = 'update';
-    const REGISTER = 'register';
+    use LoggerAwareTrait;
 
     /**
      * @var CultureFeed_Uitpas
@@ -24,6 +26,7 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler
     public function __construct(CultureFeed_Uitpas $culturefeedClient)
     {
         $this->culturefeedClient = $culturefeedClient;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -69,20 +72,46 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler
         CultureFeed_Uitpas_Event_CultureEvent $event,
         array $strategies
     ) {
-        $lastException = null;
+        /** @var Exception[] $exceptions */
+        $exceptions = [];
+        $succeeded = false;
 
         foreach ($strategies as $strategy) {
             try {
                 call_user_func(
-                    array($this->culturefeedClient, $strategy)
+                    array($this->culturefeedClient, $strategy),
+                    $event
                 );
+
+                $succeeded = true;
+                break;
             } catch (Exception $e) {
-                $lastException = $e;
+                $exceptions[] = $e;
             }
         }
 
-        if ($lastException) {
-            throw $lastException;
+        if (!$succeeded) {
+            $this->logger->error(
+                'Unable to synchronise uitpas event data',
+                [
+                    'cdbid' => $event->cdbid,
+                ]
+            );
+            foreach ($exceptions as $exception) {
+                $this->logger->error(
+                    $exception->getMessage(),
+                    [
+                        'exception' => $exception,
+                    ]
+                );
+            }
+        } else {
+            $this->logger->info(
+                'Succesfully synchronised uitpas event data',
+                [
+                    'cdbid' => $event->cdbid
+                ]
+            );
         }
     }
 

@@ -374,7 +374,7 @@ $app['culturefeed_uitpas_client'] = $app->share(
 
 $app['uitpas_sync_command_handler'] = $app->share(
     function (Application $app) {
-        new RemotelySyncUiTPASCommandHandler(
+        return new RemotelySyncUiTPASCommandHandler(
             $app['culturefeed_uitpas_client']
         );
     }
