@@ -12,6 +12,7 @@ use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\SimpleEventBus;
+use CultuurNet\UDB3\UiTPASService\Command\RemotelySyncUiTPASCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
 use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregateRepository;
@@ -350,9 +351,32 @@ $app->extend(
     'uitpas_command_bus_out',
     function (CommandBusInterface $commandBus, Application $app) {
         // @todo Subscribe command handlers here.
-        //$commandBus->subscribe($app[LabelServiceProvider::COMMAND_HANDLER]);
+
+        $commandBus->subscribe($app['uitpas_sync_command_handler']);
 
         return $commandBus;
+    }
+);
+
+$app['culturefeed_uitpas_client'] = $app->share(
+    function (Application $app) {
+        $oauthClient = new CultureFeed_DefaultOAuthClient(
+            $app['config']['uitid']['consumer']['key'],
+            $app['config']['uitid']['consumer']['secret']
+        );
+
+        $oauthClient->setEndpoint($app['config']['uitid']['base_url']);
+
+        $cf = new CultureFeed($oauthClient);
+        return $cf->uitpas();
+    }
+);
+
+$app['uitpas_sync_command_handler'] = $app->share(
+    function (Application $app) {
+        new RemotelySyncUiTPASCommandHandler(
+            $app['culturefeed_uitpas_client']
+        );
     }
 );
 
