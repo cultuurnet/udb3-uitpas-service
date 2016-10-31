@@ -44,7 +44,9 @@
     },
     "config": {
         "platform": {
-            "ext-redis": "2.2.7.0"
+            "php": "5.5.9",
+            "ext-redis": "2.2.7.0",
+            "ext-mongo": "1.6.14"
         }
     }
 }
