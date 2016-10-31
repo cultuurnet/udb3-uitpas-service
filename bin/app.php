@@ -2,6 +2,8 @@
 <?php
 
 use Knp\Provider\ConsoleServiceProvider;
+use CultuurNet\SilexAMQP\Console\ConsumeCommand;
+use CultuurNet\UDB3\UiTPASService\Console\InstallCommand;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -19,5 +21,12 @@ $app->register(
 
 /** @var \Knp\Console\Application $consoleApp */
 $consoleApp = $app['console'];
+
+$consoleApp->add(
+    (new ConsumeCommand('consume-udb3-core', 'amqp.udb3-core'))
+        ->withHeartBeat('dbal_connection:keepalive')
+        ->setDescription('Process messages from UDB3 core')
+);
+$consoleApp->add(new InstallCommand());
 
 $consoleApp->run();
