@@ -1,2 +1,8 @@
 debug: false
 bootstrap: []
+log.command_bus:
+  - type: file
+    path: ../log/command_bus.log
+    level: DEBUG
+  - type: socketioemitter
+    level: INFO

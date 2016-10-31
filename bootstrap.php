@@ -1,13 +1,21 @@
 <?php
 
+use Broadway\CommandHandling\CommandBusInterface;
+use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventStore\DBALEventStore;
+use Broadway\Saga\MultipleSagaManager;
+use Broadway\Saga\State\MongoDBRepository;
 use Broadway\Serializer\SimpleInterfaceSerializer;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
+use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregateRepository;
+use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
 use Silex\Application;
@@ -184,6 +192,31 @@ $app['event_bus.udb3-core'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
 
+        $bus->beforeFirstPublication(function (EventBusInterface $eventBus) use ($app) {
+            $subscribers = [
+                'saga_manager',
+            ];
+
+            // Allow to override event bus subscribers through configuration.
+            if (isset($app['config']['event_bus']) &&
+                isset($app['config']['event_bus']['subscribers'])) {
+
+                $subscribers = $app['config']['event_bus']['subscribers'];
+            }
+
+            foreach ($subscribers as $subscriberServiceId) {
+                $eventBus->subscribe($app[$subscriberServiceId]);
+            }
+        });
+
+        return $bus;
+    }
+);
+
+$app['event_bus.uitpas'] = $app->share(
+    function (Application $app) {
+        $bus =  new SimpleEventBus();
+
         $bus->beforeFirstPublication(function (EventBusInterface $eventBus) {
             $subscribers = [];
 
@@ -203,6 +236,156 @@ $app['event_bus.udb3-core'] = $app->share(
     }
 );
 
+$app['saga_repository'] = $app->share(
+    function (Application $app) {
+        return new MongoDBRepository(
+            $app['mongodb_sagas_collection']
+        );
+    }
+);
+
+$app->register(new \CultuurNet\UDB3\UiTPASService\Resque\CommandBusServiceProvider());
+
+$app['execution_context_metadata_enricher'] = $app->share(
+    function (Application $app) {
+        return new ExecutionContextMetadataEnricher();
+    }
+);
+
+$app['command_bus_event_dispatcher'] = $app->share(
+    function ($app) {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(
+            \CultuurNet\UDB3\CommandHandling\ResqueCommandBus::EVENT_COMMAND_CONTEXT_SET,
+            function ($context) use ($app) {
+                $app['execution_context_metadata_enricher']->setContext(
+                    $context
+                );
+            }
+        );
+
+        return $dispatcher;
+    }
+);
+
+$app['logger.command_bus'] = $app->share(
+    function ($app) {
+        $logger = new \Monolog\Logger('command_bus');
+
+        $handlers = $app['config']['log.command_bus'];
+        foreach ($handlers as $handler_config) {
+            switch ($handler_config['type']) {
+                case 'hipchat':
+                    $handler = new \Monolog\Handler\HipChatHandler(
+                        $handler_config['token'],
+                        $handler_config['room']
+                    );
+                    break;
+                case 'file':
+                    $handler = new \Monolog\Handler\StreamHandler(
+                        __DIR__ . '/web/' . $handler_config['path']
+                    );
+                    break;
+                case 'socketioemitter':
+                    $redisConfig = isset($handler_config['redis']) ? $handler_config['redis'] : array();
+                    $redisConfig += array(
+                        'host' => '127.0.0.1',
+                        'port' => 6379,
+                    );
+                    if (extension_loaded('redis')) {
+                        $redis = new \Redis();
+                        $redis->connect(
+                            $redisConfig['host'],
+                            $redisConfig['port']
+                        );
+                    } else {
+                        $redis = new Predis\Client(
+                            [
+                                'host' => $redisConfig['host'],
+                                'port' => $redisConfig['port']
+                            ]
+                        );
+                        $redis->connect();
+                    }
+
+                    $emitter = new \SocketIO\Emitter($redis);
+
+                    if (isset($handler_config['namespace'])) {
+                        $emitter->of($handler_config['namespace']);
+                    }
+
+                    if (isset($handler_config['room'])) {
+                        $emitter->in($handler_config['room']);
+                    }
+
+                    $handler = new \CultuurNet\UDB3\Monolog\SocketIOEmitterHandler(
+                        $emitter
+                    );
+                    break;
+                default:
+                    continue 2;
+            }
+
+            $handler->setLevel($handler_config['level']);
+            $handler->pushProcessor(
+                new \Monolog\Processor\PsrLogMessageProcessor()
+            );
+
+            $logger->pushHandler($handler);
+        }
+
+        return $logger;
+    }
+);
+
+/**
+ * "uitpas" command bus.
+ */
+$app['resque_command_bus_factory']('uitpas');
+
+/**
+ * Tie command handlers to event command bus.
+ */
+$app->extend(
+    'uitpas_command_bus_out',
+    function (CommandBusInterface $commandBus, Application $app) {
+        // @todo Subscribe command handlers here.
+        //$commandBus->subscribe($app[LabelServiceProvider::COMMAND_HANDLER]);
+
+        return $commandBus;
+    }
+);
+
+$app['saga_manager'] = $app->share(
+    function (Application $app) {
+        return new MultipleSagaManager(
+            $app['saga_repository'],
+            [
+                'uitpas_sync' => $app['uitpas_event_saga'],
+            ],
+            new \Broadway\Saga\State\StateManager(
+                $app['saga_repository'],
+                new Broadway\UuidGenerator\Rfc4122\Version4Generator()
+            ),
+            new \Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory(),
+            new EventDispatcher()
+        );
+    }
+);
+
+$app['uitpas_event_saga'] = $app->share(
+    function (Application $app) {
+        $uitpasLabels = (array) $app['config']['labels'];
+
+        return new UiTPASEventSaga(
+            $app['uitpas_command_bus'],
+            new IsUiTPASOrganizerAccordingToJSONLD(
+                array_values($uitpasLabels)
+            )
+        );
+    }
+);
+
 $app['event_store'] = $app->share(
     function ($app) {
         return new DBALEventStore(
@@ -210,6 +393,15 @@ $app['event_store'] = $app->share(
             new SimpleInterfaceSerializer(),
             new SimpleInterfaceSerializer(),
             'events'
+        );
+    }
+);
+
+$app['uitpas_repository'] = $app->share(
+    function (Application $app) {
+        return new UiTPASAggregateRepository(
+            $app['event_store'],
+            $app['event_bus.uitpas']
         );
     }
 );
