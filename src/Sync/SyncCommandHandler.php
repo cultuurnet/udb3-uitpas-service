@@ -81,7 +81,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
 
         $event->postPriceValues[] = $prices->getBasePrice()->getPrice(
         )->toFloat();
-        $event->postPriceNames[] = 'Basisprijs';
+        $event->postPriceNames[] = 'Basistarief';
 
         foreach ($prices->getTariffs() as $tariff) {
             $event->postPriceNames[] = $tariff->getName()->toNative();
