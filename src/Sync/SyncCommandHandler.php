@@ -3,18 +3,21 @@
  * @file
  */
 
-namespace CultuurNet\UDB3\UiTPASService\Command;
+namespace CultuurNet\UDB3\UiTPASService\Sync;
 
 use Broadway\CommandHandling\CommandHandler;
 use CultureFeed_Uitpas;
 use CultureFeed_Uitpas_DistributionKey;
 use CultureFeed_Uitpas_Event_CultureEvent;
+use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Sync\Command\SyncUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
 use Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 
-class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerAwareInterface
+class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
@@ -30,31 +33,31 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerA
     }
 
     /**
-     * @param RemotelyRegisterUiTPASEvent $command
+     * @param RegisterUiTPASEvent $command
      */
     protected function handleRemotelyRegisterUiTPASEvent(
-        RemotelyRegisterUiTPASEvent $command
+        RegisterUiTPASEvent $command
     ) {
         $event = $this->buildEvent($command);
         $this->syncEvent($event, ['registerEvent', 'updateEvent']);
     }
 
     /**
-     * @param RemotelyUpdateUiTPASEvent $command
+     * @param UpdateUiTPASEvent $command
      */
     protected function handleRemotelyUpdateUiTPASEvent(
-        RemotelyUpdateUiTPASEvent $command
+        UpdateUiTPASEvent $command
     ) {
         $event = $this->buildEvent($command);
         $this->syncEvent($event, ['updateEvent', 'registerEvent']);
     }
 
     /**
-     * @var RemotelySyncUiTPASEvent $command
+     * @var SyncUiTPASEvent $command
      *
      * @return CultureFeed_Uitpas_Event_CultureEvent
      */
-    private function buildEvent(RemotelySyncUiTPASEvent $command)
+    private function buildEvent(SyncUiTPASEvent $command)
     {
         $event = new CultureFeed_Uitpas_Event_CultureEvent();
         $event->cdbid = $command->getEventId();

@@ -13,10 +13,10 @@ use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
-use CultuurNet\UDB3\UiTPASService\Command\RemotelySyncUiTPASCommandHandler;
+use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
 use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregateRepository;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateRepository;
 use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
@@ -376,7 +376,7 @@ $app['culturefeed_uitpas_client'] = $app->share(
 
 $app['uitpas_sync_command_handler'] = $app->share(
     function (Application $app) {
-        return new RemotelySyncUiTPASCommandHandler(
+        return new SyncCommandHandler(
             $app['culturefeed_uitpas_client']
         );
     }

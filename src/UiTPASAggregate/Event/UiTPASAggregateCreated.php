@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService\Event;
+namespace CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event;
 
 class UiTPASAggregateCreated extends AbstractUiTPASAggregateEvent
 {

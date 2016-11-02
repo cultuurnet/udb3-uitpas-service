@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService;
+namespace CultuurNet\UDB3\UiTPASService\UiTPASAggregate;
 
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventSourcing\AggregateFactory\PublicConstructorAggregateFactory;

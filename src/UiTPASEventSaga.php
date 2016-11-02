@@ -13,14 +13,14 @@ use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
-use CultuurNet\UDB3\UiTPASService\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\Command\CreateUiTPASAggregate;
-use CultuurNet\UDB3\UiTPASService\Command\RemotelyRegisterUiTPASEvent;
-use CultuurNet\UDB3\UiTPASService\Command\RemotelyUpdateUiTPASEvent;
-use CultuurNet\UDB3\UiTPASService\Event\AbstractUiTPASAggregateEvent;
-use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
-use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
-use CultuurNet\UDB3\UiTPASService\Event\UiTPASAggregateCreated;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
+use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\AbstractUiTPASAggregateEvent;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 
 class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
@@ -207,14 +207,14 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
                 new CreateUiTPASAggregate($aggregateId, $distributionKeyIds)
             );
 
-            $syncCommand = new RemotelyRegisterUiTPASEvent(
+            $syncCommand = new RegisterUiTPASEvent(
                 $aggregateId,
                 $organizerId,
                 $priceInfo,
                 $distributionKeyIds
             );
         } else {
-            $syncCommand = new RemotelyUpdateUiTPASEvent(
+            $syncCommand = new UpdateUiTPASEvent(
                 $aggregateId,
                 $organizerId,
                 $priceInfo,

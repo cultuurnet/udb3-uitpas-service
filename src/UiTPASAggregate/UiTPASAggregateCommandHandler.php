@@ -1,12 +1,12 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService;
+namespace CultuurNet\UDB3\UiTPASService\UiTPASAggregate;
 
 use Broadway\CommandHandling\CommandHandlerInterface;
 use Broadway\Repository\RepositoryInterface;
-use CultuurNet\UDB3\UiTPASService\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\Command\CreateUiTPASAggregate;
-use CultuurNet\UDB3\UiTPASService\Command\UpdateDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
 
 class UiTPASAggregateCommandHandler implements CommandHandlerInterface
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService;
+namespace CultuurNet\UDB3\UiTPASService\UiTPASAggregate;
 
 use Broadway\EventSourcing\EventSourcedAggregateRoot;
-use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
-use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
-use CultuurNet\UDB3\UiTPASService\Event\UiTPASAggregateCreated;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 
 class UiTPASAggregate extends EventSourcedAggregateRoot
 {

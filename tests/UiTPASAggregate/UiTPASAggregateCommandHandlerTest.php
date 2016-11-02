@@ -1,17 +1,17 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService;
+namespace CultuurNet\UDB3\UiTPASService\UiTPASAggregate;
 
 use Broadway\CommandHandling\CommandHandlerInterface;
 use Broadway\CommandHandling\Testing\CommandHandlerScenarioTestCase;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventStore\EventStoreInterface;
-use CultuurNet\UDB3\UiTPASService\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\Command\CreateUiTPASAggregate;
-use CultuurNet\UDB3\UiTPASService\Command\UpdateDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysCleared;
-use CultuurNet\UDB3\UiTPASService\Event\DistributionKeysUpdated;
-use CultuurNet\UDB3\UiTPASService\Event\UiTPASAggregateCreated;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 
 class UiTPASAggregateCommandHandlerTest extends CommandHandlerScenarioTestCase
 {

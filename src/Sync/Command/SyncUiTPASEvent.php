@@ -1,10 +1,10 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService\Command;
+namespace CultuurNet\UDB3\UiTPASService\Sync\Command;
 
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 
-abstract class RemotelySyncUiTPASEvent
+abstract class SyncUiTPASEvent
 {
     /**
      * @var string
