@@ -2,6 +2,8 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Specification;
 
+use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -11,18 +13,18 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
     use LoggerAwareTrait;
 
     /**
-     * @var string[]
-     */
-    protected $uitpasLabels;
-
-    /**
      * @var string
      */
     protected $url;
 
     /**
+     * @var LabelCollection
+     */
+    protected $uitpasLabels;
+
+    /**
      * @param string $url
-     * @param string[] $uitpasLabels
+     * @param LabelCollection $uitpasLabels
      */
     public function __construct($url, $uitpasLabels)
     {
@@ -78,23 +80,18 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
 
         $organizerLabels = isset($organizer->labels) ? $organizer->labels : [];
 
-        $lowercaseUitpasLabels = array_map('strtolower', $this->uitpasLabels);
-        $uitpasLabelsPresentOnOrganizer = array_values(
-            array_filter(
-                $organizerLabels,
-                function ($label) use ($lowercaseUitpasLabels) {
-                    return in_array(
-                        strtolower($label->name),
-                        $lowercaseUitpasLabels
-                    );
-                }
-            )
+        $uitpasLabelsPresentOnOrganizer = array_filter(
+            $organizerLabels,
+            function ($label) {
+                $label = new Label($label->name);
+                return $this->uitpasLabels->contains($label);
+            }
         );
 
         $labelLogContext = $logContext + [
-            'uitpas_labels' => $this->uitpasLabels,
+            'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => $organizerLabels,
-            'organizer_uitpas_labels' => $uitpasLabelsPresentOnOrganizer,
+            'organizer_uitpas_labels' => array_values($uitpasLabelsPresentOnOrganizer),
         ];
 
         if (empty($uitpasLabelsPresentOnOrganizer)) {

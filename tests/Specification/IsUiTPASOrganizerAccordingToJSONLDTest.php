@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Specification;
 
+use CultuurNet\UDB3\LabelCollection;
 use Psr\Log\LoggerInterface;
 
 class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
@@ -12,7 +13,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
     private $organizerUrl;
 
     /**
-     * @var string[]
+     * @var LabelCollection
      */
     private $uitpasLabels;
 
@@ -64,7 +65,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->organizerUrl = __DIR__ . '/samples/';
-        $this->uitpasLabels = ['UiTPAS'];
+        $this->uitpasLabels = LabelCollection::fromStrings(['UiTPAS']);
         $this->logger = $this->getMock(LoggerInterface::class);
 
         $this->specification = new IsUiTPASOrganizerAccordingToJSONLD(
@@ -127,7 +128,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
-            'uitpas_labels' => $this->uitpasLabels,
+            'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [
                 (object) [
                     'uuid' => '71945e50-2158-4922-94d2-fd1da6286b51',
@@ -172,7 +173,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
-            'uitpas_labels' => $this->uitpasLabels,
+            'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [
                 (object) [
                     'uuid' => '71945e50-2158-4922-94d2-fd1da6286b51',
@@ -217,7 +218,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
-            'uitpas_labels' => $this->uitpasLabels,
+            'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [
                 (object) [
                     'uuid' => '71945e50-2158-4922-94d2-fd1da6286b51',
@@ -253,7 +254,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
-            'uitpas_labels' => $this->uitpasLabels,
+            'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [],
             'organizer_uitpas_labels' => [],
         ];

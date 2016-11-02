@@ -11,6 +11,7 @@ use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\Command\RemotelySyncUiTPASCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
@@ -96,7 +97,7 @@ $app['database.installer'] = $app->share(
             $app['dbal_connection'],
             $app['database.migrations.configuration']
         );
-        
+
         $installer->addSchemaConfigurator(
             new EventStoreSchemaConfigurator(
                 $app['event_store']
@@ -413,7 +414,7 @@ $app['uitpas_organizer_spec'] = $app->share(
 
         $spec = new IsUiTPASOrganizerAccordingToJSONLD(
             $app['config']['udb3_organizer_base_url'],
-            array_values($uitpasLabels)
+            LabelCollection::fromStrings(array_values($uitpasLabels))
         );
 
         $logger = new Logger('uitpas_organizer_spec');
