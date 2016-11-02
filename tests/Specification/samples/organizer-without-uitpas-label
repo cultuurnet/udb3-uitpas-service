@@ -1,0 +1,13 @@
+{
+    "@id": "http://example.com/organizers/dba1c53d-582c-4081-a78c-b4848f9e3653",
+    "labels": [
+        {
+            "uuid": "71945e50-2158-4922-94d2-fd1da6286b51",
+            "name": "foo"
+        },
+        {
+            "uuid": "9fac1824-8c65-4d0e-845f-9bef03fa05a1",
+            "name": "bar"
+        }
+    ]
+}
