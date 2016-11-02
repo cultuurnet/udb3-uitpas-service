@@ -238,7 +238,7 @@ class SyncCommandHandlerTest extends \PHPUnit_Framework_TestCase
             $this->eventId,
             [
                 $registrationException,
-                $updateException
+                $updateException,
             ]
         );
     }
