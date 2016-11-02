@@ -68,7 +68,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public static function configuration()
     {
-        $initialEventCallback = function() {
+        $initialEventCallback = function () {
             return null;
         };
 
