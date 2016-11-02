@@ -30,6 +30,26 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerA
     }
 
     /**
+     * @param RemotelyRegisterUiTPASEvent $command
+     */
+    protected function handleRemotelyRegisterUiTPASEvent(
+        RemotelyRegisterUiTPASEvent $command
+    ) {
+        $event = $this->buildEvent($command);
+        $this->syncEvent($event, ['registerEvent', 'updateEvent']);
+    }
+
+    /**
+     * @param RemotelyUpdateUiTPASEvent $command
+     */
+    protected function handleRemotelyUpdateUiTPASEvent(
+        RemotelyUpdateUiTPASEvent $command
+    ) {
+        $event = $this->buildEvent($command);
+        $this->syncEvent($event, ['updateEvent', 'registerEvent']);
+    }
+
+    /**
      * @var RemotelySyncUiTPASEvent $command
      *
      * @return CultureFeed_Uitpas_Event_CultureEvent
@@ -68,6 +88,10 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerA
         return $event;
     }
 
+    /**
+     * @param CultureFeed_Uitpas_Event_CultureEvent $event
+     * @param array $strategies
+     */
     private function syncEvent(
         CultureFeed_Uitpas_Event_CultureEvent $event,
         array $strategies
@@ -113,19 +137,5 @@ class RemotelySyncUiTPASCommandHandler extends CommandHandler implements LoggerA
                 ]
             );
         }
-    }
-
-    protected function handleRemotelyRegisterUiTPASEvent(
-        RemotelyRegisterUiTPASEvent $command
-    ) {
-        $event = $this->buildEvent($command);
-        $this->syncEvent($event, ['registerEvent', 'updateEvent']);
-    }
-
-    protected function handleRemotelyUpdateUiTPASEvent(
-        RemotelyUpdateUiTPASEvent $command
-    ) {
-        $event = $this->buildEvent($command);
-        $this->syncEvent($event, ['updateEvent', 'registerEvent']);
     }
 }
