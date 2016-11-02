@@ -7,11 +7,18 @@ use Broadway\Saga\Metadata\StaticallyConfiguredSagaInterface;
 use Broadway\Saga\Saga;
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
+use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
+use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Event\Events\EventCreated;
+use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
+use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\PriceInfo\BasePrice;
+use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
@@ -22,6 +29,7 @@ use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
+use ValueObjects\Money\Currency;
 
 class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
 {
@@ -36,15 +44,23 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     private $organizerSpecification;
 
     /**
+     * @var EventCdbIdExtractorInterface
+     */
+    private $eventCdbIdExtractor;
+
+    /**
      * @param CommandBusInterface $commandBus
      * @param OrganizerSpecificationInterface $organizerSpecification
+     * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      */
     public function __construct(
         CommandBusInterface $commandBus,
-        OrganizerSpecificationInterface $organizerSpecification
+        OrganizerSpecificationInterface $organizerSpecification,
+        EventCdbIdExtractorInterface $eventCdbIdExtractor
     ) {
         $this->commandBus = $commandBus;
         $this->organizerSpecification = $organizerSpecification;
+        $this->eventCdbIdExtractor = $eventCdbIdExtractor;
     }
 
     /**
@@ -52,6 +68,10 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public static function configuration()
     {
+        $initialEventCallback = function() {
+            return null;
+        };
+
         $offerEventCallback = function (AbstractEvent $event) {
             return new Criteria(
                 ['uitpasAggregateId' => $event->getItemId()]
@@ -64,13 +84,19 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             );
         };
 
+        $cdbXmlEventCallback = function ($event) {
+            /* @var EventUpdatedFromUDB2|EventUpdatedFromCdbXml $event */
+            return new Criteria(
+                ['uitpasAggregateId' => (string) $event->getEventId()]
+            );
+        };
+
         return [
-            'EventCreated' => function (EventCreated $eventCreated) {
-                return null;
-            },
-            'EventImportedFromUDB2' => function (EventImportedFromUDB2 $eventImported) {
-                return null;
-            },
+            'EventCreated' => $initialEventCallback,
+            'EventImportedFromUDB2' => $initialEventCallback,
+            'EventCreatedFromCdbXml' => $initialEventCallback,
+            'EventUpdatedFromUDB2' => $cdbXmlEventCallback,
+            'EventUpdatedFromCdbXml' => $cdbXmlEventCallback,
             'OrganizerUpdated' => $offerEventCallback,
             'PriceInfoUpdated' => $offerEventCallback,
             'UiTPASAggregateCreated' => $uitpasAggregateEventCallback,
@@ -100,6 +126,72 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     {
         $state->set('uitpasAggregateId', $eventImportedFromUDB2->getEventId());
         $state->set('syncCount', 0);
+
+        $state = $this->updateStateFromCdbXml(
+            $state,
+            $eventImportedFromUDB2->getCdbXml(),
+            $eventImportedFromUDB2->getCdbXmlNamespaceUri()
+        );
+
+        $this->triggerSyncWhenConditionsAreMet($state);
+
+        return $state;
+    }
+
+    /**
+     * @param EventCreatedFromCdbXml $eventCreatedFromCdbXml
+     * @param State $state
+     * @return State
+     */
+    public function handleEventCreatedFromCdbXml(EventCreatedFromCdbXml $eventCreatedFromCdbXml, State $state)
+    {
+        $state->set('uitpasAggregateId', $eventCreatedFromCdbXml->getEventId());
+        $state->set('syncCount', 0);
+
+        $state = $this->updateStateFromCdbXml(
+            $state,
+            (string) $eventCreatedFromCdbXml->getEventXmlString(),
+            (string) $eventCreatedFromCdbXml->getCdbXmlNamespaceUri()
+        );
+
+        $this->triggerSyncWhenConditionsAreMet($state);
+
+        return $state;
+    }
+
+    /**
+     * @param EventUpdatedFromUDB2 $eventUpdatedFromUDB2
+     * @param State $state
+     * @return State
+     */
+    public function handleEventUpdatedFromUDB2(EventUpdatedFromUDB2 $eventUpdatedFromUDB2, State $state)
+    {
+        $state = $this->updateStateFromCdbXml(
+            $state,
+            $eventUpdatedFromUDB2->getCdbXml(),
+            $eventUpdatedFromUDB2->getCdbXmlNamespaceUri()
+        );
+
+        $this->triggerSyncWhenConditionsAreMet($state);
+
+        return $state;
+    }
+
+    /**
+     * @param EventUpdatedFromCdbXml $eventUpdatedFromCdbXml
+     * @param State $state
+     * @return State
+     */
+    public function handleEventUpdatedFromCdbXml(EventUpdatedFromCdbXml $eventUpdatedFromCdbXml, State $state)
+    {
+        $state = $this->updateStateFromCdbXml(
+            $state,
+            (string) $eventUpdatedFromCdbXml->getEventXmlString(),
+            (string) $eventUpdatedFromCdbXml->getCdbXmlNamespaceUri()
+        );
+
+        $this->triggerSyncWhenConditionsAreMet($state);
+
         return $state;
     }
 
@@ -179,6 +271,52 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     {
         $state->set('distributionKeyIds', []);
         $state = $this->triggerSyncWhenConditionsAreMet($state);
+        return $state;
+    }
+
+    /**
+     * @param State $state
+     * @param string $cdbxml
+     * @param string $cdbxmlNamespaceUri
+     * @return State
+     */
+    private function updateStateFromCdbXml(State $state, $cdbxml, $cdbxmlNamespaceUri)
+    {
+        try {
+            $event = EventItemFactory::createEventFromCdbXml($cdbxmlNamespaceUri, $cdbxml);
+        } catch (\CultureFeed_Cdb_ParseException $e) {
+            return $state;
+        }
+
+        $organizerCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
+
+        if (!is_null($organizerCdbId)) {
+            $uitpasOrganizer = $this->organizerSpecification->isSatisfiedBy($organizerCdbId);
+
+            $state->set('organizerId', $organizerCdbId);
+            $state->set('uitpasOrganizer', $uitpasOrganizer);
+        }
+
+        $eventDetailsList = $event->getDetails();
+
+        $details = $eventDetailsList->getDetailByLanguage('nl');
+        if (empty($details) && !empty($eventDetailsList)) {
+            $details = $eventDetailsList[0];
+        }
+
+        if (!empty($details)) {
+            $price = $details->getPrice()->getValue();
+
+            $priceInfo = new PriceInfo(
+                new BasePrice(
+                    Price::fromFloat((float) $price),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+            $state->set('priceInfo', $priceInfo->serialize());
+        }
+
         return $state;
     }
 
