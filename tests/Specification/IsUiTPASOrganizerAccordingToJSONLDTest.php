@@ -92,7 +92,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
                 function ($message, array $context) {
                     $this->logs['error'][] = [
                         'message' => $message,
-                        'context' => $context
+                        'context' => $context,
                     ];
                 }
             );
@@ -103,7 +103,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
                 function ($message, array $context) {
                     $this->logs['debug'][] = [
                         'message' => $message,
-                        'context' => $context
+                        'context' => $context,
                     ];
                 }
             );
@@ -123,7 +123,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLogContext = $this->createDefaultLogContext($this->organizerWithExactUiTPASLabel);
 
         $expectedJsonLogContext = $expectedLogContext + [
-            'json' => file_get_contents($expectedLogContext['url'])
+            'json' => file_get_contents($expectedLogContext['url']),
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
@@ -168,7 +168,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLogContext = $this->createDefaultLogContext($this->organizerWithLowercaseUiTPASLabel);
 
         $expectedJsonLogContext = $expectedLogContext + [
-            'json' => file_get_contents($expectedLogContext['url'])
+            'json' => file_get_contents($expectedLogContext['url']),
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
@@ -213,7 +213,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLogContext = $this->createDefaultLogContext($this->organizerWithoutUiTPASLabel);
 
         $expectedJsonLogContext = $expectedLogContext + [
-            'json' => file_get_contents($expectedLogContext['url'])
+            'json' => file_get_contents($expectedLogContext['url']),
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
@@ -249,7 +249,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLogContext = $this->createDefaultLogContext($this->organizerWithoutLabels);
 
         $expectedJsonLogContext = $expectedLogContext + [
-            'json' => file_get_contents($expectedLogContext['url'])
+            'json' => file_get_contents($expectedLogContext['url']),
         ];
 
         $expectedLabelLogContext = $expectedLogContext + [
