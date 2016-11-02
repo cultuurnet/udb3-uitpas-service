@@ -35,7 +35,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
     /**
      * @param RegisterUiTPASEvent $command
      */
-    protected function handleRemotelyRegisterUiTPASEvent(
+    protected function handleRegisterUiTPASEvent(
         RegisterUiTPASEvent $command
     ) {
         $event = $this->buildEvent($command);
@@ -45,7 +45,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
     /**
      * @param UpdateUiTPASEvent $command
      */
-    protected function handleRemotelyUpdateUiTPASEvent(
+    protected function handleUpdateUiTPASEvent(
         UpdateUiTPASEvent $command
     ) {
         $event = $this->buildEvent($command);
@@ -61,7 +61,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
     {
         $event = new CultureFeed_Uitpas_Event_CultureEvent();
         $event->cdbid = $command->getEventId();
-        $event->organiserId = $command->getOrganizerId();
+        $event->actorId = $command->getOrganizerId();
 
         $event->postPriceNames = [];
         $event->postPriceValues = [];
@@ -79,8 +79,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
 
         $prices = $command->getPriceInfo();
 
-        $event->postPriceValues[] = $prices->getBasePrice()->getPrice(
-        )->toFloat();
+        $event->postPriceValues[] = $prices->getBasePrice()->getPrice()->toFloat();
         $event->postPriceNames[] = 'Basistarief';
 
         foreach ($prices->getTariffs() as $tariff) {
