@@ -10,6 +10,8 @@ use Broadway\Serializer\SimpleInterfaceSerializer;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
@@ -22,6 +24,7 @@ use DerAlex\Silex\YamlConfigServiceProvider;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Silex\Application;
+use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
 
@@ -403,7 +406,8 @@ $app['uitpas_event_saga'] = $app->share(
     function (Application $app) {
         return new UiTPASEventSaga(
             $app['uitpas_command_bus'],
-            $app['uitpas_organizer_spec']
+            $app['uitpas_organizer_spec'],
+            $app['event_cdbid_extractor']
         );
     }
 );
@@ -433,6 +437,46 @@ $app['uitpas_organizer_spec'] = $app->share(
         $spec->setLogger($logger);
 
         return $spec;
+    }
+);
+
+$app['event_cdbid_extractor'] = $app->share(
+    function (Application $app) {
+        return new EventCdbIdExtractor(
+            $app['place_external_id_mapping_service'],
+            $app['organizer_external_id_mapping_service']
+        );
+    }
+);
+
+$app['place_external_id_mapping_service'] = $app->share(
+    function (Application $app) use ($appConfigLocation) {
+        $yamlFileLocation = $appConfigLocation . '/external_id_mapping_place.yml';
+        return $app['udb2_external_id_mapping_service_factory']($yamlFileLocation);
+    }
+);
+
+$app['organizer_external_id_mapping_service'] = $app->share(
+    function (Application $app) use ($appConfigLocation) {
+        $yamlFileLocation = $appConfigLocation . '/external_id_mapping_organizer.yml';
+        return $app['udb2_external_id_mapping_service_factory']($yamlFileLocation);
+    }
+);
+
+$app['udb2_external_id_mapping_service_factory'] = $app->protect(
+    function ($yamlFileLocation) {
+        $map = [];
+
+        if (file_exists($yamlFileLocation)) {
+            $yaml = file_get_contents($yamlFileLocation);
+            $yaml = Yaml::parse($yaml);
+
+            if (is_array($yaml)) {
+                $map = $yaml;
+            }
+        }
+
+        return new ArrayMappingService($map);
     }
 );
 
