@@ -125,7 +125,7 @@ class SyncCommandHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->cultureEvent = new \CultureFeed_Uitpas_Event_CultureEvent();
         $this->cultureEvent->cdbid = $this->eventId;
-        $this->cultureEvent->actorId = $this->organizerId;
+        $this->cultureEvent->organiserId = $this->organizerId;
         $this->cultureEvent->postPriceNames = ['Basistarief', 'Test tariff'];
         $this->cultureEvent->postPriceValues = [5.5, 3.2];
         $this->cultureEvent->distributionKey = [

@@ -61,7 +61,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
     {
         $event = new CultureFeed_Uitpas_Event_CultureEvent();
         $event->cdbid = $command->getEventId();
-        $event->actorId = $command->getOrganizerId();
+        $event->organiserId = $command->getOrganizerId();
 
         $event->postPriceNames = [];
         $event->postPriceValues = [];
