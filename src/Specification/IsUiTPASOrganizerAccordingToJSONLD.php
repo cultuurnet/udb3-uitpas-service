@@ -26,8 +26,8 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
      */
     public function __construct($url, $uitpasLabels)
     {
-        $this->uitpasLabels = $uitpasLabels;
         $this->url = $url;
+        $this->uitpasLabels = $uitpasLabels;
         $this->logger = new NullLogger();
     }
 
@@ -44,54 +44,65 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
             'url' => $organizerUrl,
         ];
 
-        $data = file_get_contents($organizerUrl);
-        if ($data) {
-            $organizer = json_decode($data);
-        }
-
-        if (!is_object($organizer)) {
+        // Using an HTTP client like Guzzle would be cleaner, but in the long
+        // term we should use SAPI3 or another central repository anyway so
+        // we shouldn't put too much work into the retrieval of the organizer
+        // right now.
+        $data = @file_get_contents($organizerUrl);
+        if (!$data) {
             $this->logger->error(
                 'unable to retrieve organizer JSON-LD',
                 $logContext
             );
 
             return false;
+        }
+
+        $organizer = json_decode($data);
+
+        $jsonLogContext = $logContext + ['json' => $data];
+
+        if (!is_object($organizer)) {
+            $this->logger->error(
+                'unable to decode organizer JSON-LD',
+                $jsonLogContext + ['json_error' => json_last_error_msg()]
+            );
+
+            return false;
         } else {
             $this->logger->debug(
-                'succesfully retrieved organizer JSON-LD',
-                $logContext + array(
-                    'jsonld' => $organizer,
-                )
+                'successfully retrieved organizer JSON-LD',
+                $jsonLogContext
             );
         }
 
-        $organizerLabels = $organizer->labels ?: [];
+        $organizerLabels = isset($organizer->labels) ? $organizer->labels : [];
 
-        $uitpasLabels = $this->uitpasLabels;
-        $uitpasLabelsPresentOnOrganizer = array_filter(
-            $organizerLabels,
-            function ($label) use ($uitpasLabels) {
-                return in_array($label->name, $uitpasLabels);
-            }
+        $lowercaseUitpasLabels = array_map('strtolower', $this->uitpasLabels);
+        $uitpasLabelsPresentOnOrganizer = array_values(
+            array_filter(
+                $organizerLabels,
+                function ($label) use ($lowercaseUitpasLabels) {
+                    return in_array(
+                        strtolower($label->name),
+                        $lowercaseUitpasLabels
+                    );
+                }
+            )
         );
 
-        if (empty($uitpasLabelsPresentOnOrganizer)) {
-            $this->logger->debug(
-                'no uitpas labels present on organizer',
-                $logContext + array(
-                    'organizer_labels' => $organizerLabels,
-                )
-            );
-        } else {
-            $this->logger->debug(
-                'uitpas labels present on organizer',
-                $logContext + array(
-                    'organizer_labels' => $organizerLabels,
-                    'organizer_uitpas_labels' => $uitpasLabelsPresentOnOrganizer,
-                )
-            );
-        }
+        $labelLogContext = $logContext + [
+            'uitpas_labels' => $this->uitpasLabels,
+            'extracted_organizer_labels' => $organizerLabels,
+            'organizer_uitpas_labels' => $uitpasLabelsPresentOnOrganizer,
+        ];
 
-        return !empty($uitpasLabelsPresentOnOrganizer);
+        if (empty($uitpasLabelsPresentOnOrganizer)) {
+            $this->logger->debug('no uitpas labels present on organizer', $labelLogContext);
+            return false;
+        } else {
+            $this->logger->debug('uitpas labels present on organizer', $labelLogContext);
+            return true;
+        }
     }
 }
