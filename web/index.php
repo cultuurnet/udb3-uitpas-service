@@ -72,6 +72,6 @@ $app->get(
     }
 );
 
-$app->mount('/uitpas', new EventControllerProvider());
+$app->mount('/events', new EventControllerProvider());
 
 $app->run();
