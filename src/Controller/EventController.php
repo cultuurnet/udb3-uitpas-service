@@ -8,7 +8,7 @@ use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class DistributionKeysController
+class EventController
 {
     /**
      * @var CommandBusInterface

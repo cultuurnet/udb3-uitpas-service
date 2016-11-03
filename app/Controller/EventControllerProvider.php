@@ -18,17 +18,17 @@ class EventControllerProvider implements ControllerProviderInterface
 
         $controllers->get(
             '/{id}/distributionKeys',
-            'uitpas.distribution_keys_controller' . ':get'
+            'uitpas.event_controller' . ':get'
         );
 
         $controllers->put(
             '/{id}/distributionKeys',
-            'uitpas.distribution_keys_controller' . ':update'
+            'uitpas.event_controller' . ':update'
         );
 
         $controllers->delete(
             '/{id}/distributionKeys',
-            'uitpas.distribution_keys_controller' . ':clear'
+            'uitpas.event_controller' . ':clear'
         );
 
         return $controllers;
