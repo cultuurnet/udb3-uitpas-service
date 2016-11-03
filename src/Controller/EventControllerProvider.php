@@ -6,7 +6,7 @@ use Silex\Application;
 use Silex\ControllerCollection;
 use Silex\ControllerProviderInterface;
 
-class UiTPASControllerProvider implements ControllerProviderInterface
+class EventControllerProvider implements ControllerProviderInterface
 {
     /**
      * @inheritdoc
