@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use ValueObjects\Identity\UUID;
 
-class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
+class EventControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var CommandBusInterface|\PHPUnit_Framework_MockObject_MockObject
@@ -22,9 +22,9 @@ class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
     private $cultureFeedUitpas;
 
     /**
-     * @var DistributionKeysController
+     * @var EventController
      */
-    private $distributionKeysController;
+    private $eventController;
 
     protected function setUp()
     {
@@ -32,7 +32,7 @@ class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->cultureFeedUitpas = $this->getMock(\CultureFeed_Uitpas::class);
 
-        $this->distributionKeysController = new DistributionKeysController(
+        $this->eventController = new EventController(
             $this->commandBus,
             $this->cultureFeedUitpas
         );
@@ -67,7 +67,7 @@ class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
             [$distributionKey1->id, $distributionKey2->id]
         );
 
-        $response = $this->distributionKeysController->get($eventId);
+        $response = $this->eventController->get($eventId);
 
         $this->assertEquals($expectedResponseContent, $response->getContent());
     }
@@ -97,7 +97,7 @@ class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
 
         $expectedResponse = new JsonResponse(['commandId' => $commandId]);
 
-        $response = $this->distributionKeysController->update($request, $eventId);
+        $response = $this->eventController->update($request, $eventId);
 
         $this->assertEquals(
             $expectedResponse->getContent(),
@@ -120,7 +120,7 @@ class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
 
         $expectedResponse = new JsonResponse(['commandId' => $commandId]);
 
-        $response = $this->distributionKeysController->clear($eventId);
+        $response = $this->eventController->clear($eventId);
 
         $this->assertEquals(
             $expectedResponse->getContent(),

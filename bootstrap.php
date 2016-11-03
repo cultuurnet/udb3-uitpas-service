@@ -16,7 +16,7 @@ use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
-use CultuurNet\UDB3\UiTPASService\Controller\DistributionKeysController;
+use CultuurNet\UDB3\UiTPASService\Controller\EventController;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
 use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
@@ -543,9 +543,9 @@ $app['uitpas_repository'] = $app->share(
     }
 );
 
-$app['uitpas.distribution_keys_controller'] = $app->share(
+$app['uitpas.event_controller'] = $app->share(
     function (Application $app) {
-        return new DistributionKeysController(
+        return new EventController(
             $app['uitpas_command_bus_out'],
             $app['culturefeed_uitpas_client']
         );
