@@ -39,11 +39,7 @@ class DistributionKeysController
      */
     public function get($eventId)
     {
-        // TODO: CultureFeed_HttpException?
         $uitpasEvent = $this->cultureFeedUitpas->getEvent($eventId);
-
-        // TODO: Always array or also one string (see header docs)?
-        /** @var \CultureFeed_Uitpas_DistributionKey[] $distributionKeys */
         $distributionKeys = $uitpasEvent->distributionKey;
 
         $distributionKeyIds = [];
@@ -66,7 +62,6 @@ class DistributionKeysController
         // TODO: array provided?
         $distributionKeyIds = json_decode($request->getContent());
 
-        // TODO: valid event id?
         $updateDistributionKeys = new UpdateDistributionKeys(
             $eventId,
             $distributionKeyIds
@@ -85,7 +80,6 @@ class DistributionKeysController
     {
         // TODO: allowed to update the event => UDB3 permission endpoint?
 
-        // TODO: valid event id?
         $clearDistributionKeys = new ClearDistributionKeys($eventId);
 
         $commandId = $this->commandBus->dispatch($clearDistributionKeys);
