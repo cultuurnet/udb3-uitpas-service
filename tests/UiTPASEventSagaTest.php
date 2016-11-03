@@ -376,6 +376,36 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_never_updates_an_uitpas_event_when_it_no_longer_has_an_any_organizer()
+    {
+        $updatedPriceInfo = $this->priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Extra tariff'),
+                    Price::fromFloat(1.5),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                    $this->uitpasAggregateCreated,
+                    new OrganizerDeleted($this->eventId, $this->uitpasOrganizerId),
+                ]
+            )
+            ->when(
+                new PriceInfoUpdated($this->eventId, $updatedPriceInfo)
+            )
+            ->then([]);
+    }
+
+    /**
+     * @test
+     */
     public function it_updates_the_uitpas_event_with_distribution_keys_when_the_uitpas_aggregate_is_created()
     {
         $this->scenario
@@ -641,35 +671,5 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                 ]
             );
-    }
-
-    /**
-     * @test
-     */
-    public function it_does_not_update_uitpas_when_a_previously_valid_uitpas_event_no_longer_has_an_organizer_and_price_info_is_updated()
-    {
-        $updatedPriceInfo = $this->priceInfo
-            ->withExtraTariff(
-                new Tariff(
-                    new StringLiteral('Extra tariff'),
-                    Price::fromFloat(1.5),
-                    Currency::fromNative('EUR')
-                )
-            );
-
-        $this->scenario
-            ->given(
-                [
-                    $this->eventCreated,
-                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
-                    $this->uitpasAggregateCreated,
-                    new OrganizerDeleted($this->eventId, $this->uitpasOrganizerId),
-                ]
-            )
-            ->when(
-                new PriceInfoUpdated($this->eventId, $updatedPriceInfo)
-            )
-            ->then([]);
     }
 }
