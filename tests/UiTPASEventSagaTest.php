@@ -727,4 +727,24 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 ]
             );
     }
+
+    /**
+     * @test
+     */
+    public function it_ignores_cdbxml_and_udb2_events_with_invalid_cdbxml()
+    {
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-without-calendar.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                ]
+            )
+            ->when(new EventUpdatedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then([]);
+    }
 }
