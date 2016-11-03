@@ -202,12 +202,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public function handleOrganizerUpdated(OrganizerUpdated $organizerUpdated, State $state)
     {
-        $state->set('organizerId', $organizerUpdated->getOrganizerId());
-
-        $state->set(
-            'uitpasOrganizer',
-            $this->organizerSpecification->isSatisfiedBy($organizerUpdated->getOrganizerId())
-        );
+        $state = $this->updateOrganizerState($organizerUpdated->getOrganizerId(), $state);
 
         $state = $this->triggerSyncWhenConditionsAreMet($state);
 
@@ -233,7 +228,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public function handlePriceInfoUpdated(PriceInfoUpdated $priceInfoUpdated, State $state)
     {
-        $state->set('priceInfo', $priceInfoUpdated->getPriceInfo()->serialize());
+        $state = $this->updatePriceInfoState($priceInfoUpdated->getPriceInfo(), $state);
         $state = $this->triggerSyncWhenConditionsAreMet($state);
         return $state;
     }
@@ -276,14 +271,14 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
 
     /**
      * @param State $state
-     * @param string $cdbxml
-     * @param string $cdbxmlNamespaceUri
+     * @param string $cdbXml
+     * @param string $cdbXmlNamespaceUri
      * @return State
      */
-    private function updateStateFromCdbXml(State $state, $cdbxml, $cdbxmlNamespaceUri)
+    private function updateStateFromCdbXml(State $state, $cdbXml, $cdbXmlNamespaceUri)
     {
         try {
-            $event = EventItemFactory::createEventFromCdbXml($cdbxmlNamespaceUri, $cdbxml);
+            $event = EventItemFactory::createEventFromCdbXml($cdbXmlNamespaceUri, $cdbXml);
         } catch (\CultureFeed_Cdb_ParseException $e) {
             return $state;
         }
@@ -291,30 +286,49 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $organizerCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
 
         if (!is_null($organizerCdbId)) {
-            $uitpasOrganizer = $this->organizerSpecification->isSatisfiedBy($organizerCdbId);
-
-            $state->set('organizerId', $organizerCdbId);
-            $state->set('uitpasOrganizer', $uitpasOrganizer);
+            $state = $this->updateOrganizerState($organizerCdbId, $state);
         }
 
-        $eventDetailsList = $event->getDetails();
+        $state = $this->updatePriceInfoStateFromCdbEvent($event, $state);
+
+        return $state;
+    }
+
+    /**
+     * @param \CultureFeed_Cdb_Item_Event $cdbEvent
+     * @param State $state
+     * @return State
+     */
+    private function updatePriceInfoStateFromCdbEvent(\CultureFeed_Cdb_Item_Event $cdbEvent, State $state)
+    {
+        $eventDetailsList = $cdbEvent->getDetails();
 
         $details = $eventDetailsList->getDetailByLanguage('nl');
         if (empty($details) && !empty($eventDetailsList)) {
             $details = $eventDetailsList[0];
         }
 
-        if (!empty($details)) {
-            $price = $details->getPrice()->getValue();
+        if (empty($details)) {
+            // No details means there's no price info on the event.
+            return $state;
+        }
 
-            $priceInfo = new PriceInfo(
-                new BasePrice(
-                    Price::fromFloat((float) $price),
-                    Currency::fromNative('EUR')
-                )
-            );
+        $cdbPrice = $details->getPrice()->getValue();
+        $cdbPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat((float) $cdbPrice),
+                Currency::fromNative('EUR')
+            )
+        );
 
-            $state->set('priceInfo', $priceInfo->serialize());
+        $previousPriceInfo = $this->getPriceInfoFromState($state);
+
+        if (is_null($previousPriceInfo) || $previousPriceInfo->getBasePrice()->getPrice()->toFloat() !== $cdbPrice) {
+            // Only update the stored price info if the base price has been
+            // changed or there was no price info before. CdbXml never contains
+            // tariffs so we'll lose any previously defined tariffs, but this is
+            // intended on a price change.
+            $state = $this->updatePriceInfoState($cdbPriceInfo, $state);
         }
 
         return $state;
@@ -329,15 +343,14 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $aggregateId = $state->get('uitpasAggregateId');
         $organizerId = $state->get('organizerId');
         $uitpasOrganizer = $state->get('uitpasOrganizer');
-        $serializedPriceInfo = $state->get('priceInfo');
+        $priceInfo = $this->getPriceInfoFromState($state);
         $distributionKeyIds = $state->get('distributionKeyIds');
         $syncCount = (int) $state->get('syncCount');
 
-        if (is_null($organizerId) || empty($uitpasOrganizer) || is_null($serializedPriceInfo)) {
+        if (is_null($organizerId) || empty($uitpasOrganizer) || is_null($priceInfo)) {
             return $state;
         }
 
-        $priceInfo = PriceInfo::deserialize($serializedPriceInfo);
         $distributionKeyIds = !is_null($distributionKeyIds) ? $distributionKeyIds : [];
 
         if ($syncCount == 0) {
@@ -365,6 +378,45 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $state->set('syncCount', $syncCount + 1);
 
         return $state;
+    }
+
+    /**
+     * @param $organizerId
+     * @param State $state
+     * @return State
+     */
+    private function updateOrganizerState($organizerId, State $state)
+    {
+        $uitpasOrganizer = $this->organizerSpecification->isSatisfiedBy($organizerId);
+        $state->set('organizerId', $organizerId);
+        $state->set('uitpasOrganizer', $uitpasOrganizer);
+        return $state;
+    }
+
+    /**
+     * @param PriceInfo $priceInfo
+     * @param State $state
+     * @return State
+     */
+    private function updatePriceInfoState(PriceInfo $priceInfo, State $state)
+    {
+        $state->set('priceInfo', $priceInfo->serialize());
+        return $state;
+    }
+
+    /**
+     * @param State $state
+     * @return PriceInfo|null
+     */
+    private function getPriceInfoFromState(State $state)
+    {
+        $serializedPriceInfo = $state->get('priceInfo');
+
+        if (!is_null($serializedPriceInfo)) {
+            return PriceInfo::deserialize($serializedPriceInfo);
+        } else {
+            return null;
+        }
     }
 
     /**
