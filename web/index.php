@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
+use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
 use CultuurNet\UiTIDProvider\Security\PreflightRequestMatcher;
 use Silex\Application;
@@ -73,5 +74,6 @@ $app->get(
 );
 
 $app->mount('/events', new EventControllerProvider());
+$app->mount('/organizers', new OrganizerControllerProvider());
 
 $app->run();

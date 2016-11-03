@@ -17,6 +17,8 @@ use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\Controller\EventController;
+use CultuurNet\UDB3\UiTPASService\Controller\OrganizerController;
+use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
 use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
@@ -31,6 +33,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
+use ValueObjects\Web\Url;
 
 $app = new Application();
 
@@ -543,10 +546,29 @@ $app['uitpas_repository'] = $app->share(
     }
 );
 
+$app['udb3.event_permission'] = $app->share(
+    function (Application $app) {
+        return new UDB3EventPermission(
+            new \Guzzle\Http\Client(),
+            Url::fromNative($app['config']['udb3_permission_base_url']),
+            $app['jwt']
+        );
+    }
+);
+
 $app['uitpas.event_controller'] = $app->share(
     function (Application $app) {
         return new EventController(
             $app['uitpas_command_bus_out'],
+            $app['culturefeed_uitpas_client'],
+            $app['udb3.event_permission']
+        );
+    }
+);
+
+$app['uitpas.organizer_controller'] = $app->share(
+    function (Application $app) {
+        return new OrganizerController(
             $app['culturefeed_uitpas_client']
         );
     }
