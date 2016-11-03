@@ -48,7 +48,7 @@ class UDB3EventPermission implements EventPermissionInterface
         $hasPermission = false;
 
         $permissionUrlAsString = sprintf(
-            (string)$this->permissionUrl,
+            (string) $this->permissionUrl,
             $eventId
         );
 

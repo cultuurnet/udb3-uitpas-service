@@ -45,7 +45,7 @@ class UDB3EventPermissionTest extends \PHPUnit_Framework_TestCase
         $this->eventId = new UUID();
 
         $permissionUrl = sprintf(
-            (string)$this->permissionUrl,
+            (string) $this->permissionUrl,
             $this->eventId->toNative()
         );
 
