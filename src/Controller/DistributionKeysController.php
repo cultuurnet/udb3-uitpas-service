@@ -21,7 +21,6 @@ class DistributionKeysController
     private $cultureFeedUitpas;
 
     /**
-     * DistributionKeysController constructor.
      * @param CommandBusInterface $commandBus
      * @param \CultureFeed_Uitpas $cultureFeedUitpas
      */
@@ -40,14 +39,15 @@ class DistributionKeysController
     public function get($eventId)
     {
         $uitpasEvent = $this->cultureFeedUitpas->getEvent($eventId);
-        $distributionKeys = $uitpasEvent->distributionKey;
 
-        $distributionKeyIds = [];
-        foreach ($distributionKeys as $distributionKey) {
-            $distributionKeyIds[] = (string) $distributionKey->id;
-        }
+        $distributionKeyIds = array_map(
+            function (\CultureFeed_Uitpas_DistributionKey $distributionKey) {
+                return (string) $distributionKey->id;
+            },
+            $uitpasEvent->distributionKey
+        );
 
-        return new JsonResponse(json_encode($distributionKeyIds));
+        return new JsonResponse($distributionKeyIds);
     }
 
     /**

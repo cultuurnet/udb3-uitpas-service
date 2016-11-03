@@ -63,13 +63,13 @@ class DistributionKeysControllerTest extends \PHPUnit_Framework_TestCase
             ->with($eventId)
             ->willReturn($uitpasEvent);
 
-        $expectedResponse = new JsonResponse(
-            json_encode([$distributionKey1->id, $distributionKey2->id])
+        $expectedResponseContent = json_encode(
+            [$distributionKey1->id, $distributionKey2->id]
         );
 
         $response = $this->distributionKeysController->get($eventId);
 
-        $this->assertEquals($expectedResponse, $response);
+        $this->assertEquals($expectedResponseContent, $response->getContent());
     }
 
     /**
