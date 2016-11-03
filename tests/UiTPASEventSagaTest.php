@@ -23,6 +23,7 @@ use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
+use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
@@ -640,5 +641,35 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                 ]
             );
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_update_uitpas_when_a_previously_valid_uitpas_event_no_longer_has_an_organizer_and_price_info_is_updated()
+    {
+        $updatedPriceInfo = $this->priceInfo
+            ->withExtraTariff(
+                new Tariff(
+                    new StringLiteral('Extra tariff'),
+                    Price::fromFloat(1.5),
+                    Currency::fromNative('EUR')
+                )
+            );
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                    $this->uitpasAggregateCreated,
+                    new OrganizerDeleted($this->eventId, $this->uitpasOrganizerId),
+                ]
+            )
+            ->when(
+                new PriceInfoUpdated($this->eventId, $updatedPriceInfo)
+            )
+            ->then([]);
     }
 }

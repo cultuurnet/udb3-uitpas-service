@@ -14,6 +14,7 @@ use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
+use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
@@ -98,6 +99,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             'EventUpdatedFromUDB2' => $cdbXmlEventCallback,
             'EventUpdatedFromCdbXml' => $cdbXmlEventCallback,
             'OrganizerUpdated' => $offerEventCallback,
+            'OrganizerDeleted' => $offerEventCallback,
             'PriceInfoUpdated' => $offerEventCallback,
             'UiTPASAggregateCreated' => $uitpasAggregateEventCallback,
             'DistributionKeysUpdated' => $uitpasAggregateEventCallback,
@@ -218,6 +220,17 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             );
         }
 
+        return $state;
+    }
+
+    /**
+     * @param OrganizerDeleted $organizerDeleted
+     * @param State $state
+     * @return State
+     */
+    public function handleOrganizerDeleted(OrganizerDeleted $organizerDeleted, State $state)
+    {
+        $state = $this->resetOrganizerState($state);
         return $state;
     }
 
@@ -390,6 +403,17 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $uitpasOrganizer = $this->organizerSpecification->isSatisfiedBy($organizerId);
         $state->set('organizerId', $organizerId);
         $state->set('uitpasOrganizer', $uitpasOrganizer);
+        return $state;
+    }
+
+    /**
+     * @param State $state
+     * @return State
+     */
+    private function resetOrganizerState(State $state)
+    {
+        $state->set('organizerId', null);
+        $state->set('uitpasOrganizer', null);
         return $state;
     }
 
