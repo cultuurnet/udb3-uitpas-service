@@ -322,8 +322,8 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             $details = $eventDetailsList->current();
         }
 
-        if (empty($details)) {
-            // No details means there's no price info on the event.
+        if (empty($details) || empty($details->getPrice()) || is_null($details->getPrice()->getValue())) {
+            // Do nothing if no price info is found on the event.
             return $state;
         }
 

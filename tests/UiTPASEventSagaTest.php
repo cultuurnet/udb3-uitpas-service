@@ -221,8 +221,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     new CreateUiTPASAggregate($this->eventId, []),
                     new RegisterUiTPASEvent(
-                        new StringLiteral($this->eventId),
-                        new StringLiteral($this->uitpasOrganizerId),
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
                         $this->priceInfo
                     ),
                 ]
@@ -246,8 +246,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     new CreateUiTPASAggregate($this->eventId, []),
                     new RegisterUiTPASEvent(
-                        new StringLiteral($this->eventId),
-                        new StringLiteral($this->uitpasOrganizerId),
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
                         $this->priceInfo
                     ),
                 ]
@@ -547,8 +547,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     new CreateUiTPASAggregate($this->eventId, []),
                     new RegisterUiTPASEvent(
-                        new StringLiteral($this->eventId),
-                        new StringLiteral($this->uitpasOrganizerId),
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
                         $expectedPriceInfo
                     ),
                 ]
@@ -676,7 +676,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_falls_back_to_price_details_in_other_languages_when_registering_or_updating_from_cdbxml()
+    public function it_falls_back_to_price_details_in_other_languages_when_handling_cdbxml_changes()
     {
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price-fr.xml');
 
@@ -695,9 +695,34 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 [
                     new CreateUiTPASAggregate($this->eventId, []),
                     new RegisterUiTPASEvent(
-                        new StringLiteral($this->eventId),
-                        new StringLiteral($this->uitpasOrganizerId),
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
                         $expectedPriceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_require_price_details_when_handling_cdbxml_changes()
+    {
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then([])
+            ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo
                     ),
                 ]
             );
