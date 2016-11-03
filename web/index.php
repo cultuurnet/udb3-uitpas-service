@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use CultuurNet\UDB3\UiTPASService\Controller\UiTPASControllerProvider;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 
@@ -26,5 +27,7 @@ $app->get('labels', function(Application $app) {
     $app['config']['labels']
   );
 });
+
+$app->mount('/uitpas', new UiTPASControllerProvider());
 
 $app->run();
