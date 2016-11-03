@@ -13,7 +13,10 @@
         "doctrine/mongodb": "~1.3",
         "doctrine/migrations": "~1.0",
         "broadway/broadway": "~0.5.2",
-        "cultuurnet/silex-amqp": "~0.1"
+        "cultuurnet/silex-amqp": "~0.1",
+        "cultuurnet/silex-service-provider-jwt": "~0.1",
+        "cultuurnet/symfony-security-jwt": "dev-feature/III-1491 as 0.1",
+        "cultuurnet/silex-uitid-provider": "~0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",

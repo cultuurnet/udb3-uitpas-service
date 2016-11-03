@@ -12,3 +12,9 @@ uitid:
     secret: ***
   base_url: https://acc.uitid.be/uitid/rest/
 udb3_organizer_base_url: http://udb-silex.dev/organizers/ # Trailing slash required!
+jwt:
+  keys:
+    public:
+      file: public.pem
+  validation:
+    iss: http://culudb-jwt-provider.dev

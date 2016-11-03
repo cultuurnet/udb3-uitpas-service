@@ -10,6 +10,7 @@ use Broadway\Serializer\SimpleInterfaceSerializer;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
+use CultuurNet\SymfonySecurityJwt\Authentication\JwtUserToken;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
@@ -22,9 +23,11 @@ use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSON
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateRepository;
 use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
 use DerAlex\Silex\YamlConfigServiceProvider;
+use Lcobucci\JWT\Token as Jwt;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Silex\Application;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Yaml\Yaml;
 use ValueObjects\Number\Natural;
 use ValueObjects\String\String as StringLiteral;
@@ -49,6 +52,45 @@ foreach ($app['config']['bootstrap'] as $identifier => $enabled) {
         require __DIR__ . "/bootstrap/{$identifier}.php";
     }
 }
+
+$app['jwt'] = $app->share(
+    function(Application $app) {
+        try {
+            /* @var TokenStorageInterface $tokenStorage */
+            $tokenStorage = $app['security.token_storage'];
+        } catch (\InvalidArgumentException $e) {
+            // Running from CLI.
+            return null;
+        }
+
+        $token = $tokenStorage->getToken();
+
+        if ($token instanceof JwtUserToken) {
+            return $token->getCredentials();
+        }
+
+        return null;
+    }
+);
+
+$app['current_user'] = $app->share(
+    function (Application $app) {
+        /* @var Jwt|null $jwt */
+        $jwt = $app['jwt'];
+
+        if (!is_null($jwt)) {
+            $cfUser = new \CultureFeed_User();
+
+            $cfUser->id = $jwt->getClaim('uid');
+            $cfUser->nick = $jwt->getClaim('nick');
+            $cfUser->mbox = $jwt->getClaim('email');
+
+            return $cfUser;
+        } else {
+            return null;
+        }
+    }
+);
 
 $app['mongodb_sagas_collection'] = $app->share(
     function (Application $app) {

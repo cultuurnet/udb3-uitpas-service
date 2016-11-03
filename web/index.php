@@ -2,7 +2,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\UiTPASService\Controller\UiTPASControllerProvider;
+use CultuurNet\UiTIDProvider\Security\PreflightRequestMatcher;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 
@@ -13,6 +15,47 @@ $app = require __DIR__ . '/../bootstrap.php';
  * Allow to use services as controllers.
  */
 $app->register(new ServiceControllerServiceProvider());
+
+/**
+ * Security & firewall
+ */
+$app->register(new \Silex\Provider\SecurityServiceProvider());
+$app->register(new \CultuurNet\SilexServiceProviderJwt\JwtServiceProvider());
+
+$app['cors_preflight_request_matcher'] = $app->share(
+    function () {
+        return new PreflightRequestMatcher();
+    }
+);
+
+$app['security.firewalls'] = array(
+    'cors-preflight' => array(
+        'pattern' => $app['cors_preflight_request_matcher'],
+    ),
+    'secured' => array(
+        'pattern' => '^.*$',
+        'jwt' => [
+            'validation' => $app['config']['jwt']['validation'],
+            'required_claims' => [
+                'uid',
+                'nick',
+                'email',
+            ],
+            'public_key' => 'file://' . __DIR__ . '/../' . $app['config']['jwt']['keys']['public']['file'],
+        ],
+        'stateless' => true,
+    ),
+);
+
+$app['security.entry_point.form._proto'] = $app->protect(
+    function () use ($app) {
+        return $app->share(
+            function () {
+                return new JwtAuthenticationEntryPoint();
+            }
+        );
+    }
+);
 
 $app->get(
     'labels',
