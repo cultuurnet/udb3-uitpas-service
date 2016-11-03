@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
 use Broadway\CommandHandling\CommandBusInterface;
+use CultuurNet\UDB3\UiTPASService\Permissions\EventPermissionInterface;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,15 +27,23 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
      */
     private $eventController;
 
+    /**
+     * @var EventPermissionInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $eventPermission;
+
     protected function setUp()
     {
         $this->commandBus = $this->getMock(CommandBusInterface::class);
 
         $this->cultureFeedUitpas = $this->getMock(\CultureFeed_Uitpas::class);
 
+        $this->eventPermission = $this->getMock(EventPermissionInterface::class);
+
         $this->eventController = new EventController(
             $this->commandBus,
-            $this->cultureFeedUitpas
+            $this->cultureFeedUitpas,
+            $this->eventPermission
         );
     }
 
@@ -90,6 +99,11 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
             json_encode($distributionKeys)
         );
 
+        $this->eventPermission->expects($this->once())
+            ->method('hasPermission')
+            ->with($eventId)
+            ->willReturn(true);
+
         $this->commandBus->expects($this->once())
             ->method('dispatch')
             ->with(new UpdateDistributionKeys($eventId, $distributionKeys))
@@ -108,10 +122,44 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_returns_401_when_no_permission_for_update()
+    {
+        $eventId = new UUID();
+        $distributionKeys = ["distribution-key-1", "distribution-key-2"];
+        $request = Request::create(
+            '',
+            'GET',
+            [],
+            [],
+            [],
+            [],
+            json_encode($distributionKeys)
+        );
+
+        $this->eventPermission->expects($this->once())
+            ->method('hasPermission')
+            ->with($eventId)
+            ->willReturn(false);
+
+        $expectedResponse = new JsonResponse(null, 401);
+
+        $response = $this->eventController->update($request, $eventId);
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    /**
+     * @test
+     */
     public function it_dispatches_clear_command_and_returns_command_id()
     {
         $eventId = new UUID();
         $commandId = "b4b23dec5049d1dd7a5a66f5948dcf8c";
+
+        $this->eventPermission->expects($this->once())
+            ->method('hasPermission')
+            ->with($eventId)
+            ->willReturn(true);
 
         $this->commandBus->expects($this->once())
             ->method('dispatch')
@@ -126,5 +174,24 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
             $expectedResponse->getContent(),
             $response->getContent()
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_401_when_no_permission_for_clear()
+    {
+        $eventId = new UUID();
+
+        $this->eventPermission->expects($this->once())
+            ->method('hasPermission')
+            ->with($eventId)
+            ->willReturn(false);
+
+        $expectedResponse = new JsonResponse(null, 401);
+
+        $response = $this->eventController->clear($eventId);
+
+        $this->assertEquals($expectedResponse, $response);
     }
 }

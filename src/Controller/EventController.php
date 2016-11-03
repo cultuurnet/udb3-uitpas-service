@@ -3,6 +3,7 @@
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
 use Broadway\CommandHandling\CommandBusInterface;
+use CultuurNet\UDB3\UiTPASService\Permissions\EventPermissionInterface;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,15 +22,23 @@ class EventController
     private $cultureFeedUitpas;
 
     /**
+     * @var EventPermissionInterface
+     */
+    private $eventPermission;
+
+    /**
      * @param CommandBusInterface $commandBus
      * @param \CultureFeed_Uitpas $cultureFeedUitpas
+     * @param EventPermissionInterface $eventPermission
      */
     public function __construct(
         CommandBusInterface $commandBus,
-        \CultureFeed_Uitpas $cultureFeedUitpas
+        \CultureFeed_Uitpas $cultureFeedUitpas,
+        EventPermissionInterface $eventPermission
     ) {
         $this->commandBus = $commandBus;
         $this->cultureFeedUitpas = $cultureFeedUitpas;
+        $this->eventPermission = $eventPermission;
     }
 
     /**
@@ -57,7 +66,10 @@ class EventController
      */
     public function update(Request $request, $eventId)
     {
-        // TODO: allowed to update the event => UDB3 permission endpoint?
+        // TODO: Correct response.
+        if (!$this->eventPermission->hasPermission($eventId)) {
+            return new JsonResponse(null, 401);
+        }
 
         // TODO: array provided?
         $distributionKeyIds = json_decode($request->getContent());
@@ -78,7 +90,10 @@ class EventController
      */
     public function clear($eventId)
     {
-        // TODO: allowed to update the event => UDB3 permission endpoint?
+        // TODO: Correct response.
+        if (!$this->eventPermission->hasPermission($eventId)) {
+            return new JsonResponse(null, 401);
+        }
 
         $clearDistributionKeys = new ClearDistributionKeys($eventId);
 
