@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\UiTPASService\Controller\UiTPASControllerProvider;
+use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
 use CultuurNet\UiTIDProvider\Security\PreflightRequestMatcher;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
@@ -15,6 +16,11 @@ $app = require __DIR__ . '/../bootstrap.php';
  * Allow to use services as controllers.
  */
 $app->register(new ServiceControllerServiceProvider());
+
+/**
+ * Handle errors by returning an API problem response.
+ */
+$app->register(new ErrorHandlerProvider());
 
 /**
  * Security & firewall
