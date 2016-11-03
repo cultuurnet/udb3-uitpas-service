@@ -14,13 +14,6 @@ $app = require __DIR__ . '/../bootstrap.php';
  */
 $app->register(new ServiceControllerServiceProvider());
 
-$app->get('/', function(Application $app) {
-  /** @var \Doctrine\MongoDB\Collection $collection */
-  $collection = $app['mongodb_sagas_collection'];
-  return new \Symfony\Component\HttpFoundation\Response(
-    $collection->count()
-  );
-});
 
 $app->get('labels', function(Application $app) {
   return new \Symfony\Component\HttpFoundation\JsonResponse(
