@@ -14,12 +14,14 @@ $app = require __DIR__ . '/../bootstrap.php';
  */
 $app->register(new ServiceControllerServiceProvider());
 
-
-$app->get('labels', function(Application $app) {
-  return new \Symfony\Component\HttpFoundation\JsonResponse(
-    $app['config']['labels']
-  );
-});
+$app->get(
+    'labels',
+    function(Application $app) {
+        return new \Symfony\Component\HttpFoundation\JsonResponse(
+            $app['config']['labels']
+        );
+    }
+);
 
 $app->mount('/uitpas', new UiTPASControllerProvider());
 
