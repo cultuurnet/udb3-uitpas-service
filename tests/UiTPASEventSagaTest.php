@@ -528,7 +528,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_imported_events_from_udb2_if_they_have_an_uitpas_organizer_and_a_price()
+    public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2()
     {
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
 
@@ -668,6 +668,36 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                         $this->uitpasOrganizerId,
                         $expectedPriceInfo,
                         $this->distributionKeys
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_falls_back_to_price_details_in_other_languages_when_registering_or_updating_from_cdbxml()
+    {
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price-fr.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $expectedPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(5.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        new StringLiteral($this->eventId),
+                        new StringLiteral($this->uitpasOrganizerId),
+                        $expectedPriceInfo
                     ),
                 ]
             );

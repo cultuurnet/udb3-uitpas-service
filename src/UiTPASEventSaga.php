@@ -318,7 +318,8 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
 
         $details = $eventDetailsList->getDetailByLanguage('nl');
         if (empty($details) && !empty($eventDetailsList)) {
-            $details = $eventDetailsList[0];
+            $eventDetailsList->rewind();
+            $details = $eventDetailsList->current();
         }
 
         if (empty($details)) {
