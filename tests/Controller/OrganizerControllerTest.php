@@ -61,9 +61,23 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
             $distributionKey4,
         ];
 
+        $distributionKeyParent1 = clone $distributionKey1;
+        $distributionKeyParent1->cardSystem = $cardSystem1;
+
+        $distributionKeyParent2 = clone $distributionKey2;
+        $distributionKeyParent2->cardSystem = $cardSystem1;
+
+        $distributionKeyParent3 = clone $distributionKey3;
+        $distributionKeyParent3->cardSystem = $cardSystem2;
+
+        $distributionKeyParent4 = clone $distributionKey4;
+        $distributionKeyParent4->cardSystem = $cardSystem2;
+
         $cardSystems = [
-            $cardSystem1,
-            $cardSystem2,
+            $distributionKeyParent1,
+            $distributionKeyParent2,
+            $distributionKeyParent3,
+            $distributionKeyParent4
         ];
 
         $resultSet = new \CultureFeed_ResultSet();
