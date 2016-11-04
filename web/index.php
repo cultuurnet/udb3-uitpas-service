@@ -42,6 +42,7 @@ $app['security.firewalls'] = array(
         'pattern' => MultiPathRequestMatcher::fromPaths([
             new Path('^/labels', 'GET'),
             new Path('^/organizers', 'GET'),
+            new Path('^/events', 'GET'),
         ])
     ),
     'cors-preflight' => array(
