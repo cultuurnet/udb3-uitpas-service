@@ -85,4 +85,6 @@ $app->get(
 $app->mount('/events', new EventControllerProvider());
 $app->mount('/organizers', new OrganizerControllerProvider());
 
+$app->after($app["cors"]);
+
 $app->run();
