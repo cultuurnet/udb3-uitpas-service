@@ -133,7 +133,7 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
                 );
             }
         } else {
-            foreach($responses as $index => $response) {
+            foreach ($responses as $index => $response) {
                 $this->logger->info(
                     'action ' . ++$index . ' response',
                     ['respone' => $response]

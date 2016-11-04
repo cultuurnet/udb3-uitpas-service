@@ -77,7 +77,7 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
             $distributionKeyParent1,
             $distributionKeyParent2,
             $distributionKeyParent3,
-            $distributionKeyParent4
+            $distributionKeyParent4,
         ];
 
         $resultSet = new \CultureFeed_ResultSet();

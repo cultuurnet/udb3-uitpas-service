@@ -32,11 +32,12 @@ class OrganizerController
 
         $cardSystems = array_reduce(
             $resultSet->objects,
-            function(
+            function (
                 array $cardSystemsCarry,
-                \CultureFeed_Uitpas_DistributionKey $distributionKey) {
-                    return $this->addNewCardSystem($cardSystemsCarry, $distributionKey);
-                },
+                \CultureFeed_Uitpas_DistributionKey $distributionKey
+            ) {
+                return $this->addNewCardSystem($cardSystemsCarry, $distributionKey);
+            },
             []
         );
 
