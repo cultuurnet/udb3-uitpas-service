@@ -18,6 +18,7 @@ use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\Controller\EventController;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerController;
+use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
@@ -25,6 +26,7 @@ use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSON
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateRepository;
 use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
 use DerAlex\Silex\YamlConfigServiceProvider;
+use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Lcobucci\JWT\Token as Jwt;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -41,6 +43,11 @@ if (!isset($appConfigLocation)) {
     $appConfigLocation =  __DIR__;
 }
 $app->register(new YamlConfigServiceProvider($appConfigLocation . '/config.yml'));
+
+$app->register(new CorsServiceProvider(), array(
+    "cors.allowOrigin" => implode(" ", $app['config']['cors']['origins']),
+    "cors.allowCredentials" => true
+));
 
 /**
  * Turn debug on or off.
@@ -548,6 +555,10 @@ $app['uitpas_repository'] = $app->share(
 
 $app['udb3.event_permission'] = $app->share(
     function (Application $app) {
+        if ($app['jwt'] === null) {
+            return new DefaultEventPermission();
+        }
+
         return new UDB3EventPermission(
             new \Guzzle\Http\Client(),
             Url::fromNative($app['config']['udb3_permission_base_url']),
