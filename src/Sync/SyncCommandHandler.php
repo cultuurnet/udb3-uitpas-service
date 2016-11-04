@@ -100,11 +100,12 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
     ) {
         /** @var Exception[] $exceptions */
         $exceptions = [];
+        $responses = [];
         $succeeded = false;
 
         foreach ($strategies as $strategy) {
             try {
-                call_user_func(
+                $responses[] = call_user_func(
                     array($this->culturefeedClient, $strategy),
                     $event
                 );
@@ -132,6 +133,12 @@ class SyncCommandHandler extends CommandHandler implements LoggerAwareInterface
                 );
             }
         } else {
+            foreach($responses as $index => $response) {
+                $this->logger->info(
+                    'action ' . ++$index . ' response',
+                    ['respone' => $response]
+                );
+            }
             $this->logger->info(
                 'Succesfully synchronised uitpas event data',
                 [
