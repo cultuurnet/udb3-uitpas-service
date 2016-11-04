@@ -6,6 +6,8 @@ use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
+use CultuurNet\UiTIDProvider\Security\MultiPathRequestMatcher;
+use CultuurNet\UiTIDProvider\Security\Path;
 use CultuurNet\UiTIDProvider\Security\PreflightRequestMatcher;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
@@ -36,6 +38,12 @@ $app['cors_preflight_request_matcher'] = $app->share(
 );
 
 $app['security.firewalls'] = array(
+    'public' => array(
+        'pattern' => MultiPathRequestMatcher::fromPaths([
+            new Path('^/labels', 'GET'),
+            new Path('^/organizers', 'GET'),
+        ])
+    ),
     'cors-preflight' => array(
         'pattern' => $app['cors_preflight_request_matcher'],
     ),
