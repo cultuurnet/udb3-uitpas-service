@@ -26,4 +26,27 @@ class DistributionKeysUpdated extends AbstractUiTPASAggregateEvent
     {
         return $this->distributionKeyIds;
     }
+
+    /**
+     * @param array $data
+     * @return AbstractUiTPASAggregateEvent
+     */
+    public static function deserialize(array $data)
+    {
+        return new static(
+            $data['uitpas_id'],
+            $data['distribution_key_ids']
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function serialize()
+    {
+        return [
+            'uitpas_id' => $this->getAggregateId(),
+            'distribution_key_ids' => $this->getDistributionKeyIds(),
+        ];
+    }
 }

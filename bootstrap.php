@@ -23,6 +23,7 @@ use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
 use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateCommandHandler;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateRepository;
 use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
 use DerAlex\Silex\YamlConfigServiceProvider;
@@ -411,6 +412,7 @@ $app->extend(
         // @todo Subscribe command handlers here.
 
         $commandBus->subscribe($app['uitpas_sync_command_handler']);
+        $commandBus->subscribe($app['uitpas_aggregate_command_handler']);
 
         return $commandBus;
     }
@@ -435,6 +437,18 @@ $app['uitpas_sync_command_handler'] = $app->share(
         return new SyncCommandHandler(
             $app['culturefeed_uitpas_client']
         );
+    }
+);
+
+$app['uitpas_aggregate_command_handler'] = $app->share(
+    function (Application $app) {
+        $handler = new UiTPASAggregateCommandHandler(
+            $app['uitpas_repository']
+        );
+
+        $handler->setLogger($app['logger.command_bus']);
+
+        return $handler;
     }
 );
 

@@ -7,9 +7,14 @@ use Broadway\Repository\RepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
-class UiTPASAggregateCommandHandler implements CommandHandlerInterface
+class UiTPASAggregateCommandHandler implements CommandHandlerInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var RepositoryInterface
      */
@@ -21,6 +26,7 @@ class UiTPASAggregateCommandHandler implements CommandHandlerInterface
     public function __construct(RepositoryInterface $repository)
     {
         $this->repository = $repository;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -40,6 +46,7 @@ class UiTPASAggregateCommandHandler implements CommandHandlerInterface
 
         if (array_key_exists(get_class($command), $handlers)) {
             $handler = $handlers[get_class($command)];
+            $this->logger->info('UiTPASAggregateCommandHandler: handling UiTPAS command: ' . get_class($command));
             $this->{$handler}($command);
         }
     }
@@ -62,6 +69,12 @@ class UiTPASAggregateCommandHandler implements CommandHandlerInterface
      */
     private function handleUpdateDistributionKeys(UpdateDistributionKeys $updateDistributionKeys)
     {
+        $this->logger->info(
+            'UiTPASAggregateCommandHandler:' .
+            ' updating distribution keys for event with id "'. $updateDistributionKeys->getEventId() . '"',
+            ['keys' => $updateDistributionKeys->getDistributionKeyIds()]
+        );
+
         $aggregate = $this->loadAggregate($updateDistributionKeys->getEventId());
         $aggregate->updateDistributionKeys($updateDistributionKeys->getDistributionKeyIds());
         $this->repository->save($aggregate);
