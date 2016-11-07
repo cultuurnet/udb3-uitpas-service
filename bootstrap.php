@@ -16,7 +16,6 @@ use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
-use CultuurNet\UDB3\UiTPASService\Controller\EventController;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
