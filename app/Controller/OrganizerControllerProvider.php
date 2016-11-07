@@ -17,6 +17,14 @@ class OrganizerControllerProvider implements ControllerProviderInterface
         /** @var ControllerCollection $controllersFactory */
         $controllers = $app['controllers_factory'];
 
+        $app['uitpas.organizer_controller'] = $app->share(
+            function (Application $app) {
+                return new OrganizerController(
+                    $app['culturefeed_uitpas_client']
+                );
+            }
+        );
+
         $controllers->get(
             '/{organizerId}/cardSystems/',
             'uitpas.organizer_controller' . ':getDistributionKeys'

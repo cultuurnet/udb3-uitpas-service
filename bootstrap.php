@@ -17,7 +17,6 @@ use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\Controller\EventController;
-use CultuurNet\UDB3\UiTPASService\Controller\OrganizerController;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
@@ -587,14 +586,6 @@ $app['uitpas.event_controller'] = $app->share(
             $app['uitpas_command_bus_out'],
             $app['culturefeed_uitpas_client'],
             $app['udb3.event_permission']
-        );
-    }
-);
-
-$app['uitpas.organizer_controller'] = $app->share(
-    function (Application $app) {
-        return new OrganizerController(
-            $app['culturefeed_uitpas_client']
         );
     }
 );
