@@ -13,6 +13,16 @@ class EventControllerProvider implements ControllerProviderInterface
      */
     public function connect(Application $app)
     {
+        $app['uitpas.event_controller'] = $app->share(
+            function (Application $app) {
+                return new EventController(
+                    $app['uitpas_command_bus_out'],
+                    $app['culturefeed_uitpas_client'],
+                    $app['udb3.event_permission']
+                );
+            }
+        );
+
         /** @var ControllerCollection $controllersFactory */
         $controllers = $app['controllers_factory'];
 

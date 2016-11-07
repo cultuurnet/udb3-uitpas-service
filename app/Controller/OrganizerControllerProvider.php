@@ -14,9 +14,6 @@ class OrganizerControllerProvider implements ControllerProviderInterface
      */
     public function connect(Application $app)
     {
-        /** @var ControllerCollection $controllersFactory */
-        $controllers = $app['controllers_factory'];
-
         $app['uitpas.organizer_controller'] = $app->share(
             function (Application $app) {
                 return new OrganizerController(
@@ -24,6 +21,9 @@ class OrganizerControllerProvider implements ControllerProviderInterface
                 );
             }
         );
+
+        /** @var ControllerCollection $controllersFactory */
+        $controllers = $app['controllers_factory'];
 
         $controllers->get(
             '/{organizerId}/cardSystems/',

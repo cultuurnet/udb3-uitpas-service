@@ -580,14 +580,4 @@ $app['udb3.event_permission'] = $app->share(
     }
 );
 
-$app['uitpas.event_controller'] = $app->share(
-    function (Application $app) {
-        return new EventController(
-            $app['uitpas_command_bus_out'],
-            $app['culturefeed_uitpas_client'],
-            $app['udb3.event_permission']
-        );
-    }
-);
-
 return $app;
