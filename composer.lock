@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5283759fda1ac5003b2fc5869c673414",
-    "content-hash": "bc90b498cd1f6279295fc530d3065a46",
+    "hash": "5d98d7122a0dace72237eed8ff719478",
+    "content-hash": "ada77934a5f15d90c483f0177da86a0e",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -960,16 +960,16 @@
         },
         {
             "name": "cultuurnet/symfony-security-jwt",
-            "version": "dev-feature/III-1491",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/symfony-security-jwt.git",
-                "reference": "b55baacaff049a81d8b434134c45b055918ea620"
+                "reference": "a6aed851723228d05897ce99bf7f33272523faaf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/symfony-security-jwt/zipball/b55baacaff049a81d8b434134c45b055918ea620",
-                "reference": "b55baacaff049a81d8b434134c45b055918ea620",
+                "url": "https://api.github.com/repos/cultuurnet/symfony-security-jwt/zipball/a6aed851723228d05897ce99bf7f33272523faaf",
+                "reference": "a6aed851723228d05897ce99bf7f33272523faaf",
                 "shasum": ""
             },
             "require": {
@@ -998,7 +998,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT implementation for the Symfony Security component",
-            "time": "2016-11-03 10:41:50"
+            "time": "2016-11-08 13:53:56"
         },
         {
             "name": "cultuurnet/symfony-security-oauth",
@@ -6502,18 +6502,9 @@
             "time": "2016-08-09 15:02:57"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1",
-            "alias_normalized": "0.1.0.0",
-            "version": "dev-feature/III-1491",
-            "package": "cultuurnet/symfony-security-jwt"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/symfony-security-jwt": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
