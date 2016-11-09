@@ -2,7 +2,6 @@
 
 namespace CultuurNet\UDB3\UiTPASService;
 
-use Broadway\EventStore\DBALEventStore;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Migrations\Configuration\Configuration;
 use CultuurNet\UDB3\Doctrine\DBAL\SchemaConfiguratorInterface;
