@@ -275,8 +275,10 @@ $app['event_bus.uitpas'] = $app->share(
     function (Application $app) {
         $bus =  new SimpleEventBus();
 
-        $bus->beforeFirstPublication(function (EventBusInterface $eventBus) {
-            $subscribers = [];
+        $bus->beforeFirstPublication(function (EventBusInterface $eventBus) use ($app) {
+            $subscribers = [
+                'saga_manager',
+            ];
 
             // Allow to override event bus subscribers through configuration.
             if (isset($app['config']['event_bus']) &&
@@ -432,9 +434,13 @@ $app['culturefeed_uitpas_client'] = $app->share(
 
 $app['uitpas_sync_command_handler'] = $app->share(
     function (Application $app) {
-        return new SyncCommandHandler(
+        $handler = new SyncCommandHandler(
             $app['culturefeed_uitpas_client']
         );
+
+        $handler->setLogger($app['logger.command_bus']);
+
+        return $handler;
     }
 );
 
