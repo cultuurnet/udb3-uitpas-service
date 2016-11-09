@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
 use Broadway\CommandHandling\CommandBusInterface;
+use Crell\ApiProblem\ApiProblem;
+use CultuurNet\UDB3\Symfony\HttpFoundation\ApiProblemJsonResponse;
 use CultuurNet\UDB3\UiTPASService\Permissions\EventPermissionInterface;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
@@ -122,7 +124,7 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_returns_401_when_no_permission_for_update()
+    public function it_returns_403_forbidden_when_no_permission_for_update()
     {
         $eventId = new UUID();
         $distributionKeys = ["distribution-key-1", "distribution-key-2"];
@@ -141,7 +143,31 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
             ->with($eventId)
             ->willReturn(false);
 
-        $expectedResponse = new JsonResponse(null, 401);
+        $problem = new ApiProblem('No permission on event: ' . $eventId);
+        $problem->setStatus(ApiProblemJsonResponse::HTTP_FORBIDDEN);
+        $expectedResponse = new ApiProblemJsonResponse($problem);
+
+        $response = $this->eventController->update($request, $eventId);
+
+        $this->assertEquals($expectedResponse, $response);
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_400_bad_request_when_no_distribution_keys_provided_for_update()
+    {
+        $eventId = new UUID();
+        $request = Request::create('');
+
+        $this->eventPermission->expects($this->once())
+            ->method('hasPermission')
+            ->with($eventId)
+            ->willReturn(true);
+
+        $problem = new ApiProblem('Array of distribution keys required.');
+        $problem->setStatus(ApiProblemJsonResponse::HTTP_BAD_REQUEST);
+        $expectedResponse = new ApiProblemJsonResponse($problem);
 
         $response = $this->eventController->update($request, $eventId);
 
@@ -179,7 +205,7 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_returns_401_when_no_permission_for_clear()
+    public function it_returns_403_when_no_permission_for_clear()
     {
         $eventId = new UUID();
 
@@ -188,7 +214,9 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
             ->with($eventId)
             ->willReturn(false);
 
-        $expectedResponse = new JsonResponse(null, 401);
+        $problem = new ApiProblem('No permission on event: ' . $eventId);
+        $problem->setStatus(ApiProblemJsonResponse::HTTP_FORBIDDEN);
+        $expectedResponse = new ApiProblemJsonResponse($problem);
 
         $response = $this->eventController->clear($eventId);
 

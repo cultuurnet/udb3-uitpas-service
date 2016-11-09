@@ -3,6 +3,8 @@
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
 use Broadway\CommandHandling\CommandBusInterface;
+use Crell\ApiProblem\ApiProblem;
+use CultuurNet\UDB3\Symfony\HttpFoundation\ApiProblemJsonResponse;
 use CultuurNet\UDB3\UiTPASService\Permissions\EventPermissionInterface;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
@@ -66,13 +68,17 @@ class EventController
      */
     public function update(Request $request, $eventId)
     {
-        // TODO: Correct response.
         if (!$this->eventPermission->hasPermission($eventId)) {
-            return new JsonResponse(null, 401);
+            return $this->createPermissionResponse($eventId);
         }
 
-        // TODO: array provided?
         $distributionKeyIds = json_decode($request->getContent());
+        if (!is_array($distributionKeyIds) || count($distributionKeyIds) < 1) {
+            $problem = new ApiProblem('Array of distribution keys required.');
+            $problem->setStatus(ApiProblemJsonResponse::HTTP_BAD_REQUEST);
+
+            return new ApiProblemJsonResponse($problem);
+        }
 
         $updateDistributionKeys = new UpdateDistributionKeys(
             $eventId,
@@ -90,9 +96,8 @@ class EventController
      */
     public function clear($eventId)
     {
-        // TODO: Correct response.
         if (!$this->eventPermission->hasPermission($eventId)) {
-            return new JsonResponse(null, 401);
+            return $this->createPermissionResponse($eventId);
         }
 
         $clearDistributionKeys = new ClearDistributionKeys($eventId);
@@ -100,5 +105,17 @@ class EventController
         $commandId = $this->commandBus->dispatch($clearDistributionKeys);
 
         return new JsonResponse(['commandId' => $commandId]);
+    }
+
+    /**
+     * @param $eventId
+     * @return ApiProblemJsonResponse
+     */
+    private function createPermissionResponse($eventId)
+    {
+        $problem = new ApiProblem('No permission on event: ' . $eventId);
+        $problem->setStatus(ApiProblemJsonResponse::HTTP_FORBIDDEN);
+
+        return new ApiProblemJsonResponse($problem);
     }
 }
