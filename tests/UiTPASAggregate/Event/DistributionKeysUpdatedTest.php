@@ -27,7 +27,7 @@ class DistributionKeysUpdatedTest extends \PHPUnit_Framework_TestCase
 
         $this->distributionKeysUpdatedAsArray = [
             'uitpas_id' => $aggregateId,
-            'distribution_key_ids' => $distributionKeys
+            'distribution_key_ids' => $distributionKeys,
         ];
     }
 

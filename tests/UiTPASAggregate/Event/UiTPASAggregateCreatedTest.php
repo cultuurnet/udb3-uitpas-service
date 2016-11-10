@@ -27,7 +27,7 @@ class UiTPASAggregateCreatedTest extends \PHPUnit_Framework_TestCase
 
         $this->aggregateCreatedAsArray = [
             'uitpas_id' => $aggregateId,
-            'distribution_key_ids' => $distributionKeys
+            'distribution_key_ids' => $distributionKeys,
         ];
     }
 
