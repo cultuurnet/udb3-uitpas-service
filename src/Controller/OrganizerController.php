@@ -57,12 +57,12 @@ class OrganizerController
 
         if (!isset($cardSystemsCarry[$cardSystemId])) {
             $cardSystem = [
-                'id' => $cardSystemId,
+                'id' => (string) $cardSystemId,
                 'name' => $distributionKey->cardSystem->name,
                 'distributionKeys' => array_map(
                     function (\CultureFeed_Uitpas_DistributionKey $distributionKey) {
                         return [
-                            'id' => $distributionKey->id,
+                            'id' => (string) $distributionKey->id,
                             'name' => $distributionKey->name,
                         ];
                     },
