@@ -3,12 +3,12 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
+use CultuurNet\UDB3\HttpFoundation\RequestMatcher\MultiRouteRequestMatcher;
+use CultuurNet\UDB3\HttpFoundation\RequestMatcher\PreflightRequestMatcher;
+use CultuurNet\UDB3\HttpFoundation\RequestMatcher\Route;
 use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
-use CultuurNet\UiTIDProvider\Security\MultiPathRequestMatcher;
-use CultuurNet\UiTIDProvider\Security\Path;
-use CultuurNet\UiTIDProvider\Security\PreflightRequestMatcher;
 use Silex\Application;
 use Silex\Provider\ServiceControllerServiceProvider;
 
@@ -39,11 +39,10 @@ $app['cors_preflight_request_matcher'] = $app->share(
 
 $app['security.firewalls'] = array(
     'public' => array(
-        'pattern' => MultiPathRequestMatcher::fromPaths([
-            new Path('^/labels', 'GET'),
-            new Path('^/organizers', 'GET'),
-            new Path('^/events', 'GET'),
-        ])
+        'pattern' => (new MultiRouteRequestMatcher())
+            ->matching(new Route('^/labels', 'GET'))
+            ->matching(new Route('^/organizers', 'GET'))
+            ->matching(new Route('^/events', 'GET'))
     ),
     'cors-preflight' => array(
         'pattern' => $app['cors_preflight_request_matcher'],
