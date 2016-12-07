@@ -9,6 +9,7 @@ use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
+use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
@@ -21,6 +22,7 @@ use CultuurNet\UDB3\Offer\Events\AbstractEvent;
 use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
+use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
@@ -31,6 +33,7 @@ use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 use ValueObjects\Money\Currency;
+use ValueObjects\String\String as StringLiteral;
 
 class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
 {
@@ -50,18 +53,26 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     private $eventCdbIdExtractor;
 
     /**
+     * @var PriceDescriptionParser
+     */
+    private $priceDescriptionParser;
+
+    /**
      * @param CommandBusInterface $commandBus
      * @param OrganizerSpecificationInterface $organizerSpecification
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
+     * @param PriceDescriptionParser $priceDescriptionParser
      */
     public function __construct(
         CommandBusInterface $commandBus,
         OrganizerSpecificationInterface $organizerSpecification,
-        EventCdbIdExtractorInterface $eventCdbIdExtractor
+        EventCdbIdExtractorInterface $eventCdbIdExtractor,
+        PriceDescriptionParser $priceDescriptionParser
     ) {
         $this->commandBus = $commandBus;
         $this->organizerSpecification = $organizerSpecification;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
+        $this->priceDescriptionParser = $priceDescriptionParser;
     }
 
     /**
@@ -328,12 +339,27 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         }
 
         $cdbPrice = $details->getPrice()->getValue();
-        $cdbPriceInfo = new PriceInfo(
+        $priceInfo = new PriceInfo(
             new BasePrice(
                 Price::fromFloat((float) $cdbPrice),
                 Currency::fromNative('EUR')
             )
         );
+
+        $prices = $this->priceDescriptionParser->parse(
+            $details->getPrice()->getDescription()
+        );
+        foreach ($prices as $key => $price) {
+            if ($key !== 'Basistarief') {
+                $priceInfo = $priceInfo->withExtraTariff(
+                    new Tariff(
+                        new StringLiteral($key),
+                        Price::fromFloat($price),
+                        Currency::fromNative('EUR')
+                    )
+                );
+            }
+        }
 
         $previousPriceInfo = $this->getPriceInfoFromState($state);
 
@@ -342,7 +368,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             // changed or there was no price info before. CdbXml never contains
             // tariffs so we'll lose any previously defined tariffs, but this is
             // intended on a price change.
-            $state = $this->updatePriceInfoState($cdbPriceInfo, $state);
+            $state = $this->updatePriceInfoState($priceInfo, $state);
         }
 
         return $state;
