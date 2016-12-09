@@ -90,15 +90,15 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         };
 
         return [
-            'EventCreated' => $initialEventCallback,
-            'EventImportedFromUDB2' => $initialEventCallback,
-            'EventUpdatedFromUDB2' => $updateFromUdb2Callback,
-            'OrganizerUpdated' => $offerEventCallback,
-            'OrganizerDeleted' => $offerEventCallback,
-            'PriceInfoUpdated' => $offerEventCallback,
-            'UiTPASAggregateCreated' => $uitpasAggregateEventCallback,
-            'DistributionKeysUpdated' => $uitpasAggregateEventCallback,
-            'DistributionKeysCleared' => $uitpasAggregateEventCallback,
+            EventCreated::class => $initialEventCallback,
+            EventImportedFromUDB2::class => $initialEventCallback,
+            EventUpdatedFromUDB2::class => $updateFromUdb2Callback,
+            OrganizerUpdated::class => $offerEventCallback,
+            OrganizerDeleted::class => $offerEventCallback,
+            PriceInfoUpdated::class => $offerEventCallback,
+            UiTPASAggregateCreated::class => $uitpasAggregateEventCallback,
+            DistributionKeysUpdated::class => $uitpasAggregateEventCallback,
+            DistributionKeysCleared::class => $uitpasAggregateEventCallback,
         ];
     }
 
