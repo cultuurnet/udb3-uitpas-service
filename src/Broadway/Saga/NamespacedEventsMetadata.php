@@ -25,7 +25,7 @@ class NamespacedEventsMetadata implements MetadataInterface
      */
     public function handles($event)
     {
-        $eventName = $this->getClassName($event);
+        $eventName = get_class($event);
 
         return isset($this->criteria[$eventName]);
     }
@@ -35,21 +35,12 @@ class NamespacedEventsMetadata implements MetadataInterface
      */
     public function criteria($event)
     {
-        $eventName = $this->getClassName($event);
+        $eventName = get_class($event);
 
         if (! isset($this->criteria[$eventName])) {
             throw new \RuntimeException(sprintf("No criteria for event '%s'.", $eventName));
         }
 
         return $this->criteria[$eventName]($event);
-    }
-
-    /**
-     * @param mixed $event
-     * @return string
-     */
-    private function getClassName($event)
-    {
-        return get_class($event);
     }
 }
