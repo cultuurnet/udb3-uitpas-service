@@ -19,3 +19,4 @@ jwt:
       file: public.pem
   validation:
     iss: http://culudb-jwt-provider.dev
+uitpas_sync: true # Optional, defaults to true if not defined

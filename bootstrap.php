@@ -409,9 +409,11 @@ $app['resque_command_bus_factory']('uitpas');
 $app->extend(
     'uitpas_command_bus_out',
     function (CommandBusInterface $commandBus, Application $app) {
-        // @todo Subscribe command handlers here.
+        $uitpasSync = isset($app['config']['uitpas_sync']) ? (bool) $app['config']['uitpas_sync'] : true;
+        if ($uitpasSync) {
+            $commandBus->subscribe($app['uitpas_sync_command_handler']);
+        }
 
-        $commandBus->subscribe($app['uitpas_sync_command_handler']);
         $commandBus->subscribe($app['uitpas_aggregate_command_handler']);
 
         return $commandBus;
