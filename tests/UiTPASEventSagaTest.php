@@ -609,6 +609,36 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2_with_other_price_and_wrong_price_description()
+    {
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-other-price-and-wrong-price-description.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $expectedPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.00),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $expectedPriceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_created_from_cdbxml()
     {
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');

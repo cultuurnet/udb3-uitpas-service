@@ -361,15 +361,9 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             }
         }
 
-        $previousPriceInfo = $this->getPriceInfoFromState($state);
-
-        if (is_null($previousPriceInfo) || $previousPriceInfo->getBasePrice()->getPrice()->toFloat() !== $cdbPrice) {
-            // Only update the stored price info if the base price has been
-            // changed or there was no price info before. CdbXml never contains
-            // tariffs so we'll lose any previously defined tariffs, but this is
-            // intended on a price change.
-            $state = $this->updatePriceInfoState($priceInfo, $state);
-        }
+        // Always update the price info.
+        // Even when less information is present or a wrong format was used in the description.
+        $state = $this->updatePriceInfoState($priceInfo, $state);
 
         return $state;
     }
