@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\UiTPASService;
 use Broadway\CommandHandling\CommandBusInterface;
 use Broadway\CommandHandling\Testing\TraceableCommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
-use Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use Broadway\Saga\MultipleSagaManager;
 use Broadway\Saga\State\InMemoryRepository;
 use Broadway\Saga\State\StateManager;
@@ -25,13 +24,13 @@ use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\EventXmlString;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
@@ -183,7 +182,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $sagaStateRepository,
             [$saga],
             new StateManager($sagaStateRepository, new Version4Generator()),
-            new StaticallyConfiguredSagaMetadataFactory(),
+            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
             new EventDispatcher()
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);

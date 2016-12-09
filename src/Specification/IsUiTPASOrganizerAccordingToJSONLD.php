@@ -83,7 +83,7 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
         $uitpasLabelsPresentOnOrganizer = array_filter(
             $organizerLabels,
             function ($label) {
-                $label = new Label($label->name);
+                $label = new Label($label);
                 return $this->uitpasLabels->contains($label);
             }
         );
