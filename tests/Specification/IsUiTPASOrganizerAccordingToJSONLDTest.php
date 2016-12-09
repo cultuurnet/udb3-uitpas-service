@@ -130,24 +130,12 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLabelLogContext = $expectedLogContext + [
             'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [
-                (object) [
-                    'uuid' => '71945e50-2158-4922-94d2-fd1da6286b51',
-                    'name' => 'foo',
-                ],
-                (object) [
-                    'uuid' => '12dabcf9-9598-4e8d-8642-c1af42698875',
-                    'name' => 'UiTPAS',
-                ],
-                (object) [
-                    'uuid' => '9fac1824-8c65-4d0e-845f-9bef03fa05a1',
-                    'name' => 'bar',
-                ],
+                'foo',
+                'UiTPAS',
+                'bar',
             ],
             'organizer_uitpas_labels' => [
-                (object) [
-                    'uuid' => '12dabcf9-9598-4e8d-8642-c1af42698875',
-                    'name' => 'UiTPAS',
-                ],
+                'UiTPAS',
             ],
         ];
 
@@ -175,24 +163,12 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLabelLogContext = $expectedLogContext + [
             'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [
-                (object) [
-                    'uuid' => '71945e50-2158-4922-94d2-fd1da6286b51',
-                    'name' => 'foo',
-                ],
-                (object) [
-                    'uuid' => '12dabcf9-9598-4e8d-8642-c1af42698875',
-                    'name' => 'uitpas',
-                ],
-                (object) [
-                    'uuid' => '9fac1824-8c65-4d0e-845f-9bef03fa05a1',
-                    'name' => 'bar',
-                ],
+                'foo',
+                'uitpas',
+                'bar',
             ],
             'organizer_uitpas_labels' => [
-                (object) [
-                    'uuid' => '12dabcf9-9598-4e8d-8642-c1af42698875',
-                    'name' => 'uitpas',
-                ],
+                'uitpas',
             ],
         ];
 
@@ -220,14 +196,8 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
         $expectedLabelLogContext = $expectedLogContext + [
             'uitpas_labels' => $this->uitpasLabels->asArray(),
             'extracted_organizer_labels' => [
-                (object) [
-                    'uuid' => '71945e50-2158-4922-94d2-fd1da6286b51',
-                    'name' => 'foo',
-                ],
-                (object) [
-                    'uuid' => '9fac1824-8c65-4d0e-845f-9bef03fa05a1',
-                    'name' => 'bar',
-                ],
+                'foo',
+                'bar',
             ],
             'organizer_uitpas_labels' => [],
         ];
