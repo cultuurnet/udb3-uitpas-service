@@ -11,9 +11,7 @@ use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
-use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
@@ -96,25 +94,22 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             );
         };
 
-        $cdbXmlEventCallback = function ($event) {
-            /* @var EventUpdatedFromUDB2|EventUpdatedFromCdbXml $event */
+        $updateFromUdb2Callback = function (EventUpdatedFromUDB2 $event) {
             return new Criteria(
                 ['uitpasAggregateId' => (string) $event->getEventId()]
             );
         };
 
         return [
-            'EventCreated' => $initialEventCallback,
-            'EventImportedFromUDB2' => $initialEventCallback,
-            'EventCreatedFromCdbXml' => $initialEventCallback,
-            'EventUpdatedFromUDB2' => $cdbXmlEventCallback,
-            'EventUpdatedFromCdbXml' => $cdbXmlEventCallback,
-            'OrganizerUpdated' => $offerEventCallback,
-            'OrganizerDeleted' => $offerEventCallback,
-            'PriceInfoUpdated' => $offerEventCallback,
-            'UiTPASAggregateCreated' => $uitpasAggregateEventCallback,
-            'DistributionKeysUpdated' => $uitpasAggregateEventCallback,
-            'DistributionKeysCleared' => $uitpasAggregateEventCallback,
+            EventCreated::class => $initialEventCallback,
+            EventImportedFromUDB2::class => $initialEventCallback,
+            EventUpdatedFromUDB2::class => $updateFromUdb2Callback,
+            OrganizerUpdated::class => $offerEventCallback,
+            OrganizerDeleted::class => $offerEventCallback,
+            PriceInfoUpdated::class => $offerEventCallback,
+            UiTPASAggregateCreated::class => $uitpasAggregateEventCallback,
+            DistributionKeysUpdated::class => $uitpasAggregateEventCallback,
+            DistributionKeysCleared::class => $uitpasAggregateEventCallback,
         ];
     }
 
@@ -152,27 +147,6 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     }
 
     /**
-     * @param EventCreatedFromCdbXml $eventCreatedFromCdbXml
-     * @param State $state
-     * @return State
-     */
-    public function handleEventCreatedFromCdbXml(EventCreatedFromCdbXml $eventCreatedFromCdbXml, State $state)
-    {
-        $state->set('uitpasAggregateId', $eventCreatedFromCdbXml->getEventId());
-        $state->set('syncCount', 0);
-
-        $state = $this->updateStateFromCdbXml(
-            $state,
-            (string) $eventCreatedFromCdbXml->getEventXmlString(),
-            (string) $eventCreatedFromCdbXml->getCdbXmlNamespaceUri()
-        );
-
-        $this->triggerSyncWhenConditionsAreMet($state);
-
-        return $state;
-    }
-
-    /**
      * @param EventUpdatedFromUDB2 $eventUpdatedFromUDB2
      * @param State $state
      * @return State
@@ -183,24 +157,6 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             $state,
             $eventUpdatedFromUDB2->getCdbXml(),
             $eventUpdatedFromUDB2->getCdbXmlNamespaceUri()
-        );
-
-        $this->triggerSyncWhenConditionsAreMet($state);
-
-        return $state;
-    }
-
-    /**
-     * @param EventUpdatedFromCdbXml $eventUpdatedFromCdbXml
-     * @param State $state
-     * @return State
-     */
-    public function handleEventUpdatedFromCdbXml(EventUpdatedFromCdbXml $eventUpdatedFromCdbXml, State $state)
-    {
-        $state = $this->updateStateFromCdbXml(
-            $state,
-            (string) $eventUpdatedFromCdbXml->getEventXmlString(),
-            (string) $eventUpdatedFromCdbXml->getCdbXmlNamespaceUri()
         );
 
         $this->triggerSyncWhenConditionsAreMet($state);

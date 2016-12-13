@@ -16,6 +16,7 @@ use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
@@ -409,9 +410,11 @@ $app['resque_command_bus_factory']('uitpas');
 $app->extend(
     'uitpas_command_bus_out',
     function (CommandBusInterface $commandBus, Application $app) {
-        // @todo Subscribe command handlers here.
+        $uitpasSync = isset($app['config']['uitpas_sync']) ? (bool) $app['config']['uitpas_sync'] : true;
+        if ($uitpasSync) {
+            $commandBus->subscribe($app['uitpas_sync_command_handler']);
+        }
 
-        $commandBus->subscribe($app['uitpas_sync_command_handler']);
         $commandBus->subscribe($app['uitpas_aggregate_command_handler']);
 
         return $commandBus;
@@ -467,7 +470,7 @@ $app['saga_manager'] = $app->share(
                 $app['saga_repository'],
                 new Broadway\UuidGenerator\Rfc4122\Version4Generator()
             ),
-            new \Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory(),
+            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
             new EventDispatcher()
         );
     }

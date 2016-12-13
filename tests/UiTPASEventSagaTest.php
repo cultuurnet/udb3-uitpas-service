@@ -5,7 +5,6 @@ namespace CultuurNet\UDB3\UiTPASService;
 use Broadway\CommandHandling\CommandBusInterface;
 use Broadway\CommandHandling\Testing\TraceableCommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
-use Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use Broadway\Saga\MultipleSagaManager;
 use Broadway\Saga\State\InMemoryRepository;
 use Broadway\Saga\State\StateManager;
@@ -22,21 +21,19 @@ use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\EventCreated;
-use CultuurNet\UDB3\Event\Events\EventCreatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
-use CultuurNet\UDB3\Event\Events\EventUpdatedFromCdbXml;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
-use CultuurNet\UDB3\EventXmlString;
 use CultuurNet\UDB3\Location\Location;
 use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
@@ -188,7 +185,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $sagaStateRepository,
             [$saga],
             new StateManager($sagaStateRepository, new Version4Generator()),
-            new StaticallyConfiguredSagaMetadataFactory(),
+            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
             new EventDispatcher()
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);
@@ -639,42 +636,6 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_created_from_cdbxml()
-    {
-        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
-
-        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
-
-        $expectedPriceInfo = new PriceInfo(
-            new BasePrice(
-                Price::fromFloat(5.5),
-                Currency::fromNative('EUR')
-            )
-        );
-
-        $this->scenario
-            ->when(
-                new EventCreatedFromCdbXml(
-                    new StringLiteral($this->eventId),
-                    new EventXmlString($cdbXml),
-                    new StringLiteral($cdbXmlNamespaceUri)
-                )
-            )
-            ->then(
-                [
-                    new CreateUiTPASAggregate($this->eventId, []),
-                    new RegisterUiTPASEvent(
-                        $this->eventId,
-                        $this->uitpasOrganizerId,
-                        $expectedPriceInfo
-                    ),
-                ]
-            );
-    }
-
-    /**
-     * @test
-     */
     public function it_updates_an_uitpas_event_when_updated_from_udb2()
     {
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
@@ -698,50 +659,6 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 ]
             )
             ->when(new EventUpdatedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
-            ->then(
-                [
-                    new UpdateUiTPASEvent(
-                        $this->eventId,
-                        $this->uitpasOrganizerId,
-                        $expectedPriceInfo,
-                        $this->distributionKeys
-                    ),
-                ]
-            );
-    }
-
-    /**
-     * @test
-     */
-    public function it_updates_an_uitpas_event_when_updated_from_cdbxml()
-    {
-        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
-
-        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
-
-        $expectedPriceInfo = new PriceInfo(
-            new BasePrice(
-                Price::fromFloat(5.5),
-                Currency::fromNative('EUR')
-            )
-        );
-
-        $this->scenario
-            ->given(
-                [
-                    $this->eventCreated,
-                    new OrganizerUpdated($this->eventId, $this->uitpasOrganizerId),
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
-                    $this->uitpasAggregateCreated,
-                ]
-            )
-            ->when(
-                new EventUpdatedFromCdbXml(
-                    new StringLiteral($this->eventId),
-                    new EventXmlString($cdbXml),
-                    new StringLiteral($cdbXmlNamespaceUri)
-                )
-            )
             ->then(
                 [
                     new UpdateUiTPASEvent(
