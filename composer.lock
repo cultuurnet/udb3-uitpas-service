@@ -59,16 +59,16 @@
         },
         {
             "name": "beberlei/assert",
-            "version": "v2.6.7",
+            "version": "v2.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "2b4c9249a7ceef51402d39bd797aae16cfd8f36f"
+                "reference": "848c8f0bde97b48d1e159075e20a6667583f3978"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/2b4c9249a7ceef51402d39bd797aae16cfd8f36f",
-                "reference": "2b4c9249a7ceef51402d39bd797aae16cfd8f36f",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/848c8f0bde97b48d1e159075e20a6667583f3978",
+                "reference": "848c8f0bde97b48d1e159075e20a6667583f3978",
                 "shasum": ""
             },
             "require": {
@@ -76,13 +76,13 @@
                 "php": ">=5.3"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "2.0.0-alpha",
+                "friendsofphp/php-cs-fixer": "^2.0",
                 "phpunit/phpunit": "@stable"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Assert": "lib/"
+                "psr-4": {
+                    "Assert\\": "lib/Assert"
                 },
                 "files": [
                     "lib/Assert/functions.php"
@@ -110,19 +110,19 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2016-11-14 16:46:13"
+            "time": "2016-12-05 11:33:17"
         },
         {
             "name": "broadway/broadway",
             "version": "0.5.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/qandidate-labs/broadway.git",
+                "url": "https://github.com/broadway/broadway.git",
                 "reference": "0fce8c532086ad249a46fec179759c1fa089e35d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/qandidate-labs/broadway/zipball/0fce8c532086ad249a46fec179759c1fa089e35d",
+                "url": "https://api.github.com/repos/broadway/broadway/zipball/0fce8c532086ad249a46fec179759c1fa089e35d",
                 "reference": "0fce8c532086ad249a46fec179759c1fa089e35d",
                 "shasum": ""
             },
@@ -1067,12 +1067,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-php.git",
-                "reference": "9b4c98b95d6a5315b02e9b9f5b339f3ffe14de13"
+                "reference": "1b734d59648b9c3bc670f6b37d7329903c880003"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/9b4c98b95d6a5315b02e9b9f5b339f3ffe14de13",
-                "reference": "9b4c98b95d6a5315b02e9b9f5b339f3ffe14de13",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-php/zipball/1b734d59648b9c3bc670f6b37d7329903c880003",
+                "reference": "1b734d59648b9c3bc670f6b37d7329903c880003",
                 "shasum": ""
             },
             "require": {
@@ -1146,7 +1146,7 @@
                 }
             ],
             "description": "UDB3 PHP libraries",
-            "time": "2016-12-02 13:03:43"
+            "time": "2016-12-09 19:42:12"
         },
         {
             "name": "cultuurnet/udb3-http-foundation",
@@ -5379,16 +5379,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.30",
+            "version": "4.8.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "a534e04d0bd39c557c2881c341efd06fa6f1292a"
+                "reference": "98b2b39a520766bec663ff5b7ff1b729db9dbfe3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a534e04d0bd39c557c2881c341efd06fa6f1292a",
-                "reference": "a534e04d0bd39c557c2881c341efd06fa6f1292a",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/98b2b39a520766bec663ff5b7ff1b729db9dbfe3",
+                "reference": "98b2b39a520766bec663ff5b7ff1b729db9dbfe3",
                 "shasum": ""
             },
             "require": {
@@ -5447,7 +5447,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-12-01 17:05:48"
+            "time": "2016-12-09 02:45:31"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

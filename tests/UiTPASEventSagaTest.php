@@ -10,6 +10,8 @@ use Broadway\Saga\State\InMemoryRepository;
 use Broadway\Saga\State\StateManager;
 use Broadway\Saga\Testing\Scenario;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
+use CommerceGuys\Intl\Currency\CurrencyRepository;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\UDB3\Address\Address;
 use CultuurNet\UDB3\Address\Locality;
 use CultuurNet\UDB3\Address\PostalCode;
@@ -17,6 +19,7 @@ use CultuurNet\UDB3\Address\Street;
 use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
+use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
@@ -197,7 +200,11 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
         return new UiTPASEventSaga(
             $commandBus,
             $this->organizerSpecification,
-            $this->eventCdbIdExtractor
+            $this->eventCdbIdExtractor,
+            new PriceDescriptionParser(
+                new NumberFormatRepository(),
+                new CurrencyRepository()
+            )
         );
     }
 
@@ -534,6 +541,80 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
         $expectedPriceInfo = new PriceInfo(
             new BasePrice(
                 Price::fromFloat(5.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $expectedPriceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2_with_price_description()
+    {
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price-description.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $expectedPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(15.00),
+                Currency::fromNative('EUR')
+            )
+        );
+        $expectedPriceInfo = $expectedPriceInfo->withExtraTariff(
+            new Tariff(
+                new StringLiteral('Studenten'),
+                Price::fromFloat(10.00),
+                Currency::fromNative('EUR')
+            )
+        );
+        $expectedPriceInfo = $expectedPriceInfo->withExtraTariff(
+            new Tariff(
+                new StringLiteral('Gepensioneerden'),
+                Price::fromFloat(12.00),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $expectedPriceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2_with_other_price_and_wrong_price_description()
+    {
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-other-price-and-wrong-price-description.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $expectedPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(10.00),
                 Currency::fromNative('EUR')
             )
         );

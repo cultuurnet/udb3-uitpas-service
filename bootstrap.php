@@ -7,12 +7,15 @@ use Broadway\EventStore\DBALEventStore;
 use Broadway\Saga\MultipleSagaManager;
 use Broadway\Saga\State\MongoDBRepository;
 use Broadway\Serializer\SimpleInterfaceSerializer;
+use CommerceGuys\Intl\Currency\CurrencyRepository;
+use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtUserToken;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\ExternalId\ArrayMappingService;
+use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
@@ -476,12 +479,22 @@ $app['saga_manager'] = $app->share(
     }
 );
 
+$app['price_description_parser'] = $app->share(
+    function () {
+        return new PriceDescriptionParser(
+            new NumberFormatRepository(),
+            new CurrencyRepository()
+        );
+    }
+);
+
 $app['uitpas_event_saga'] = $app->share(
     function (Application $app) {
         return new UiTPASEventSaga(
             $app['uitpas_command_bus'],
             $app['uitpas_organizer_spec'],
-            $app['event_cdbid_extractor']
+            $app['event_cdbid_extractor'],
+            $app['price_description_parser']
         );
     }
 );
