@@ -35,6 +35,11 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
     /**
      * @var string
      */
+    private $organizerWithHiddenUiTPASLabel;
+
+    /**
+     * @var string
+     */
     private $organizerWithLowercaseUiTPASLabel;
 
     /**
@@ -77,6 +82,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
 
         $this->organizerWithExactUiTPASLabel = 'organizer-with-uitpas-label';
         $this->organizerWithLowercaseUiTPASLabel = 'organizer-with-lowercase-uitpas-label';
+        $this->organizerWithHiddenUiTPASLabel = 'organizer-with-hidden-uitpas-label';
         $this->organizerWithoutUiTPASLabel = 'organizer-without-uitpas-label';
         $this->organizerWithoutLabels = 'organizer-without-labels';
         $this->organizerWithSyntaxError = 'organizer-with-syntax-error';
@@ -171,6 +177,40 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
                 'uitpas',
             ],
         ];
+
+        $this->assertLogMessage('debug', 0, 'successfully retrieved organizer JSON-LD', $expectedJsonLogContext);
+        $this->assertLogMessage('debug', 1, 'uitpas labels present on organizer', $expectedLabelLogContext);
+    }
+
+    /**
+     * @test
+     */
+    public function it_matches_organizers_with_a_hidden_uitpas_label()
+    {
+        $this->assertTrue(
+            $this->specification->isSatisfiedBy(
+                $this->organizerWithHiddenUiTPASLabel
+            )
+        );
+
+        $expectedLogContext = $this->createDefaultLogContext($this->organizerWithHiddenUiTPASLabel);
+
+        $expectedJsonLogContext = $expectedLogContext + [
+                'json' => file_get_contents($expectedLogContext['url']),
+            ];
+
+        $expectedLabelLogContext = $expectedLogContext + [
+                'uitpas_labels' => $this->uitpasLabels->asArray(),
+                'extracted_organizer_labels' => [
+                    'foo',
+                    'bar',
+                    'UiTPAS',
+                    'qa',
+                ],
+                'organizer_uitpas_labels' => [
+                    'UiTPAS',
+                ],
+            ];
 
         $this->assertLogMessage('debug', 0, 'successfully retrieved organizer JSON-LD', $expectedJsonLogContext);
         $this->assertLogMessage('debug', 1, 'uitpas labels present on organizer', $expectedLabelLogContext);

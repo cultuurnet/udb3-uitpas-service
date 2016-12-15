@@ -78,7 +78,7 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
             );
         }
 
-        $organizerLabels = isset($organizer->labels) ? $organizer->labels : [];
+        $organizerLabels = $this->extractAllLabels($organizer);
 
         $uitpasLabelsPresentOnOrganizer = array_filter(
             $organizerLabels,
@@ -101,5 +101,19 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
             $this->logger->debug('uitpas labels present on organizer', $labelLogContext);
             return true;
         }
+    }
+
+    /**
+     * Extracts all labels from an organizer, both visible and hidden.
+     *
+     * @param object $organizer
+     * @return array
+     */
+    private function extractAllLabels($organizer)
+    {
+        $visibleLabels = isset($organizer->labels) ? $organizer->labels : [];
+        $hiddenLabels = isset($organizer->hiddenLabels) ? $organizer->hiddenLabels : [];
+
+        return array_merge($visibleLabels, $hiddenLabels);
     }
 }
