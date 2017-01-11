@@ -38,7 +38,7 @@ class UDB3EventPermissionTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->httpClient = $this->getMock(ClientInterface::class);
+        $this->httpClient = $this->createMock(ClientInterface::class);
 
         $this->permissionUrl = Url::fromNative('http://udb-silex.dev/event/%s/permission');
 

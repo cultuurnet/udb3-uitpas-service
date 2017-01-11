@@ -157,7 +157,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $this->distributionKeys
         );
 
-        $this->organizerSpecification = $this->getMock(OrganizerSpecificationInterface::class);
+        $this->organizerSpecification = $this->createMock(OrganizerSpecificationInterface::class);
 
         $this->organizerSpecification->expects($this->any())
             ->method('isSatisfiedBy')

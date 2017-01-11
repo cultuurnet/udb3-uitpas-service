@@ -71,7 +71,7 @@ class IsUiTPASOrganizerAccordingToJSONLDTest extends \PHPUnit_Framework_TestCase
     {
         $this->organizerUrl = __DIR__ . '/samples/';
         $this->uitpasLabels = LabelCollection::fromStrings(['UiTPAS']);
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->specification = new IsUiTPASOrganizerAccordingToJSONLD(
             $this->organizerUrl,
