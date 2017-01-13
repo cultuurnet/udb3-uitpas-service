@@ -31,7 +31,7 @@ use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 use ValueObjects\Money\Currency;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
 {
