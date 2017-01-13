@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0d38ae82e699db4a0401137c80bc47aa",
-    "content-hash": "a777346e084cabb6fb7f583f2df0b0ff",
+    "hash": "ac98374757650d7266a84a9aa676fab0",
+    "content-hash": "177b0f35c0c57ff4a8989f196a968f85",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -725,6 +725,50 @@
             ],
             "description": "Internet media type deserialization library",
             "time": "2017-01-12 11:18:03"
+        },
+        {
+            "name": "cultuurnet/monolog-socketio",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cultuurnet/monolog-socketio.git",
+                "reference": "7fde9b80267b2523402d590d6b7f6d7c6b2b791f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cultuurnet/monolog-socketio/zipball/7fde9b80267b2523402d590d6b7f6d7c6b2b791f",
+                "reference": "7fde9b80267b2523402d590d6b7f6d7c6b2b791f",
+                "shasum": ""
+            },
+            "require": {
+                "monolog/monolog": "~1.11",
+                "rase/socket.io-emitter": "0.6.1"
+            },
+            "provide": {
+                "ext-redis": "*"
+            },
+            "require-dev": {
+                "phing/phing": "~2.11",
+                "phpunit/phpunit": "~5.7",
+                "satooshi/php-coveralls": "~0.7",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "CultuurNet\\MonologSocketIO\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "time": "2017-01-11 13:41:55"
         },
         {
             "name": "cultuurnet/search",
@@ -3306,6 +3350,45 @@
                 "uuid"
             ],
             "time": "2016-03-22 18:20:19"
+        },
+        {
+            "name": "rase/socket.io-emitter",
+            "version": "0.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rase-/socket.io-php-emitter.git",
+                "reference": "b7700205f43bd0047bb1ce2b32ee476c41780a06"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rase-/socket.io-php-emitter/zipball/b7700205f43bd0047bb1ce2b32ee476c41780a06",
+                "reference": "b7700205f43bd0047bb1ce2b32ee476c41780a06",
+                "shasum": ""
+            },
+            "require": {
+                "ext-redis": "*",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "SocketIO\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A PHP implementation of socket.io-emitter",
+            "homepage": "https://github.com/rase-/socket.io-php-emitter",
+            "keywords": [
+                "Socket.io",
+                "emit"
+            ],
+            "time": "2014-10-10 10:37:20"
         },
         {
             "name": "react/async",
