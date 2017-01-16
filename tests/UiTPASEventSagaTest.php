@@ -44,7 +44,7 @@ use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
 use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
 use ValueObjects\Geography\Country;
 use ValueObjects\Money\Currency;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 /**
  * @todo Extend SagaScenarioTestCase when we update to Broadway >= 0.9.x

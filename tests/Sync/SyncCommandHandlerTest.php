@@ -10,7 +10,7 @@ use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
 use Psr\Log\LoggerInterface;
 use ValueObjects\Money\Currency;
-use ValueObjects\String\String as StringLiteral;
+use ValueObjects\StringLiteral\StringLiteral;
 
 class SyncCommandHandlerTest extends \PHPUnit_Framework_TestCase
 {
