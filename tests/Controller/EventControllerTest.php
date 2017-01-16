@@ -36,11 +36,11 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->commandBus = $this->getMock(CommandBusInterface::class);
+        $this->commandBus = $this->createMock(CommandBusInterface::class);
 
-        $this->cultureFeedUitpas = $this->getMock(\CultureFeed_Uitpas::class);
+        $this->cultureFeedUitpas = $this->createMock(\CultureFeed_Uitpas::class);
 
-        $this->eventPermission = $this->getMock(EventPermissionInterface::class);
+        $this->eventPermission = $this->createMock(EventPermissionInterface::class);
 
         $this->eventController = new EventController(
             $this->commandBus,

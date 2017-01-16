@@ -61,10 +61,10 @@ class SyncCommandHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->uitpas = $this->getMock(\CultureFeed_Uitpas::class);
+        $this->uitpas = $this->createMock(\CultureFeed_Uitpas::class);
         $this->commandHandler = new SyncCommandHandler($this->uitpas);
 
-        $this->logger = $this->getMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->commandHandler->setLogger($this->logger);
 
         $this->logs = [

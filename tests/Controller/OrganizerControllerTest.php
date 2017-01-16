@@ -16,7 +16,7 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->uitpas = $this->getMock(\CultureFeed_Uitpas::class);
+        $this->uitpas = $this->createMock(\CultureFeed_Uitpas::class);
         $this->controller = new OrganizerController($this->uitpas);
     }
 
