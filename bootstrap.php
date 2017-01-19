@@ -501,13 +501,13 @@ $app['uitpas_event_saga'] = $app->share(
     function (Application $app) {
         $saga = new UiTPASEventSaga(
             $app['uitpas_command_bus'],
-            $app['uitpas_organizer_spec'],
             $app['event_cdbid_extractor'],
             $app['price_description_parser'],
-            $app['organizer_label_reader'],
             LabelCollection::fromStrings(
                 array_values($app['config']['labels'])
-            )
+            ),
+            $app['organizer_label_reader']
+
         );
 
         $logger = new Logger('uitpas_event_saga');
