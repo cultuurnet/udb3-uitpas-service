@@ -1,42 +1,31 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService\Specification;
+namespace CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository;
 
-use CultuurNet\UDB3\Label;
 use CultuurNet\UDB3\LabelCollection;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 
-class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterface, LoggerAwareInterface
+class JSONLDOrganizerLabelReadRepository implements OrganizerLabelReadRepositoryInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $url;
-
-    /**
-     * @var LabelCollection
-     */
-    protected $uitpasLabels;
+    private $url;
 
     /**
      * @param string $url
-     * @param LabelCollection $uitpasLabels
      */
-    public function __construct($url, $uitpasLabels)
+    public function __construct($url)
     {
         $this->url = $url;
-        $this->uitpasLabels = $uitpasLabels;
         $this->logger = new NullLogger();
     }
 
     /**
      * @inheritdoc
      */
-    public function isSatisfiedBy($organizerId)
+    public function getLabels($organizerId)
     {
         $organizer = null;
         $organizerUrl = $this->url . $organizerId;
@@ -57,7 +46,7 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
                 $logContext
             );
 
-            return false;
+            return new LabelCollection();
         }
 
         $organizer = json_decode($data);
@@ -70,7 +59,7 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
                 $jsonLogContext + ['json_error' => json_last_error_msg()]
             );
 
-            return false;
+            return new LabelCollection();
         } else {
             $this->logger->debug(
                 'successfully retrieved organizer JSON-LD',
@@ -80,40 +69,22 @@ class IsUiTPASOrganizerAccordingToJSONLD implements OrganizerSpecificationInterf
 
         $organizerLabels = $this->extractAllLabels($organizer);
 
-        $uitpasLabelsPresentOnOrganizer = array_filter(
-            $organizerLabels,
-            function ($label) {
-                $label = new Label($label);
-                return $this->uitpasLabels->contains($label);
-            }
-        );
-
-        $labelLogContext = $logContext + [
-            'uitpas_labels' => $this->uitpasLabels->asArray(),
-            'extracted_organizer_labels' => $organizerLabels,
-            'organizer_uitpas_labels' => array_values($uitpasLabelsPresentOnOrganizer),
-        ];
-
-        if (empty($uitpasLabelsPresentOnOrganizer)) {
-            $this->logger->debug('no uitpas labels present on organizer', $labelLogContext);
-            return false;
-        } else {
-            $this->logger->debug('uitpas labels present on organizer', $labelLogContext);
-            return true;
-        }
+        return $organizerLabels;
     }
 
     /**
      * Extracts all labels from an organizer, both visible and hidden.
      *
      * @param object $organizer
-     * @return array
+     * @return LabelCollection
      */
     private function extractAllLabels($organizer)
     {
         $visibleLabels = isset($organizer->labels) ? $organizer->labels : [];
         $hiddenLabels = isset($organizer->hiddenLabels) ? $organizer->hiddenLabels : [];
 
-        return array_merge($visibleLabels, $hiddenLabels);
+        $labels = array_merge($visibleLabels, $hiddenLabels);
+
+        return LabelCollection::fromStrings($labels);
     }
 }

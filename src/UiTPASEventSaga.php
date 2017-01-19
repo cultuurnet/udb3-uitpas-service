@@ -16,34 +16,37 @@ use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
 use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
+use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Offer\Events\AbstractEvent;
+use CultuurNet\UDB3\Organizer\Events\LabelAdded;
 use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
+use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\AbstractUiTPASAggregateEvent;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
-use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 use ValueObjects\Money\Currency;
 use ValueObjects\StringLiteral\StringLiteral;
 
-class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
+class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @var CommandBusInterface
      */
     private $commandBus;
-
-    /**
-     * @var OrganizerSpecificationInterface
-     */
-    private $organizerSpecification;
 
     /**
      * @var EventCdbIdExtractorInterface
@@ -56,21 +59,36 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     private $priceDescriptionParser;
 
     /**
+     * @var \CultuurNet\UDB3\LabelCollection
+     */
+    private $uitpasLabels;
+
+    /**
+     * @var OrganizerLabelReadRepositoryInterface
+     */
+    private $organizerLabelRepository;
+
+    /**
      * @param CommandBusInterface $commandBus
-     * @param OrganizerSpecificationInterface $organizerSpecification
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      * @param PriceDescriptionParser $priceDescriptionParser
+     * @param LabelCollection $uitpasLabels
+     * @param OrganizerLabelReadRepositoryInterface $organizerLabelRepository
      */
     public function __construct(
         CommandBusInterface $commandBus,
-        OrganizerSpecificationInterface $organizerSpecification,
         EventCdbIdExtractorInterface $eventCdbIdExtractor,
-        PriceDescriptionParser $priceDescriptionParser
+        PriceDescriptionParser $priceDescriptionParser,
+        LabelCollection $uitpasLabels,
+        OrganizerLabelReadRepositoryInterface $organizerLabelRepository
     ) {
         $this->commandBus = $commandBus;
-        $this->organizerSpecification = $organizerSpecification;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
         $this->priceDescriptionParser = $priceDescriptionParser;
+        $this->uitpasLabels = $uitpasLabels;
+        $this->organizerLabelRepository = $organizerLabelRepository;
+
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -100,6 +118,12 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             );
         };
 
+        $labelAddedToOrganizerCallback = function (LabelAdded $event) {
+            return new Criteria(
+                ['organizerId' => (string) $event->getOrganizerId()]
+            );
+        };
+
         return [
             EventCreated::class => $initialEventCallback,
             EventImportedFromUDB2::class => $initialEventCallback,
@@ -110,6 +134,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
             UiTPASAggregateCreated::class => $uitpasAggregateEventCallback,
             DistributionKeysUpdated::class => $uitpasAggregateEventCallback,
             DistributionKeysCleared::class => $uitpasAggregateEventCallback,
+            LabelAdded::class => $labelAddedToOrganizerCallback,
         ];
     }
 
@@ -171,11 +196,12 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      */
     public function handleOrganizerUpdated(OrganizerUpdated $organizerUpdated, State $state)
     {
-        $state = $this->updateOrganizerState($organizerUpdated->getOrganizerId(), $state);
+        $isUitpasOrganizer = $this->isOrganizerTaggedWithUiTPASLabels($organizerUpdated->getOrganizerId());
+        $state = $this->updateOrganizerState($organizerUpdated->getOrganizerId(), $isUitpasOrganizer, $state);
 
         $state = $this->triggerSyncWhenConditionsAreMet($state);
 
-        if ($this->uitpasAggregateHasBeenCreated($state)) {
+        if ($this->hasUitpasAggregateBeenCreated($state)) {
             // When the organizer is changed the selected distribution keys
             // become invalid so we should dispatch a command to correct this.
             // This command will trigger an extra sync afterwards IF any
@@ -250,6 +276,43 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     }
 
     /**
+     * @param LabelAdded $labelAdded
+     * @param State $state
+     * @return State
+     */
+    public function handleLabelAdded(LabelAdded $labelAdded, State $state)
+    {
+        // This is only relevant if the organizer is not yet an uitpas organizer.
+        if (true === $state->get('uitpasOrganizer')) {
+            return $state;
+        }
+
+        $logContext = [
+            'uitpas_labels' => $this->mapLabelCollectionToStrings($this->uitpasLabels),
+            'organizer' => $labelAdded->getOrganizerId(),
+            'label' => (string) $labelAdded->getLabel(),
+            'event' => $state->get('uitpasAggregateId'),
+        ];
+
+        if ($this->uitpasLabels->contains($labelAdded->getLabel())) {
+            $this->logger->debug(
+                'uitpas label was added to organizer',
+                $logContext
+            );
+            $state = $this->updateOrganizerState($labelAdded->getOrganizerId(), true, $state);
+        } else {
+            $this->logger->debug(
+                'label was added to organizer, but it is not an uitpas label',
+                $logContext
+            );
+        }
+
+        $this->triggerSyncWhenConditionsAreMet($state);
+
+        return $state;
+    }
+
+    /**
      * @param State $state
      * @param string $cdbXml
      * @param string $cdbXmlNamespaceUri
@@ -266,7 +329,8 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
         $organizerCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
 
         if (!is_null($organizerCdbId)) {
-            $state = $this->updateOrganizerState($organizerCdbId, $state);
+            $uitpasOrganizer = $this->isOrganizerTaggedWithUiTPASLabels($organizerCdbId);
+            $state = $this->updateOrganizerState($organizerCdbId, $uitpasOrganizer, $state);
         }
 
         $state = $this->updatePriceInfoStateFromCdbEvent($event, $state);
@@ -371,16 +435,38 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
     }
 
     /**
-     * @param $organizerId
+     * @param string $organizerId
+     * $param bool $uitpasOrganizer
      * @param State $state
      * @return State
      */
-    private function updateOrganizerState($organizerId, State $state)
+    private function updateOrganizerState($organizerId, $uitpasOrganizer, State $state)
     {
-        $uitpasOrganizer = $this->organizerSpecification->isSatisfiedBy($organizerId);
         $state->set('organizerId', $organizerId);
         $state->set('uitpasOrganizer', $uitpasOrganizer);
         return $state;
+    }
+
+    private function isOrganizerTaggedWithUiTPASLabels($organizerId)
+    {
+        $labels = $this->organizerLabelRepository->getLabels($organizerId);
+
+        $uitpasLabelsPresentOnOrganizer = $this->uitpasLabels->intersect($labels);
+
+        $labelLogContext = [
+            'organizer' => $organizerId,
+            'uitpas_labels' => $this->mapLabelCollectionToStrings($this->uitpasLabels),
+            'extracted_organizer_labels' => $this->mapLabelCollectionToStrings($labels),
+            'organizer_uitpas_labels' => $this->mapLabelCollectionToStrings($uitpasLabelsPresentOnOrganizer),
+        ];
+
+        if (count($uitpasLabelsPresentOnOrganizer) > 0) {
+            $this->logger->debug('uitpas labels present on organizer', $labelLogContext);
+            return true;
+        } else {
+            $this->logger->debug('no uitpas labels present on organizer', $labelLogContext);
+            return false;
+        }
     }
 
     /**
@@ -424,8 +510,22 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface
      * @param State $state
      * @return bool
      */
-    private function uitpasAggregateHasBeenCreated(State $state)
+    private function hasUitpasAggregateBeenCreated(State $state)
     {
         return !is_null($state->get('distributionKeyIds'));
+    }
+
+    /**
+     * @param LabelCollection $labelCollection
+     * @return string[]
+     */
+    private function mapLabelCollectionToStrings(LabelCollection $labelCollection)
+    {
+        return array_map(
+            function (Label $label) {
+                return (string) $label;
+            },
+            $labelCollection->asArray()
+        );
     }
 }

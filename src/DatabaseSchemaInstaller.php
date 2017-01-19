@@ -2,9 +2,9 @@
 
 namespace CultuurNet\UDB3\UiTPASService;
 
+use CultuurNet\UDB3\Doctrine\DBAL\SchemaConfiguratorInterface;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Migrations\Configuration\Configuration;
-use CultuurNet\UDB3\Doctrine\DBAL\SchemaConfiguratorInterface;
 
 /**
  * Database schema installer for the UiTPAS service.

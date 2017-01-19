@@ -27,21 +27,26 @@ use CultuurNet\UDB3\Event\Events\OrganizerDeleted;
 use CultuurNet\UDB3\Event\Events\OrganizerUpdated;
 use CultuurNet\UDB3\Event\Events\PriceInfoUpdated;
 use CultuurNet\UDB3\Event\EventType;
+use CultuurNet\UDB3\Label;
+use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\Location\Location;
+use CultuurNet\UDB3\Organizer\Events\LabelAdded;
 use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
+use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
-use CultuurNet\UDB3\UiTPASService\Specification\OrganizerSpecificationInterface;
+use Monolog\Handler\TestHandler;
+use Monolog\Logger;
 use ValueObjects\Geography\Country;
 use ValueObjects\Money\Currency;
 use ValueObjects\StringLiteral\StringLiteral;
@@ -97,17 +102,29 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     private $uitpasAggregateCreated;
 
     /**
-     * @var OrganizerSpecificationInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var OrganizerLabelReadRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $organizerSpecification;
+    private $organizerLabelReader;
 
     /**
      * @var EventCdbIdExtractor
      */
     private $eventCdbIdExtractor;
 
+    /**
+     * @var LabelCollection
+     */
+    private $uitpasLabels;
+
+    /**
+     * @var TestHandler
+     */
+    private $logHandler;
+
     public function setUp()
     {
+        $this->logHandler = new TestHandler();
+
         $this->eventId = 'e1122fff-0f67-4042-82c3-6b5ca7af02d7';
 
         $this->eventCreated = new EventCreated(
@@ -157,14 +174,24 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $this->distributionKeys
         );
 
-        $this->organizerSpecification = $this->createMock(OrganizerSpecificationInterface::class);
+        $this->organizerLabelReader = $this->createMock(OrganizerLabelReadRepositoryInterface::class);
+        $this->uitpasLabels = new LabelCollection(
+            [
+                new Label('UiTPAS Gent'),
+                new Label('UiTPAS Mechelen'),
+            ]
+        );
 
-        $this->organizerSpecification->expects($this->any())
-            ->method('isSatisfiedBy')
+        $this->organizerLabelReader->expects($this->any())
+            ->method('getLabels')
             ->willReturnCallback(
                 function ($organizerId) {
                     $uitpasOrganizerIds = [$this->uitpasOrganizerId, $this->updatedUitpasOrganizerId];
-                    return in_array($organizerId, $uitpasOrganizerIds);
+                    if (in_array($organizerId, $uitpasOrganizerIds)) {
+                        return new LabelCollection([new Label('UiTPAS Mechelen')]);
+                    } else {
+                        return new LabelCollection([new Label('foo')]);
+                    }
                 }
             );
 
@@ -197,15 +224,20 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     protected function createSaga(CommandBusInterface $commandBus)
     {
-        return new UiTPASEventSaga(
+        $saga = new UiTPASEventSaga(
             $commandBus,
-            $this->organizerSpecification,
             $this->eventCdbIdExtractor,
             new PriceDescriptionParser(
                 new NumberFormatRepository(),
                 new CurrencyRepository()
-            )
+            ),
+            $this->uitpasLabels,
+            $this->organizerLabelReader
         );
+
+        $saga->setLogger(new Logger('uitpas saga', [$this->logHandler]));
+
+        return $saga;
     }
 
     /**
@@ -231,6 +263,20 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                 ]
             );
+
+        $expectedLogContext = [
+            'organizer' => $this->uitpasOrganizerId,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+            'extracted_organizer_labels' => ['UiTPAS Mechelen'],
+            'organizer_uitpas_labels' => ['UiTPAS Mechelen'],
+        ];
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'uitpas labels present on organizer',
+            $expectedLogContext,
+            0
+        );
     }
 
     /**
@@ -256,6 +302,20 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                 ]
             );
+
+        $expectedLogContext = [
+            'organizer' => $this->uitpasOrganizerId,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+            'extracted_organizer_labels' => ['UiTPAS Mechelen'],
+            'organizer_uitpas_labels' => ['UiTPAS Mechelen'],
+        ];
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'uitpas labels present on organizer',
+            $expectedLogContext,
+            0
+        );
     }
 
     /**
@@ -272,6 +332,20 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->when(new OrganizerUpdated($this->eventId, $this->regularOrganizerId))
             ->then([]);
+
+        $expectedLogContext = [
+            'organizer' => $this->regularOrganizerId,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+            'extracted_organizer_labels' => ['foo'],
+            'organizer_uitpas_labels' => [],
+        ];
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'no uitpas labels present on organizer',
+            $expectedLogContext,
+            0
+        );
     }
 
     /**
@@ -288,6 +362,20 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->when(new PriceInfoUpdated($this->eventId, $this->priceInfo))
             ->then([]);
+
+        $expectedLogContext = [
+            'organizer' => $this->regularOrganizerId,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+            'extracted_organizer_labels' => ['foo'],
+            'organizer_uitpas_labels' => [],
+        ];
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'no uitpas labels present on organizer',
+            $expectedLogContext,
+            0
+        );
     }
 
     /**
@@ -744,5 +832,113 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->when(new EventUpdatedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
             ->then([]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_an_uitpas_event_when_an_uitpas_label_is_added_to_the_organizer()
+    {
+        $organizerId = '750aaaab-e25b-4654-85f5-b5386279d48b';
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $organizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                ]
+            )
+            ->when(
+                new LabelAdded($organizerId, new Label('UiTPAS Mechelen'))
+            )
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $organizerId,
+                        $this->priceInfo,
+                        []
+                    ),
+                ]
+            );
+
+        $expectedLogContext = [
+            'organizer' => $organizerId,
+            'label' => 'UiTPAS Mechelen',
+            'event' => $this->eventId,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+        ];
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'uitpas label was added to organizer',
+            $expectedLogContext,
+            1
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_register_an_uitpas_event_when_a_label_not_relevant_for_uitpas_is_added_to_the_organizer()
+    {
+        $organizerId = '750aaaab-e25b-4654-85f5-b5386279d48b';
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated($this->eventId, $organizerId),
+                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                ]
+            )
+            ->when(
+                new LabelAdded($organizerId, new Label('bar'))
+            )
+            ->then([]);
+
+        $expectedLogContext = [
+            'organizer' => $organizerId,
+            'label' => 'bar',
+            'event' => $this->eventId,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+        ];
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'label was added to organizer, but it is not an uitpas label',
+            $expectedLogContext,
+            1
+        );
+    }
+
+    /**
+     * @param int $level
+     * @param string $message
+     * @param array $context
+     * @param int $index
+     */
+    private function assertLogged($level, $message, array $context, $index)
+    {
+        $logs = $this->logHandler->getRecords();
+
+        $this->assertArrayHasKey($index, $logs);
+
+        $this->assertLog($level, $message, $context, $logs[$index]);
+    }
+
+    /**
+     * @param int $level
+     * @param string $message
+     * @param array $context
+     * @param array $log
+     */
+    private function assertLog($level, $message, array $context, array $log)
+    {
+        $this->assertEquals($level, $log['level']);
+        $this->assertEquals($message, $log['message']);
+        $this->assertEquals($context, $log['context']);
     }
 }

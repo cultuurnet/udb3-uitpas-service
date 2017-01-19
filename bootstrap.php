@@ -20,11 +20,11 @@ use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\JSONLDOrganizerLabelReadRepository;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
 use CultuurNet\UDB3\UiTPASService\Sync\SyncCommandHandler;
 use CultuurNet\UDB3\UiTPASService\EventStoreSchemaConfigurator;
-use CultuurNet\UDB3\UiTPASService\Specification\IsUiTPASOrganizerAccordingToJSONLD;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateCommandHandler;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\UiTPASAggregateRepository;
 use CultuurNet\UDB3\UiTPASService\UiTPASEventSaga;
@@ -488,42 +488,54 @@ $app['price_description_parser'] = $app->share(
     }
 );
 
-$app['uitpas_event_saga'] = $app->share(
+$app['saga_file_logger'] = $app->share(
     function (Application $app) {
-        return new UiTPASEventSaga(
-            $app['uitpas_command_bus'],
-            $app['uitpas_organizer_spec'],
-            $app['event_cdbid_extractor'],
-            $app['price_description_parser']
+        return new StreamHandler(
+            __DIR__ . '/log/saga.log',
+            Logger::DEBUG
         );
     }
 );
 
-$app['uitpas_organizer_spec'] = $app->share(
+$app['uitpas_event_saga'] = $app->share(
     function (Application $app) {
-        $uitpasLabels = (array) $app['config']['labels'];
+        $saga = new UiTPASEventSaga(
+            $app['uitpas_command_bus'],
+            $app['event_cdbid_extractor'],
+            $app['price_description_parser'],
+            LabelCollection::fromStrings(
+                array_values($app['config']['labels'])
+            ),
+            $app['organizer_label_reader']
 
-        $spec = new IsUiTPASOrganizerAccordingToJSONLD(
-            $app['config']['udb3_organizer_base_url'],
-            LabelCollection::fromStrings(array_values($uitpasLabels))
         );
 
-        $logger = new Logger('uitpas_organizer_spec');
+        $logger = new Logger('uitpas_event_saga');
 
-        $stdOut = new StreamHandler('php://stdout');
-        //$stdOut->setFormatter(new NormalizerFormatter());
-        $logger->pushHandler($stdOut);
+        $logger->pushHandler(new StreamHandler('php://stdout'));
+        $logger->pushHandler($app['saga_file_logger']);
 
-        $logFile = new StreamHandler(
-            __DIR__ . '/log/uitpas_organizer_spec.log',
-            Logger::DEBUG
+        $saga->setLogger($logger);
+
+        return $saga;
+    }
+);
+
+$app['organizer_label_reader'] = $app->share(
+    function (Application $app) {
+
+        $reader = new JSONLDOrganizerLabelReadRepository(
+            $app['config']['udb3_organizer_base_url']
         );
-        //$logFile->setFormatter(new NormalizerFormatter());
-        $logger->pushHandler($logFile);
 
-        $spec->setLogger($logger);
+        $logger = new Logger('organizer_label_reader');
 
-        return $spec;
+        $logger->pushHandler(new StreamHandler('php://stdout'));
+        $logger->pushHandler($app['saga_file_logger']);
+
+        $reader->setLogger($logger);
+
+        return $reader;
     }
 );
 
