@@ -197,12 +197,12 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
      */
     public function handleOrganizerUpdated(OrganizerUpdated $organizerUpdated, State $state)
     {
-        $uitpasOrganizer = $this->organizerIsTaggedWithUiTPASLabels($organizerUpdated->getOrganizerId());
-        $state = $this->updateOrganizerState($organizerUpdated->getOrganizerId(), $uitpasOrganizer, $state);
+        $isUitpasOrganizer = $this->isOrganizerTaggedWithUiTPASLabels($organizerUpdated->getOrganizerId());
+        $state = $this->updateOrganizerState($organizerUpdated->getOrganizerId(), $isUitpasOrganizer, $state);
 
         $state = $this->triggerSyncWhenConditionsAreMet($state);
 
-        if ($this->uitpasAggregateHasBeenCreated($state)) {
+        if ($this->hasUitpasAggregateBeenCreated($state)) {
             // When the organizer is changed the selected distribution keys
             // become invalid so we should dispatch a command to correct this.
             // This command will trigger an extra sync afterwards IF any
@@ -330,7 +330,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         $organizerCdbId = $this->eventCdbIdExtractor->getRelatedOrganizerCdbId($event);
 
         if (!is_null($organizerCdbId)) {
-            $uitpasOrganizer = $this->organizerIsTaggedWithUiTPASLabels($organizerCdbId);
+            $uitpasOrganizer = $this->isOrganizerTaggedWithUiTPASLabels($organizerCdbId);
             $state = $this->updateOrganizerState($organizerCdbId, $uitpasOrganizer, $state);
         }
 
@@ -448,7 +448,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         return $state;
     }
 
-    private function organizerIsTaggedWithUiTPASLabels($organizerId)
+    private function isOrganizerTaggedWithUiTPASLabels($organizerId)
     {
         $labels = $this->organizerLabelRepository->getLabels($organizerId);
 
@@ -511,7 +511,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
      * @param State $state
      * @return bool
      */
-    private function uitpasAggregateHasBeenCreated(State $state)
+    private function hasUitpasAggregateBeenCreated(State $state)
     {
         return !is_null($state->get('distributionKeyIds'));
     }
