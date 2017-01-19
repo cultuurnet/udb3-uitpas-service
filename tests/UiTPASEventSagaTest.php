@@ -38,18 +38,18 @@ use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
+use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\CreateUiTPASAggregate;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysCleared;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\DistributionKeysUpdated;
 use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Event\UiTPASAggregateCreated;
+use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use ValueObjects\Geography\Country;
 use ValueObjects\Money\Currency;
 use ValueObjects\StringLiteral\StringLiteral;
-use Monolog\Handler\TestHandler;
 
 /**
  * @todo Extend SagaScenarioTestCase when we update to Broadway >= 0.9.x
