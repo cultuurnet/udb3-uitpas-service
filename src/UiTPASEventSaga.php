@@ -71,10 +71,10 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
 
     /**
      * @param CommandBusInterface $commandBus
-     * @param OrganizerSpecificationInterface $organizerSpecification
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      * @param PriceDescriptionParser $priceDescriptionParser
      * @param LabelCollection $uitpasLabels
+     * @param OrganizerLabelReadRepositoryInterface $organizerLabelRepository
      */
     public function __construct(
         CommandBusInterface $commandBus,
