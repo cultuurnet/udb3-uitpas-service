@@ -19,7 +19,7 @@ use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\JSONLDOrganizerLabelReadRepository;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
@@ -473,7 +473,7 @@ $app['saga_manager'] = $app->share(
                 $app['saga_repository'],
                 new Broadway\UuidGenerator\Rfc4122\Version4Generator()
             ),
-            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
+            new StaticallyConfiguredSagaMetadataFactory(),
             new EventDispatcher()
         );
     }

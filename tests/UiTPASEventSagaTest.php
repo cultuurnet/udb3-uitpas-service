@@ -36,7 +36,7 @@ use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
@@ -212,7 +212,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $sagaStateRepository,
             [$saga],
             new StateManager($sagaStateRepository, new Version4Generator()),
-            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
+            new StaticallyConfiguredSagaMetadataFactory(),
             new EventDispatcher()
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);

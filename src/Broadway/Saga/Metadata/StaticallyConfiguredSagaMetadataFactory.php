@@ -1,15 +1,15 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga;
+namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata;
 
 use Broadway\Saga\Metadata\MetadataFactoryInterface;
 use Broadway\Saga\Metadata\StaticallyConfiguredSagaInterface;
 
 /**
  * Copied from Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory
- * and modified to return an instance of NamespacedEventsMetadata.
+ * and modified to return an instance of Metadata.
  */
-class StaticallyConfiguredSagaNamespacedEventsMetadataFactory implements MetadataFactoryInterface
+class StaticallyConfiguredSagaMetadataFactory implements MetadataFactoryInterface
 {
     /**
      * {@inheritDoc}
@@ -24,6 +24,6 @@ class StaticallyConfiguredSagaNamespacedEventsMetadataFactory implements Metadat
 
         $criteria = $saga::configuration();
 
-        return new NamespacedEventsMetadata($criteria);
+        return new Metadata($criteria);
     }
 }
