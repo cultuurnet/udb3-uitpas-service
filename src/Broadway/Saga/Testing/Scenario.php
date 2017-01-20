@@ -8,6 +8,10 @@ use Broadway\Domain\Metadata;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * Copied from Broadway\Saga\Testing\Scenario and modified
+ * to use the forked MultipleSagaManager class.
+ */
 class Scenario
 {
     private $testCase;

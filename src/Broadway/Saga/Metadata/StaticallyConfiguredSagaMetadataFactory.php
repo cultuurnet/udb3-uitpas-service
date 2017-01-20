@@ -7,7 +7,7 @@ use Broadway\Saga\Metadata\StaticallyConfiguredSagaInterface;
 
 /**
  * Copied from Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory
- * and modified to return an instance of Metadata.
+ * and modified to return an instance of the forked Metadata class.
  */
 class StaticallyConfiguredSagaMetadataFactory implements MetadataFactoryInterface
 {

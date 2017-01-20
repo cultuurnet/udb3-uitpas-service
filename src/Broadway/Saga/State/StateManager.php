@@ -7,7 +7,7 @@ use Broadway\UuidGenerator\UuidGeneratorInterface;
 
 /**
  * Copied from Broadway\Saga\State\StateManager to use findBy() instead of
- * findOneBy(), and add generateNewState().
+ * findOneBy(), and added generateNewState().
  */
 class StateManager implements StateManagerInterface
 {

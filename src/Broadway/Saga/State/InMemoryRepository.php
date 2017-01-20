@@ -5,6 +5,10 @@ namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State;
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
 
+/**
+ * Copied from Broadway\Saga\State\InMemoryRepository and modified
+ * to use findBy() instead of findOneBy().
+ */
 class InMemoryRepository implements RepositoryInterface
 {
     private $states = [];
