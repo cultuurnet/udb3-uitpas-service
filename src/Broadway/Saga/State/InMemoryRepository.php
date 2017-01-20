@@ -25,11 +25,13 @@ class InMemoryRepository implements RepositoryInterface
         }
 
         foreach ($criteria->getComparisons() as $key => $value) {
-            $states = array_filter($states, function ($elem) use ($key, $value) {
-                $stateValue = $elem->get($key);
-
-                return is_array($stateValue) ? in_array($value, $stateValue) : $value === $stateValue;
-            });
+            $states = array_filter(
+                $states,
+                function ($elem) use ($key, $value) {
+                    $stateValue = $elem->get($key);
+                    return is_array($stateValue) ? in_array($value, $stateValue) : $value === $stateValue;
+                }
+            );
         }
 
         foreach ($states as $state) {
