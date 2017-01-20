@@ -34,7 +34,8 @@ class StateManager implements StateManagerInterface
     /**
      * @return State
      */
-    public function generateNewState() {
+    public function generateNewState()
+    {
         return new State($this->generator->generate());
     }
 }
