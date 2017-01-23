@@ -10,6 +10,7 @@ use Broadway\Saga\State\Criteria;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
+use CultuurNet\UDB3\Event\Events\Concluded;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
@@ -100,6 +101,12 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             return null;
         };
 
+        $concludedEventCallback = function (Concluded $concluded) {
+            return new Criteria(
+                ['uitpasAggregateId' => $concluded->getItemId()]
+            );
+        };
+
         $offerEventCallback = function (AbstractEvent $event) {
             return new Criteria(
                 ['uitpasAggregateId' => $event->getItemId()]
@@ -135,6 +142,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             DistributionKeysUpdated::class => $uitpasAggregateEventCallback,
             DistributionKeysCleared::class => $uitpasAggregateEventCallback,
             LabelAdded::class => $labelAddedToOrganizerCallback,
+            Concluded::class => $concludedEventCallback,
         ];
     }
 
@@ -308,6 +316,18 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         }
 
         $this->triggerSyncWhenConditionsAreMet($state);
+
+        return $state;
+    }
+
+    /**
+     * @param Concluded $concluded
+     * @param State $state
+     * @return State
+     */
+    public function handleConcluded(Concluded $concluded, State $state)
+    {
+        $state->setDone();
 
         return $state;
     }

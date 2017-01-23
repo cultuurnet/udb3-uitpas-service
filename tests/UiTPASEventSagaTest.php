@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\UiTPASService;
 use Broadway\CommandHandling\CommandBusInterface;
 use Broadway\CommandHandling\Testing\TraceableCommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\Saga\State\Criteria;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
@@ -16,6 +17,7 @@ use CultuurNet\UDB3\Calendar;
 use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
+use CultuurNet\UDB3\Event\Events\Concluded;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
@@ -56,6 +58,8 @@ use ValueObjects\StringLiteral\StringLiteral;
  */
 class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 {
+    const SAGA_TYPE = 'uitpas_sync';
+
     /**
      * @var Scenario
      */
@@ -121,6 +125,11 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     private $logHandler;
 
+    /**
+     * @var InMemoryRepository
+     */
+    private $sagaStateRepository;
+
     public function setUp()
     {
         $this->logHandler = new TestHandler();
@@ -182,6 +191,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $this->eventCdbIdExtractor = new EventCdbIdExtractor();
 
+        $this->sagaStateRepository = new InMemoryRepository();
         $this->scenario = $this->createScenario();
     }
 
@@ -192,15 +202,36 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     {
         $traceableCommandBus = new TraceableCommandBus();
         $saga                = $this->createSaga($traceableCommandBus);
-        $sagaStateRepository = new InMemoryRepository();
         $sagaManager         = new MultipleSagaManager(
-            $sagaStateRepository,
-            [$saga],
-            new StateManager($sagaStateRepository, new Version4Generator()),
+            $this->sagaStateRepository,
+            [self::SAGA_TYPE => $saga],
+            new StateManager($this->sagaStateRepository, new Version4Generator()),
             new StaticallyConfiguredSagaMetadataFactory(),
             new EventDispatcher()
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);
+    }
+
+    /**
+     * @test
+     * @group issue-III-1807
+     */
+    public function it_starts_the_saga_when_an_event_is_created()
+    {
+        $eventId = '';
+        $this->scenario
+            ->when(
+                $this->generateEventCreatedEvent($eventId)
+            )
+            ->then([]);
+
+        $states = $this->sagaStateRepository->findBy(
+            new Criteria(['uitpasAggregateId' => $eventId]),
+            self::SAGA_TYPE
+        );
+
+        $statesArray = iterator_to_array($states);
+        $this->assertCount(1, $statesArray);
     }
 
     /**
@@ -821,6 +852,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @group issue-III-1804
      */
     public function it_registers_multiple_uitpas_events_when_an_uitpas_label_is_added_to_their_related_organizer()
     {
@@ -896,6 +928,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     * @group issue-III-1804
      */
     public function it_does_not_register_an_uitpas_event_when_a_label_not_relevant_for_uitpas_is_added_to_the_organizer()
     {
@@ -927,6 +960,32 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $expectedLogContext,
             1
         );
+    }
+
+    /**
+     * @test
+     * @group issue-III-1807
+     */
+    public function it_finishes_the_saga_state_when_an_event_is_concluded()
+    {
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                ]
+            )
+            ->when(
+                new Concluded($this->eventId)
+            )
+            ->then([]);
+
+        $states = $this->sagaStateRepository->findBy(
+            new Criteria(['uitpasAggregateId' => $this->eventId]),
+            self::SAGA_TYPE
+        );
+
+        $statesArray = iterator_to_array($states);
+        $this->assertEmpty($statesArray);
     }
 
     /**
