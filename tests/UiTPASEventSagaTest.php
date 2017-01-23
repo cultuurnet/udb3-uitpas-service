@@ -971,7 +971,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
         $this->scenario
             ->given(
                 [
-                    $this->eventCreated
+                    $this->eventCreated,
                 ]
             )
             ->when(
