@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga;
+namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata;
 
 use Broadway\Saga\MetadataInterface;
 
@@ -8,7 +8,7 @@ use Broadway\Saga\MetadataInterface;
  * Copied from Broadway\Saga\Metadata\Metadata and modified to work with
  * namespaced event names.
  */
-class NamespacedEventsMetadata implements MetadataInterface
+class Metadata implements MetadataInterface
 {
     private $criteria;
 

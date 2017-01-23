@@ -5,10 +5,6 @@ namespace CultuurNet\UDB3\UiTPASService;
 use Broadway\CommandHandling\CommandBusInterface;
 use Broadway\CommandHandling\Testing\TraceableCommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
-use Broadway\Saga\MultipleSagaManager;
-use Broadway\Saga\State\InMemoryRepository;
-use Broadway\Saga\State\StateManager;
-use Broadway\Saga\Testing\Scenario;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
@@ -36,7 +32,11 @@ use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\Title;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\InMemoryRepository;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManager;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Testing\Scenario;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
@@ -127,22 +127,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $this->eventId = 'e1122fff-0f67-4042-82c3-6b5ca7af02d7';
 
-        $this->eventCreated = new EventCreated(
-            $this->eventId,
-            new Title('title'),
-            new EventType('id', 'label'),
-            new Location(
-                '335be568-aaf0-4147-80b6-9267daafe23b',
-                new StringLiteral('Repeteerkot'),
-                new Address(
-                    new Street('Kerkstraat 69'),
-                    new PostalCode('9630'),
-                    new Locality('Zottegem'),
-                    Country::fromNative('BE')
-                )
-            ),
-            new Calendar(CalendarType::PERMANENT())
-        );
+        $this->eventCreated = $this->generateEventCreatedEvent($this->eventId);
 
         $this->regularOrganizerId = '72de67fb-d85c-4d3a-b464-b1157b83ed95';
         $this->uitpasOrganizerId = '6c1ac534-cd05-4ddb-a6d1-ba076aea9275';
@@ -212,7 +197,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             $sagaStateRepository,
             [$saga],
             new StateManager($sagaStateRepository, new Version4Generator()),
-            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
+            new StaticallyConfiguredSagaMetadataFactory(),
             new EventDispatcher()
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);
@@ -837,16 +822,25 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_registers_an_uitpas_event_when_an_uitpas_label_is_added_to_the_organizer()
+    public function it_registers_multiple_uitpas_events_when_an_uitpas_label_is_added_to_their_related_organizer()
     {
         $organizerId = '750aaaab-e25b-4654-85f5-b5386279d48b';
+
+        $event1Id = '707cdc16-746f-4bde-8440-6d0134d96e95';
+        $event2Id = '03297490-6cd2-49a5-84b9-207e65616b8c';
+
+        $eventCreated1 = $this->generateEventCreatedEvent($event1Id);
+        $eventCreated2 = $this->generateEventCreatedEvent($event2Id);
 
         $this->scenario
             ->given(
                 [
-                    $this->eventCreated,
-                    new OrganizerUpdated($this->eventId, $organizerId),
-                    new PriceInfoUpdated($this->eventId, $this->priceInfo),
+                    $eventCreated1,
+                    new OrganizerUpdated($event1Id, $organizerId),
+                    new PriceInfoUpdated($event1Id, $this->priceInfo),
+                    $eventCreated2,
+                    new OrganizerUpdated($event2Id, $organizerId),
+                    new PriceInfoUpdated($event2Id, $this->priceInfo),
                 ]
             )
             ->when(
@@ -854,9 +848,16 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             )
             ->then(
                 [
-                    new CreateUiTPASAggregate($this->eventId, []),
+                    new CreateUiTPASAggregate($event1Id, []),
                     new RegisterUiTPASEvent(
-                        $this->eventId,
+                        $event1Id,
+                        $organizerId,
+                        $this->priceInfo,
+                        []
+                    ),
+                    new CreateUiTPASAggregate($event2Id, []),
+                    new RegisterUiTPASEvent(
+                        $event2Id,
                         $organizerId,
                         $this->priceInfo,
                         []
@@ -864,18 +865,32 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 ]
             );
 
-        $expectedLogContext = [
+        $expectedLogContext1 = [
             'organizer' => $organizerId,
             'label' => 'UiTPAS Mechelen',
-            'event' => $this->eventId,
+            'event' => $event1Id,
+            'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
+        ];
+
+        $expectedLogContext2 = [
+            'organizer' => $organizerId,
+            'label' => 'UiTPAS Mechelen',
+            'event' => $event2Id,
             'uitpas_labels' => ['UiTPAS Gent', 'UiTPAS Mechelen'],
         ];
 
         $this->assertLogged(
             Logger::DEBUG,
             'uitpas label was added to organizer',
-            $expectedLogContext,
-            1
+            $expectedLogContext1,
+            2
+        );
+
+        $this->assertLogged(
+            Logger::DEBUG,
+            'uitpas label was added to organizer',
+            $expectedLogContext2,
+            3
         );
     }
 
@@ -911,6 +926,30 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             'label was added to organizer, but it is not an uitpas label',
             $expectedLogContext,
             1
+        );
+    }
+
+    /**
+     * @param string $eventId
+     * @return EventCreated
+     */
+    private function generateEventCreatedEvent($eventId)
+    {
+        return new EventCreated(
+            $eventId,
+            new Title('title'),
+            new EventType('id', 'label'),
+            new Location(
+                '335be568-aaf0-4147-80b6-9267daafe23b',
+                new StringLiteral('Repeteerkot'),
+                new Address(
+                    new Street('Kerkstraat 69'),
+                    new PostalCode('9630'),
+                    new Locality('Zottegem'),
+                    Country::fromNative('BE')
+                )
+            ),
+            new Calendar(CalendarType::PERMANENT())
         );
     }
 

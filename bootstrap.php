@@ -4,8 +4,6 @@ use Broadway\CommandHandling\CommandBusInterface;
 use Broadway\EventDispatcher\EventDispatcher;
 use Broadway\EventHandling\EventBusInterface;
 use Broadway\EventStore\DBALEventStore;
-use Broadway\Saga\MultipleSagaManager;
-use Broadway\Saga\State\MongoDBRepository;
 use Broadway\Serializer\SimpleInterfaceSerializer;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
@@ -19,7 +17,10 @@ use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\EventSourcing\ExecutionContextMetadataEnricher;
 use CultuurNet\UDB3\LabelCollection;
 use CultuurNet\UDB3\SimpleEventBus;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\StaticallyConfiguredSagaNamespacedEventsMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\MongoDBRepository;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManager;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\JSONLDOrganizerLabelReadRepository;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
 use CultuurNet\UDB3\UiTPASService\Permissions\UDB3EventPermission;
@@ -469,11 +470,11 @@ $app['saga_manager'] = $app->share(
             [
                 'uitpas_sync' => $app['uitpas_event_saga'],
             ],
-            new \Broadway\Saga\State\StateManager(
+            new StateManager(
                 $app['saga_repository'],
                 new Broadway\UuidGenerator\Rfc4122\Version4Generator()
             ),
-            new StaticallyConfiguredSagaNamespacedEventsMetadataFactory(),
+            new StaticallyConfiguredSagaMetadataFactory(),
             new EventDispatcher()
         );
     }
