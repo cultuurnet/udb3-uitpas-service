@@ -101,7 +101,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             return null;
         };
 
-        $concludedEvenCallback = function (Concluded $concluded) {
+        $concludedEventCallback = function (Concluded $concluded) {
             return new Criteria(
                 ['uitpasAggregateId' => $concluded->getItemId()]
             );
@@ -142,7 +142,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             DistributionKeysUpdated::class => $uitpasAggregateEventCallback,
             DistributionKeysCleared::class => $uitpasAggregateEventCallback,
             LabelAdded::class => $labelAddedToOrganizerCallback,
-            Concluded::class => $concludedEvenCallback,
+            Concluded::class => $concludedEventCallback,
         ];
     }
 
