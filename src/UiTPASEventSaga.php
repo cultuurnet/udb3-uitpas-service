@@ -70,24 +70,32 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
     private $organizerLabelRepository;
 
     /**
+     * @var \CultureFeed_Uitpas
+     */
+    private $cultureFeedUitpas;
+
+    /**
      * @param CommandBusInterface $commandBus
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      * @param PriceDescriptionParser $priceDescriptionParser
      * @param LabelCollection $uitpasLabels
      * @param OrganizerLabelReadRepositoryInterface $organizerLabelRepository
+     * @param \CultureFeed_Uitpas $cultureFeedUitpas
      */
     public function __construct(
         CommandBusInterface $commandBus,
         EventCdbIdExtractorInterface $eventCdbIdExtractor,
         PriceDescriptionParser $priceDescriptionParser,
         LabelCollection $uitpasLabels,
-        OrganizerLabelReadRepositoryInterface $organizerLabelRepository
+        OrganizerLabelReadRepositoryInterface $organizerLabelRepository,
+        \CultureFeed_Uitpas $cultureFeedUitpas
     ) {
         $this->commandBus = $commandBus;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
         $this->priceDescriptionParser = $priceDescriptionParser;
         $this->uitpasLabels = $uitpasLabels;
         $this->organizerLabelRepository = $organizerLabelRepository;
+        $this->cultureFeedUitpas = $cultureFeedUitpas;
 
         $this->logger = new NullLogger();
     }
@@ -172,6 +180,11 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             $state,
             $eventImportedFromUDB2->getCdbXml(),
             $eventImportedFromUDB2->getCdbXmlNamespaceUri()
+        );
+
+        $state = $this->updateDistributionKeysStateFromUiTPAS(
+            $eventImportedFromUDB2->getEventId(),
+            $state
         );
 
         $this->triggerSyncWhenConditionsAreMet($state);
@@ -409,6 +422,27 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
     }
 
     /**
+     * @param string $eventId
+     * @param State $state
+     * @return State
+     */
+    private function updateDistributionKeysStateFromUiTPAS($eventId, State $state)
+    {
+        $uitpasEvent = $this->cultureFeedUitpas->getEvent($eventId);
+
+        $distributionKeyIds = array_map(
+            function (\CultureFeed_Uitpas_DistributionKey $distributionKey) {
+                return (string) $distributionKey->id;
+            },
+            $uitpasEvent->distributionKey
+        );
+
+        $state->set('distributionKeyIds', $distributionKeyIds);
+
+        return $state;
+    }
+
+    /**
      * @param State $state
      * @return State
      */
@@ -467,6 +501,10 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         return $state;
     }
 
+    /**
+     * @param string $organizerId
+     * @return bool
+     */
     private function isOrganizerTaggedWithUiTPASLabels($organizerId)
     {
         $labels = $this->organizerLabelRepository->getLabels($organizerId);

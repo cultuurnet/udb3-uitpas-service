@@ -111,6 +111,11 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     private $organizerLabelReader;
 
     /**
+     * @var \CultureFeed_Uitpas|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $cultureFeedUitpas;
+
+    /**
      * @var EventCdbIdExtractor
      */
     private $eventCdbIdExtractor;
@@ -189,6 +194,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 }
             );
 
+        $this->cultureFeedUitpas = $this->createMock(\CultureFeed_Uitpas::class);
+
         $this->eventCdbIdExtractor = new EventCdbIdExtractor();
 
         $this->sagaStateRepository = new InMemoryRepository();
@@ -248,7 +255,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                 new CurrencyRepository()
             ),
             $this->uitpasLabels,
-            $this->organizerLabelReader
+            $this->organizerLabelReader,
+            $this->cultureFeedUitpas
         );
 
         $saga->setLogger(new Logger('uitpas saga', [$this->logHandler]));
@@ -638,6 +646,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2()
     {
+        $this->mockGetEvent();
+
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
 
         $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
@@ -666,8 +676,63 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_takes_into_account_existing_distribution_keys_on_uitpas_for_events_imported_from_udb2()
+    {
+        $distributionKey1 = new \CultureFeed_Uitpas_DistributionKey();
+        $distributionKey1->id = 'distribution-key-1';
+
+        $distributionKey2 = new \CultureFeed_Uitpas_DistributionKey();
+        $distributionKey2->id = 'distribution-key-2';
+
+        $this->mockGetEvent(
+            [
+                $distributionKey1,
+                $distributionKey2,
+            ]
+        );
+
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $expectedPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(5.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then(
+                [
+                    new CreateUiTPASAggregate(
+                        $this->eventId,
+                        [
+                            $distributionKey1->id,
+                            $distributionKey2->id,
+                        ]
+                    ),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $expectedPriceInfo,
+                        [
+                            $distributionKey1->id,
+                            $distributionKey2->id,
+                        ]
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2_with_price_description()
     {
+        $this->mockGetEvent();
+
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price-description.xml');
 
         $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
@@ -712,6 +777,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     public function it_creates_a_new_uitpas_aggregate_and_registers_an_uitpas_event_for_events_imported_from_udb2_with_other_price_and_wrong_price_description()
     {
+        $this->mockGetEvent();
+
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-other-price-and-wrong-price-description.xml');
 
         $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
@@ -780,6 +847,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     public function it_falls_back_to_price_details_in_other_languages_when_handling_cdbxml_changes()
     {
+        $this->mockGetEvent();
+
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price-fr.xml');
 
         $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
@@ -810,6 +879,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     public function it_does_not_require_price_details_when_handling_cdbxml_changes()
     {
+        $this->mockGetEvent();
+
         $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer.xml');
 
         $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
@@ -1038,5 +1109,20 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($level, $log['level']);
         $this->assertEquals($message, $log['message']);
         $this->assertEquals($context, $log['context']);
+    }
+
+    /**
+     * @param $distributionKeys \CultureFeed_Uitpas_DistributionKey[]
+     */
+    private function mockGetEvent(array $distributionKeys = [])
+    {
+        $uitpasEvent = new \CultureFeed_Uitpas_Event_CultureEvent();
+        $uitpasEvent->cdbid = $this->eventId;
+        $uitpasEvent->distributionKey = $distributionKeys;
+
+        $this->cultureFeedUitpas->expects($this->once())
+            ->method('getEvent')
+            ->with($this->eventId)
+            ->willReturn($uitpasEvent);
     }
 }
