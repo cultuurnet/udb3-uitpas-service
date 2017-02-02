@@ -507,8 +507,8 @@ $app['uitpas_event_saga'] = $app->share(
             LabelCollection::fromStrings(
                 array_values($app['config']['labels'])
             ),
-            $app['organizer_label_reader']
-
+            $app['organizer_label_reader'],
+            $app['culturefeed_uitpas_client']
         );
 
         $logger = new Logger('uitpas_event_saga');
