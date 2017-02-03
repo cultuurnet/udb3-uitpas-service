@@ -37,6 +37,7 @@ use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\InMemoryRepository;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Testing\Scenario;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
@@ -114,6 +115,11 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      * @var \CultureFeed_Uitpas|\PHPUnit_Framework_MockObject_MockObject
      */
     private $cultureFeedUitpas;
+
+    /**
+     * @var StateCopierInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $stateCopier;
 
     /**
      * @var EventCdbIdExtractor
@@ -196,6 +202,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $this->cultureFeedUitpas = $this->createMock(\CultureFeed_Uitpas::class);
 
+        $this->stateCopier = $this->createMock(StateCopierInterface::class);
+
         $this->eventCdbIdExtractor = new EventCdbIdExtractor();
 
         $this->sagaStateRepository = new InMemoryRepository();
@@ -256,7 +264,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ),
             $this->uitpasLabels,
             $this->organizerLabelReader,
-            $this->cultureFeedUitpas
+            $this->cultureFeedUitpas,
+            $this->stateCopier
         );
 
         $saga->setLogger(new Logger('uitpas saga', [$this->logHandler]));
