@@ -34,22 +34,4 @@ class StateCopier implements StateCopierInterface
 
         return State::deserialize($stateAsArray);
     }
-
-    /**
-     * Create a copy with new id and applied values.
-     *
-     * @param State $state
-     * @param array $values
-     * @return State
-     */
-    public function copyWithValues(State $state, array $values)
-    {
-        $copiedState = $this->copy($state);
-
-        foreach ($values as $key => $value) {
-            $copiedState->set($key, $value);
-        }
-
-        return $copiedState;
-    }
 }

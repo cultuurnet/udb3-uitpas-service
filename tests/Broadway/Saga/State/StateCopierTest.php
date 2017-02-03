@@ -60,29 +60,6 @@ class StateCopierTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @test
-     */
-    public function it_can_copy_a_state_with_values()
-    {
-        $extraValues = [
-            'key3' => 'value3',
-            'key4' => 'value4',
-        ];
-
-        $copiedState = $this->stateCopier->copyWithValues(
-            $this->state,
-            $extraValues
-        );
-
-        $expectedState = $this->createStateWithValues(
-            $this->id,
-            $extraValues
-        );
-
-        $this->assertEquals($expectedState, $copiedState);
-    }
-
-    /**
      * @param string $id
      * @param array $extraValues
      * @return State
