@@ -66,7 +66,7 @@ class StateCopierTest extends \PHPUnit_Framework_TestCase
     {
         $extraValues = [
             'key3' => 'value3',
-            'key4' => 'value4'
+            'key4' => 'value4',
         ];
 
         $copiedState = $this->stateCopier->copyWithValues(
