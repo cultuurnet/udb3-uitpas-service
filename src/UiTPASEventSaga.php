@@ -11,6 +11,7 @@ use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\Concluded;
+use CultuurNet\UDB3\Event\Events\EventCopied;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
@@ -25,6 +26,7 @@ use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
@@ -75,12 +77,18 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
     private $cultureFeedUitpas;
 
     /**
+     * @var StateCopierInterface
+     */
+    private $stateCopier;
+
+    /**
      * @param CommandBusInterface $commandBus
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      * @param PriceDescriptionParser $priceDescriptionParser
      * @param LabelCollection $uitpasLabels
      * @param OrganizerLabelReadRepositoryInterface $organizerLabelRepository
      * @param \CultureFeed_Uitpas $cultureFeedUitpas
+     * @param StateCopierInterface $stateCopier
      */
     public function __construct(
         CommandBusInterface $commandBus,
@@ -88,7 +96,8 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         PriceDescriptionParser $priceDescriptionParser,
         LabelCollection $uitpasLabels,
         OrganizerLabelReadRepositoryInterface $organizerLabelRepository,
-        \CultureFeed_Uitpas $cultureFeedUitpas
+        \CultureFeed_Uitpas $cultureFeedUitpas,
+        StateCopierInterface $stateCopier
     ) {
         $this->commandBus = $commandBus;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
@@ -96,6 +105,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         $this->uitpasLabels = $uitpasLabels;
         $this->organizerLabelRepository = $organizerLabelRepository;
         $this->cultureFeedUitpas = $cultureFeedUitpas;
+        $this->stateCopier = $stateCopier;
 
         $this->logger = new NullLogger();
     }
@@ -107,6 +117,12 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
     {
         $initialEventCallback = function () {
             return null;
+        };
+
+        $copiedEventCallback = function (EventCopied $eventCopied) {
+            return new Criteria(
+                ['uitpasAggregateId' => $eventCopied->getOriginalEventId()]
+            );
         };
 
         $concludedEventCallback = function (Concluded $concluded) {
@@ -141,6 +157,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
 
         return [
             EventCreated::class => $initialEventCallback,
+            EventCopied::class => $copiedEventCallback,
             EventImportedFromUDB2::class => $initialEventCallback,
             EventUpdatedFromUDB2::class => $updateFromUdb2Callback,
             OrganizerUpdated::class => $offerEventCallback,
@@ -164,6 +181,26 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         $state->set('uitpasAggregateId', $eventCreated->getEventId());
         $state->set('syncCount', 0);
         return $state;
+    }
+
+    /**
+     * @param EventCopied $eventCopied
+     * @param State $state
+     * @return State
+     */
+    public function handleEventCopied(EventCopied $eventCopied, State $state)
+    {
+        $copiedState = $this->stateCopier->copyWithValues(
+            $state,
+            [
+                'uitpasAggregateId' => $eventCopied->getItemId(),
+                'syncCount' => 0,
+            ]
+        );
+
+        $this->triggerSyncWhenConditionsAreMet($copiedState);
+
+        return $copiedState;
     }
 
     /**
