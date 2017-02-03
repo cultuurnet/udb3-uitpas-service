@@ -479,7 +479,7 @@ $app['saga_manager'] = $app->share(
             ],
             new StateManager(
                 $app['saga_repository'],
-                new Broadway\UuidGenerator\Rfc4122\Version4Generator()
+                $app['uuid_generator']
             ),
             new StaticallyConfiguredSagaMetadataFactory(),
             new EventDispatcher()
