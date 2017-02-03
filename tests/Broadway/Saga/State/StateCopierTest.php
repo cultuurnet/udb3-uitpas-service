@@ -49,12 +49,23 @@ class StateCopierTest extends \PHPUnit_Framework_TestCase
      */
     public function it_can_copy_a_state()
     {
+        $copiedState = $this->stateCopier->copy($this->state);
+
+        $expectedState = $this->createStateWithValues($this->id);
+
+        $this->assertEquals($expectedState, $copiedState);
+    }
+
+    /**
+     * @test
+     */
+    public function it_resets_the_done_state_on_a_copy()
+    {
         $this->state->setDone();
 
         $copiedState = $this->stateCopier->copy($this->state);
 
         $expectedState = $this->createStateWithValues($this->id);
-        $expectedState->setDone();
 
         $this->assertEquals($expectedState, $copiedState);
     }

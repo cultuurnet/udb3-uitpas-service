@@ -30,6 +30,7 @@ class StateCopier implements StateCopierInterface
     public function copy(State $state)
     {
         $stateAsArray = $state->serialize();
+        $stateAsArray['done'] = false;
         $stateAsArray['id'] = $this->generator->generate();
 
         return State::deserialize($stateAsArray);
