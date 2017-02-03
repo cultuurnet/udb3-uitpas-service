@@ -224,7 +224,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             [self::SAGA_TYPE => $saga],
             new StateManager($this->sagaStateRepository, new Version4Generator()),
             new StaticallyConfiguredSagaMetadataFactory(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->stateCopier
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);
     }
@@ -266,8 +267,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ),
             $this->uitpasLabels,
             $this->organizerLabelReader,
-            $this->cultureFeedUitpas,
-            $this->stateCopier
+            $this->cultureFeedUitpas
         );
 
         $saga->setLogger(new Logger('uitpas saga', [$this->logHandler]));
@@ -1107,6 +1107,9 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                         $this->priceInfo,
                         $this->distributionKeys
                     ),
+                    new Concluded(
+                        $this->eventId
+                    )
                 ]
             )
             ->when(
@@ -1124,6 +1127,55 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                         $this->priceInfo,
                         $this->distributionKeys
                     ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_find_a_concluded_event()
+    {
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated(
+                        $this->eventId,
+                        $this->uitpasOrganizerId
+                    ),
+                    new PriceInfoUpdated(
+                        $this->eventId,
+                        $this->priceInfo
+                    ),
+                    new DistributionKeysUpdated(
+                        $this->eventId,
+                        $this->distributionKeys
+                    ),
+                    new CreateUiTPASAggregate(
+                        $this->eventId,
+                        $this->distributionKeys
+                    ),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        $this->distributionKeys
+                    ),
+                    new Concluded(
+                        $this->eventId
+                    )
+                ]
+            )
+            ->when(
+                new PriceInfoUpdated(
+                    $this->eventId,
+                    $this->priceInfo
+                )
+            )
+            ->then(
+                [
+
                 ]
             );
     }

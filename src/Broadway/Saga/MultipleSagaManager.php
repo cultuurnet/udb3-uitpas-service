@@ -8,7 +8,9 @@ use Broadway\Saga\Metadata\MetadataFactoryInterface;
 use Broadway\Saga\SagaInterface;
 use Broadway\Saga\SagaManagerInterface;
 use Broadway\Saga\State;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\CopiedCriteriaInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\RepositoryInterface;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
 
 /**
@@ -17,11 +19,35 @@ use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
  */
 class MultipleSagaManager implements SagaManagerInterface
 {
+    /**
+     * @var RepositoryInterface
+     */
     private $repository;
+
+    /**
+     * @var array
+     */
     private $sagas;
+
+    /**
+     * @var StateManagerInterface
+     */
     private $stateManager;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
     private $metadataFactory;
+
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
+
+    /**
+     * @var StateCopierInterface
+     */
+    private $stateCopier;
 
     /**
      * @param RepositoryInterface $repository
@@ -29,19 +55,22 @@ class MultipleSagaManager implements SagaManagerInterface
      * @param StateManagerInterface $stateManager
      * @param MetadataFactoryInterface $metadataFactory
      * @param EventDispatcherInterface $eventDispatcher
+     * @param StateCopierInterface $stateCopier
      */
     public function __construct(
         RepositoryInterface $repository,
         array $sagas,
         StateManagerInterface $stateManager,
         MetadataFactoryInterface $metadataFactory,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        StateCopierInterface $stateCopier
     ) {
         $this->repository      = $repository;
         $this->sagas           = $sagas;
         $this->stateManager    = $stateManager;
         $this->metadataFactory = $metadataFactory;
         $this->eventDispatcher = $eventDispatcher;
+        $this->stateCopier     = $stateCopier;
     }
 
     /**
@@ -66,6 +95,14 @@ class MultipleSagaManager implements SagaManagerInterface
                 // event with a new state.
                 $state = $this->stateManager->generateNewState();
                 $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
+            } else if ($criteria instanceof CopiedCriteriaInterface) {
+                // For a copy a new state is needed with values from original event.
+                $states = $this->stateManager->findBy($criteria, $sagaType, false);
+                foreach ($states as $state) {
+                    // TODO: What if more then one state returned?
+                    $state = $this->stateCopier->copy($state);
+                    $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
+                }
             } else {
                 // If actual criteria are given, fetch all matching states and
                 // update them one by one.
