@@ -18,6 +18,7 @@ use CultuurNet\UDB3\CalendarType;
 use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractor;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\Concluded;
+use CultuurNet\UDB3\Event\Events\EventCopied;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
@@ -37,6 +38,7 @@ use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\InMemoryRepository;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopier;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Testing\Scenario;
@@ -117,7 +119,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     private $cultureFeedUitpas;
 
     /**
-     * @var StateCopierInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var StateCopierInterface
      */
     private $stateCopier;
 
@@ -202,7 +204,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $this->cultureFeedUitpas = $this->createMock(\CultureFeed_Uitpas::class);
 
-        $this->stateCopier = $this->createMock(StateCopierInterface::class);
+        $this->stateCopier = new StateCopier(new Version4Generator());
 
         $this->eventCdbIdExtractor = new EventCdbIdExtractor();
 
@@ -1066,6 +1068,64 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $statesArray = iterator_to_array($states);
         $this->assertEmpty($statesArray);
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_and_registers_an_uitpas_event_on_copy_event()
+    {
+        $eventCopied = new EventCopied(
+            '9211e93b-bba5-4828-9936-f8fc47e29102',
+            $this->eventId,
+            new Calendar(CalendarType::PERMANENT())
+        );
+
+        $this->scenario
+            ->given(
+                [
+                    $this->eventCreated,
+                    new OrganizerUpdated(
+                        $this->eventId,
+                        $this->uitpasOrganizerId
+                    ),
+                    new PriceInfoUpdated(
+                        $this->eventId,
+                        $this->priceInfo
+                    ),
+                    new DistributionKeysUpdated(
+                        $this->eventId,
+                        $this->distributionKeys
+                    ),
+                    new CreateUiTPASAggregate(
+                        $this->eventId,
+                        $this->distributionKeys
+                    ),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        $this->distributionKeys
+                    ),
+                ]
+            )
+            ->when(
+                $eventCopied
+            )
+            ->then(
+                [
+                    new CreateUiTPASAggregate(
+                        $eventCopied->getItemId(),
+                        $this->distributionKeys
+                    ),
+                    new RegisterUiTPASEvent(
+                        $eventCopied->getItemId(),
+                        $this->uitpasOrganizerId,
+                        $this->priceInfo,
+                        $this->distributionKeys
+                    ),
+                ]
+            );
     }
 
     /**
