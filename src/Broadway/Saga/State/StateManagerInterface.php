@@ -14,10 +14,10 @@ interface StateManagerInterface
     /**
      * @param null|Criteria $criteria
      * @param string $sagaId
-     *
+     * @param bool $excludeRemoved
      * @return State[]|\Generator
      */
-    public function findBy($criteria, $sagaId);
+    public function findBy($criteria, $sagaId, $excludeRemoved = true);
 
     /**
      * @return State
