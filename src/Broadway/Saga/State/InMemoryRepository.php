@@ -16,7 +16,7 @@ class InMemoryRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findBy(Criteria $criteria, $sagaId)
+    public function findBy(Criteria $criteria, $sagaId, $excludeRemoved = true)
     {
         if (!isset($this->states[$sagaId])) {
             $states = [];
@@ -27,7 +27,12 @@ class InMemoryRepository implements RepositoryInterface
         foreach ($criteria->getComparisons() as $key => $value) {
             $states = array_filter(
                 $states,
-                function ($elem) use ($key, $value) {
+                function ($elem) use ($key, $value, $excludeRemoved) {
+                    /** @var State $elem */
+                    if ($excludeRemoved && $elem->isDone()) {
+                        return false;
+                    }
+
                     $stateValue = $elem->get($key);
                     return is_array($stateValue) ? in_array($value, $stateValue) : $value === $stateValue;
                 }
@@ -44,10 +49,6 @@ class InMemoryRepository implements RepositoryInterface
      */
     public function save(State $state, $sagaId)
     {
-        if ($state->isDone()) {
-            unset($this->states[$sagaId][$state->getId()]);
-        } else {
-            $this->states[$sagaId][$state->getId()] = $state;
-        }
+        $this->states[$sagaId][$state->getId()] = $state;
     }
 }

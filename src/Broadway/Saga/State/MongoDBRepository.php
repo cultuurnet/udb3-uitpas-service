@@ -26,9 +26,9 @@ class MongoDBRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findBy(Criteria $criteria, $sagaId)
+    public function findBy(Criteria $criteria, $sagaId, $excludeRemoved = true)
     {
-        $query   = $this->createQuery($criteria, $sagaId);
+        $query   = $this->createQuery($criteria, $sagaId, $excludeRemoved);
         $results = $query->execute();
 
         foreach ($results as $result) {
@@ -52,9 +52,10 @@ class MongoDBRepository implements RepositoryInterface
     /**
      * @param Criteria $criteria
      * @param string $sagaId
+     * @param bool $excludeRemoved
      * @return Query
      */
-    private function createQuery(Criteria $criteria, $sagaId)
+    private function createQuery(Criteria $criteria, $sagaId, $excludeRemoved)
     {
         $comparisons = $criteria->getComparisons();
         $wheres      = [];
@@ -65,7 +66,11 @@ class MongoDBRepository implements RepositoryInterface
 
         $queryBuilder = $this->collection->createQueryBuilder()
             ->addAnd($wheres)
-            ->addAnd(['removed' => false, 'sagaId' => $sagaId]);
+            ->addAnd(['sagaId' => $sagaId]);
+
+        if ($excludeRemoved) {
+            $queryBuilder->addAnd(['removed' => false]);
+        }
 
         return $queryBuilder->getQuery();
     }

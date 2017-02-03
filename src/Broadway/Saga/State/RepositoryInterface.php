@@ -14,9 +14,10 @@ interface RepositoryInterface
     /**
      * @param Criteria $criteria
      * @param string $sagaId
-     * @return \Generator|State[]
+     * @param bool $excludeRemoved
+     * @return State[]|\Generator
      */
-    public function findBy(Criteria $criteria, $sagaId);
+    public function findBy(Criteria $criteria, $sagaId, $excludeRemoved = true);
 
     /**
      * @param State $state
