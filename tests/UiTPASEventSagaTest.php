@@ -1109,7 +1109,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                     new Concluded(
                         $this->eventId
-                    )
+                    ),
                 ]
             )
             ->when(
@@ -1164,7 +1164,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                     new Concluded(
                         $this->eventId
-                    )
+                    ),
                 ]
             )
             ->when(
@@ -1173,11 +1173,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     $this->priceInfo
                 )
             )
-            ->then(
-                [
-
-                ]
-            );
+            ->then([]);
     }
 
     /**

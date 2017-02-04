@@ -95,7 +95,7 @@ class MultipleSagaManager implements SagaManagerInterface
                 // event with a new state.
                 $state = $this->stateManager->generateNewState();
                 $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
-            } else if ($criteria instanceof CopiedCriteriaInterface) {
+            } elseif ($criteria instanceof CopiedCriteriaInterface) {
                 // For a copy a new state is needed with values from original event.
                 $states = $this->stateManager->findBy($criteria, $sagaType, false);
                 foreach ($states as $state) {
