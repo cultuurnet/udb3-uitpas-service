@@ -23,10 +23,10 @@ class StateManager implements StateManagerInterface
     /**
      * {@inheritDoc}
      */
-    public function findBy($criteria, $sagaId, $excludeRemoved = true)
+    public function findBy($criteria, $sagaId)
     {
         // @todo Use "yield from" when minimum requirement is PHP7.
-        foreach ($this->repository->findBy($criteria, $sagaId, $excludeRemoved) as $state) {
+        foreach ($this->repository->findBy($criteria, $sagaId) as $state) {
             yield $state;
         }
     }

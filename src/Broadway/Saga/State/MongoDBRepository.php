@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State;
 
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Query\Query;
 
@@ -26,9 +27,9 @@ class MongoDBRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findBy(Criteria $criteria, $sagaId, $excludeRemoved = true)
+    public function findBy(Criteria $criteria, $sagaId)
     {
-        $query   = $this->createQuery($criteria, $sagaId, $excludeRemoved);
+        $query   = $this->createQuery($criteria, $sagaId);
         $results = $query->execute();
 
         foreach ($results as $result) {
@@ -52,10 +53,9 @@ class MongoDBRepository implements RepositoryInterface
     /**
      * @param Criteria $criteria
      * @param string $sagaId
-     * @param bool $excludeRemoved
      * @return Query
      */
-    private function createQuery(Criteria $criteria, $sagaId, $excludeRemoved)
+    private function createQuery(Criteria $criteria, $sagaId)
     {
         $comparisons = $criteria->getComparisons();
         $wheres      = [];
@@ -68,7 +68,7 @@ class MongoDBRepository implements RepositoryInterface
             ->addAnd($wheres)
             ->addAnd(['sagaId' => $sagaId]);
 
-        if ($excludeRemoved) {
+        if (!($criteria instanceof CopiedCriteriaInterface)) {
             $queryBuilder->addAnd(['removed' => false]);
         }
 

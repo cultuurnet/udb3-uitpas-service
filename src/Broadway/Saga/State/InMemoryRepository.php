@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State;
 
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 
 /**
  * Copied from Broadway\Saga\State\InMemoryRepository and modified
@@ -16,7 +17,7 @@ class InMemoryRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function findBy(Criteria $criteria, $sagaId, $excludeRemoved = true)
+    public function findBy(Criteria $criteria, $sagaId)
     {
         if (!isset($this->states[$sagaId])) {
             $states = [];
@@ -27,9 +28,10 @@ class InMemoryRepository implements RepositoryInterface
         foreach ($criteria->getComparisons() as $key => $value) {
             $states = array_filter(
                 $states,
-                function ($elem) use ($key, $value, $excludeRemoved) {
+                function ($elem) use ($key, $value, $criteria) {
                     /** @var State $elem */
-                    if ($excludeRemoved && $elem->isDone()) {
+                    if (!($criteria instanceof CopiedCriteriaInterface)
+                        && $elem->isDone()) {
                         return false;
                     }
 

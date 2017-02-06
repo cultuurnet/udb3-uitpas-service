@@ -8,7 +8,6 @@ use Broadway\Saga\Metadata\MetadataFactoryInterface;
 use Broadway\Saga\SagaInterface;
 use Broadway\Saga\SagaManagerInterface;
 use Broadway\Saga\State;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\RepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
@@ -95,18 +94,11 @@ class MultipleSagaManager implements SagaManagerInterface
                 // event with a new state.
                 $state = $this->stateManager->generateNewState();
                 $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
-            } elseif ($criteria instanceof CopiedCriteriaInterface) {
-                // For a copy a new state is needed with values from original event.
-                $states = $this->stateManager->findBy($criteria, $sagaType, false);
-                foreach ($states as $state) {
-                    // TODO: What if more then one state returned?
-                    $state = $this->stateCopier->copy($state);
-                    $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
-                }
             } else {
                 // If actual criteria are given, fetch all matching states and
                 // update them one by one.
                 foreach ($this->stateManager->findBy($criteria, $sagaType) as $state) {
+                    // TODO: For CopiedCriteria only one state should be found.
                     $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
                 }
             }
