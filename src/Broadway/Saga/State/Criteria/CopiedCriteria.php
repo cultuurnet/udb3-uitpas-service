@@ -1,6 +1,6 @@
 <?php
 
-namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State;
+namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria;
 
 use Broadway\Saga\State\Criteria;
 

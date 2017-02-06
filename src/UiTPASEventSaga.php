@@ -26,7 +26,7 @@ use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\CopiedCriteria;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteria;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;

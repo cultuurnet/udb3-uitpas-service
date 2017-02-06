@@ -8,7 +8,7 @@ use Broadway\Saga\Metadata\MetadataFactoryInterface;
 use Broadway\Saga\SagaInterface;
 use Broadway\Saga\SagaManagerInterface;
 use Broadway\Saga\State;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\CopiedCriteriaInterface;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\RepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
