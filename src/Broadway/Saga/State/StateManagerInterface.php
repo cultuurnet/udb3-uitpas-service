@@ -14,7 +14,6 @@ interface StateManagerInterface
     /**
      * @param null|Criteria $criteria
      * @param string $sagaId
-     *
      * @return State[]|\Generator
      */
     public function findBy($criteria, $sagaId);

@@ -9,6 +9,7 @@ use Broadway\Saga\SagaInterface;
 use Broadway\Saga\SagaManagerInterface;
 use Broadway\Saga\State;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\RepositoryInterface;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
 
 /**
@@ -17,11 +18,35 @@ use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
  */
 class MultipleSagaManager implements SagaManagerInterface
 {
+    /**
+     * @var RepositoryInterface
+     */
     private $repository;
+
+    /**
+     * @var array
+     */
     private $sagas;
+
+    /**
+     * @var StateManagerInterface
+     */
     private $stateManager;
+
+    /**
+     * @var MetadataFactoryInterface
+     */
     private $metadataFactory;
+
+    /**
+     * @var EventDispatcherInterface
+     */
     private $eventDispatcher;
+
+    /**
+     * @var StateCopierInterface
+     */
+    private $stateCopier;
 
     /**
      * @param RepositoryInterface $repository
@@ -29,19 +54,22 @@ class MultipleSagaManager implements SagaManagerInterface
      * @param StateManagerInterface $stateManager
      * @param MetadataFactoryInterface $metadataFactory
      * @param EventDispatcherInterface $eventDispatcher
+     * @param StateCopierInterface $stateCopier
      */
     public function __construct(
         RepositoryInterface $repository,
         array $sagas,
         StateManagerInterface $stateManager,
         MetadataFactoryInterface $metadataFactory,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        StateCopierInterface $stateCopier
     ) {
         $this->repository      = $repository;
         $this->sagas           = $sagas;
         $this->stateManager    = $stateManager;
         $this->metadataFactory = $metadataFactory;
         $this->eventDispatcher = $eventDispatcher;
+        $this->stateCopier     = $stateCopier;
     }
 
     /**

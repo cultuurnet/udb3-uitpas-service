@@ -14,7 +14,7 @@ interface RepositoryInterface
     /**
      * @param Criteria $criteria
      * @param string $sagaId
-     * @return \Generator|State[]
+     * @return State[]|\Generator
      */
     public function findBy(Criteria $criteria, $sagaId);
 

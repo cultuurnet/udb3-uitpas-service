@@ -11,6 +11,7 @@ use CultuurNet\UDB3\Cdb\CdbId\EventCdbIdExtractorInterface;
 use CultuurNet\UDB3\Cdb\EventItemFactory;
 use CultuurNet\UDB3\Cdb\PriceDescriptionParser;
 use CultuurNet\UDB3\Event\Events\Concluded;
+use CultuurNet\UDB3\Event\Events\EventCopied;
 use CultuurNet\UDB3\Event\Events\EventCreated;
 use CultuurNet\UDB3\Event\Events\EventImportedFromUDB2;
 use CultuurNet\UDB3\Event\Events\EventUpdatedFromUDB2;
@@ -25,6 +26,7 @@ use CultuurNet\UDB3\PriceInfo\BasePrice;
 use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteria;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
@@ -109,6 +111,12 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             return null;
         };
 
+        $copiedEventCallback = function (EventCopied $eventCopied) {
+            return new CopiedCriteria(
+                ['uitpasAggregateId' => $eventCopied->getOriginalEventId()]
+            );
+        };
+
         $concludedEventCallback = function (Concluded $concluded) {
             return new Criteria(
                 ['uitpasAggregateId' => $concluded->getItemId()]
@@ -141,6 +149,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
 
         return [
             EventCreated::class => $initialEventCallback,
+            EventCopied::class => $copiedEventCallback,
             EventImportedFromUDB2::class => $initialEventCallback,
             EventUpdatedFromUDB2::class => $updateFromUdb2Callback,
             OrganizerUpdated::class => $offerEventCallback,
@@ -163,6 +172,21 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
     {
         $state->set('uitpasAggregateId', $eventCreated->getEventId());
         $state->set('syncCount', 0);
+        return $state;
+    }
+
+    /**
+     * @param EventCopied $eventCopied
+     * @param State $state
+     * @return State
+     */
+    public function handleEventCopied(EventCopied $eventCopied, State $state)
+    {
+        $state->set('uitpasAggregateId', $eventCopied->getItemId());
+        $state->set('syncCount', 0);
+
+        $this->triggerSyncWhenConditionsAreMet($state);
+
         return $state;
     }
 

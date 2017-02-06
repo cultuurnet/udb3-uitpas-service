@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State;
 
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 
 /**
  * Copied from Broadway\Saga\State\InMemoryRepository and modified
@@ -27,7 +28,13 @@ class InMemoryRepository implements RepositoryInterface
         foreach ($criteria->getComparisons() as $key => $value) {
             $states = array_filter(
                 $states,
-                function ($elem) use ($key, $value) {
+                function ($elem) use ($key, $value, $criteria) {
+                    /** @var State $elem */
+                    if (!($criteria instanceof CopiedCriteriaInterface)
+                        && $elem->isDone()) {
+                        return false;
+                    }
+
                     $stateValue = $elem->get($key);
                     return is_array($stateValue) ? in_array($value, $stateValue) : $value === $stateValue;
                 }
@@ -44,10 +51,6 @@ class InMemoryRepository implements RepositoryInterface
      */
     public function save(State $state, $sagaId)
     {
-        if ($state->isDone()) {
-            unset($this->states[$sagaId][$state->getId()]);
-        } else {
-            $this->states[$sagaId][$state->getId()] = $state;
-        }
+        $this->states[$sagaId][$state->getId()] = $state;
     }
 }

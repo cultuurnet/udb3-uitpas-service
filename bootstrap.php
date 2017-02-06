@@ -20,6 +20,7 @@ use CultuurNet\UDB3\SimpleEventBus;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\MongoDBRepository;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopier;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManager;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\JSONLDOrganizerLabelReadRepository;
 use CultuurNet\UDB3\UiTPASService\Permissions\DefaultEventPermission;
@@ -463,6 +464,20 @@ $app['uitpas_aggregate_command_handler'] = $app->share(
     }
 );
 
+$app['uuid_generator'] = $app->share(
+    function () {
+        return new Broadway\UuidGenerator\Rfc4122\Version4Generator();
+    }
+);
+
+$app['state_copier'] = $app->share(
+    function (Application $app) {
+        return new StateCopier(
+            $app['uuid_generator']
+        );
+    }
+);
+
 $app['saga_manager'] = $app->share(
     function (Application $app) {
         return new MultipleSagaManager(
@@ -472,10 +487,11 @@ $app['saga_manager'] = $app->share(
             ],
             new StateManager(
                 $app['saga_repository'],
-                new Broadway\UuidGenerator\Rfc4122\Version4Generator()
+                $app['uuid_generator']
             ),
             new StaticallyConfiguredSagaMetadataFactory(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $app['state_copier']
         );
     }
 );

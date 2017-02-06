@@ -4,6 +4,7 @@ namespace CultuurNet\UDB3\UiTPASService\Broadway\Saga\State;
 
 use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 use Doctrine\MongoDB\Collection;
 use Doctrine\MongoDB\Query\Query;
 
@@ -65,7 +66,11 @@ class MongoDBRepository implements RepositoryInterface
 
         $queryBuilder = $this->collection->createQueryBuilder()
             ->addAnd($wheres)
-            ->addAnd(['removed' => false, 'sagaId' => $sagaId]);
+            ->addAnd(['sagaId' => $sagaId]);
+
+        if (!($criteria instanceof CopiedCriteriaInterface)) {
+            $queryBuilder->addAnd(['removed' => false]);
+        }
 
         return $queryBuilder->getQuery();
     }
