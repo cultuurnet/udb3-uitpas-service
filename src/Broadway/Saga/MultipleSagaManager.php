@@ -98,7 +98,6 @@ class MultipleSagaManager implements SagaManagerInterface
                 // If actual criteria are given, fetch all matching states and
                 // update them one by one.
                 foreach ($this->stateManager->findBy($criteria, $sagaType) as $state) {
-                    // TODO: For CopiedCriteria only one state should be found.
                     $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
                 }
             }
