@@ -452,16 +452,30 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
      */
     private function updateDistributionKeysStateFromUiTPAS($eventId, State $state)
     {
-        $uitpasEvent = $this->cultureFeedUitpas->getEvent($eventId);
+        try {
+            $uitpasEvent = $this->cultureFeedUitpas->getEvent($eventId);
 
-        $distributionKeyIds = array_map(
-            function (\CultureFeed_Uitpas_DistributionKey $distributionKey) {
-                return (string) $distributionKey->id;
-            },
-            $uitpasEvent->distributionKey
-        );
+            if ($uitpasEvent) {
+                $distributionKeyIds = array_map(
+                    function (\CultureFeed_Uitpas_DistributionKey $distributionKey) {
+                        return (string)$distributionKey->id;
+                    },
+                    $uitpasEvent->distributionKey
+                );
 
-        $state->set('distributionKeyIds', $distributionKeyIds);
+                $state->set('distributionKeyIds', $distributionKeyIds);
+            }
+        } catch (\CultureFeed_Exception $exception) {
+
+            $logContext = [
+                'event' => $eventId,
+            ];
+
+            $this->logger->info(
+                'Event with id: ' . $eventId . ' not found in UiTPAS when trying to get existing distribution keys',
+                $logContext
+            );
+        }
 
         return $state;
     }

@@ -687,7 +687,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function it_handles_exception_for_events_imported_from_udb2()
+    public function it_handles_exception_for_events_imported_from_udb2_when_trying_to_get_distribution_keys()
     {
         $this->mockGetEventToThrow();
 
@@ -714,6 +714,17 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
                     ),
                 ]
             );
+
+        $expectedLogContext = [
+            'event' => $this->eventId,
+        ];
+
+        $this->assertLogged(
+            Logger::INFO,
+            'Event with id: ' . $this->eventId . ' not found in UiTPAS when trying to get existing distribution keys',
+            $expectedLogContext,
+            1
+        );
     }
 
     /**
