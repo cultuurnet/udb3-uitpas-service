@@ -687,6 +687,38 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_handles_exception_for_events_imported_from_udb2()
+    {
+        $this->mockGetEventToThrow();
+
+        $cdbXml = file_get_contents(__DIR__ . '/cdbxml-samples/event-with-uitpas-organizer-and-price.xml');
+
+        $cdbXmlNamespaceUri = 'http://www.cultuurdatabank.com/XMLSchema/CdbXSD/3.3/FINAL';
+
+        $expectedPriceInfo = new PriceInfo(
+            new BasePrice(
+                Price::fromFloat(5.5),
+                Currency::fromNative('EUR')
+            )
+        );
+
+        $this->scenario
+            ->when(new EventImportedFromUDB2($this->eventId, $cdbXml, $cdbXmlNamespaceUri))
+            ->then(
+                [
+                    new CreateUiTPASAggregate($this->eventId, []),
+                    new RegisterUiTPASEvent(
+                        $this->eventId,
+                        $this->uitpasOrganizerId,
+                        $expectedPriceInfo
+                    ),
+                ]
+            );
+    }
+
+    /**
+     * @test
+     */
     public function it_takes_into_account_existing_distribution_keys_on_uitpas_for_events_imported_from_udb2()
     {
         $distributionKey1 = new \CultureFeed_Uitpas_DistributionKey();
@@ -1241,5 +1273,15 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ->method('getEvent')
             ->with($this->eventId)
             ->willReturn($uitpasEvent);
+    }
+
+    private function mockGetEventToThrow()
+    {
+        $this->cultureFeedUitpas->expects($this->once())
+            ->method('getEvent')
+            ->will($this->throwException(new \CultureFeed_Exception(
+                'Event not found',
+                0
+            )));
     }
 }
