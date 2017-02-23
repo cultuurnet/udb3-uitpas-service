@@ -1290,9 +1290,13 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     {
         $this->cultureFeedUitpas->expects($this->once())
             ->method('getEvent')
-            ->will($this->throwException(new \CultureFeed_Exception(
-                'Event not found',
-                0
-            )));
+            ->will(
+                $this->throwException(
+                    new \CultureFeed_Exception(
+                        'Event not found',
+                        0
+                    )
+                )
+            );
     }
 }

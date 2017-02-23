@@ -458,7 +458,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
             if ($uitpasEvent) {
                 $distributionKeyIds = array_map(
                     function (\CultureFeed_Uitpas_DistributionKey $distributionKey) {
-                        return (string)$distributionKey->id;
+                        return (string) $distributionKey->id;
                     },
                     $uitpasEvent->distributionKey
                 );
