@@ -7,6 +7,7 @@ use Broadway\EventStore\DBALEventStore;
 use Broadway\Serializer\SimpleInterfaceSerializer;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use CommerceGuys\Intl\NumberFormat\NumberFormatRepository;
+use CultuurNet\Broadway\EventHandling\ReplayFilteringEventListener;
 use CultuurNet\BroadwayAMQP\DomainMessageJSONDeserializer;
 use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
 use CultuurNet\Deserializer\SimpleDeserializerLocator;
@@ -480,18 +481,20 @@ $app['state_copier'] = $app->share(
 
 $app['saga_manager'] = $app->share(
     function (Application $app) {
-        return new MultipleSagaManager(
-            $app['saga_repository'],
-            [
-                'uitpas_sync' => $app['uitpas_event_saga'],
-            ],
-            new StateManager(
+        return new ReplayFilteringEventListener(
+            new MultipleSagaManager(
                 $app['saga_repository'],
-                $app['uuid_generator']
-            ),
-            new StaticallyConfiguredSagaMetadataFactory(),
-            new EventDispatcher(),
-            $app['state_copier']
+                [
+                    'uitpas_sync' => $app['uitpas_event_saga'],
+                ],
+                new StateManager(
+                    $app['saga_repository'],
+                    $app['uuid_generator']
+                ),
+                new StaticallyConfiguredSagaMetadataFactory(),
+                new EventDispatcher(),
+                $app['state_copier']
+            )
         );
     }
 );
