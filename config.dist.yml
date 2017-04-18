@@ -20,3 +20,4 @@ jwt:
   validation:
     iss: http://culudb-jwt-provider.dev
 uitpas_sync: true # Optional, defaults to true if not defined
+handle_replay: false # Optional, defaults to false if not defined

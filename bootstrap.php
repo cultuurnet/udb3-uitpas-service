@@ -481,21 +481,28 @@ $app['state_copier'] = $app->share(
 
 $app['saga_manager'] = $app->share(
     function (Application $app) {
-        return new ReplayFilteringEventListener(
-            new MultipleSagaManager(
+        $multipleSagaManager = new MultipleSagaManager(
+            $app['saga_repository'],
+            [
+                'uitpas_sync' => $app['uitpas_event_saga'],
+            ],
+            new StateManager(
                 $app['saga_repository'],
-                [
-                    'uitpas_sync' => $app['uitpas_event_saga'],
-                ],
-                new StateManager(
-                    $app['saga_repository'],
-                    $app['uuid_generator']
-                ),
-                new StaticallyConfiguredSagaMetadataFactory(),
-                new EventDispatcher(),
-                $app['state_copier']
-            )
+                $app['uuid_generator']
+            ),
+            new StaticallyConfiguredSagaMetadataFactory(),
+            new EventDispatcher(),
+            $app['state_copier']
         );
+
+        if (isset($app['config']['handle_replay']) &&
+            $app['config']['handle_replay']) {
+            return $multipleSagaManager;
+        } else {
+            return new ReplayFilteringEventListener(
+                $multipleSagaManager
+            );
+        }
     }
 );
 
