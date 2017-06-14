@@ -471,14 +471,6 @@ $app['uuid_generator'] = $app->share(
     }
 );
 
-$app['state_copier'] = $app->share(
-    function (Application $app) {
-        return new StateCopier(
-            $app['uuid_generator']
-        );
-    }
-);
-
 $app['saga_manager'] = $app->share(
     function (Application $app) {
         $multipleSagaManager = new MultipleSagaManager(
@@ -491,8 +483,7 @@ $app['saga_manager'] = $app->share(
                 $app['uuid_generator']
             ),
             new StaticallyConfiguredSagaMetadataFactory(),
-            new EventDispatcher(),
-            $app['state_copier']
+            new EventDispatcher()
         );
 
         if (isset($app['config']['handle_replay']) &&
@@ -524,6 +515,14 @@ $app['saga_file_logger'] = $app->share(
     }
 );
 
+$app['state_copier'] = $app->share(
+    function (Application $app) {
+        return new StateCopier(
+            $app['uuid_generator']
+        );
+    }
+);
+
 $app['uitpas_event_saga'] = $app->share(
     function (Application $app) {
         $saga = new UiTPASEventSaga(
@@ -534,7 +533,8 @@ $app['uitpas_event_saga'] = $app->share(
                 array_values($app['config']['labels'])
             ),
             $app['organizer_label_reader'],
-            $app['culturefeed_uitpas_client']
+            $app['culturefeed_uitpas_client'],
+            $app['state_copier']
         );
 
         $logger = new Logger('uitpas_event_saga');

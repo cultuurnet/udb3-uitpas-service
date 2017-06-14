@@ -5,6 +5,7 @@ namespace CultuurNet\UDB3\UiTPASService;
 use Broadway\CommandHandling\CommandBusInterface;
 use Broadway\CommandHandling\Testing\TraceableCommandBus;
 use Broadway\EventDispatcher\EventDispatcher;
+use Broadway\Saga\State;
 use Broadway\Saga\State\Criteria;
 use Broadway\UuidGenerator\Rfc4122\Version4Generator;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
@@ -38,7 +39,6 @@ use CultuurNet\UDB3\Title;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Metadata\StaticallyConfiguredSagaMetadataFactory;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\MultipleSagaManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\InMemoryRepository;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopier;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManager;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\Testing\Scenario;
@@ -119,7 +119,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
     private $cultureFeedUitpas;
 
     /**
-     * @var StateCopierInterface
+     * @var StateCopierInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     private $stateCopier;
 
@@ -204,7 +204,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
 
         $this->cultureFeedUitpas = $this->createMock(\CultureFeed_Uitpas::class);
 
-        $this->stateCopier = new StateCopier(new Version4Generator());
+        $this->stateCopier = $this->createMock(StateCopierInterface::class);
 
         $this->eventCdbIdExtractor = new EventCdbIdExtractor();
 
@@ -224,8 +224,7 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             [self::SAGA_TYPE => $saga],
             new StateManager($this->sagaStateRepository, new Version4Generator()),
             new StaticallyConfiguredSagaMetadataFactory(),
-            new EventDispatcher(),
-            $this->stateCopier
+            new EventDispatcher()
         );
         return new Scenario($this, $sagaManager, $traceableCommandBus);
     }
@@ -267,7 +266,8 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
             ),
             $this->uitpasLabels,
             $this->organizerLabelReader,
-            $this->cultureFeedUitpas
+            $this->cultureFeedUitpas,
+            $this->stateCopier
         );
 
         $saga->setLogger(new Logger('uitpas saga', [$this->logHandler]));
@@ -1118,6 +1118,12 @@ class UiTPASEventSagaTest extends \PHPUnit_Framework_TestCase
      */
     public function it_creates_and_registers_an_uitpas_event_on_copy_event()
     {
+        // Sanity check that the copy method gets called and make sure
+        // the passed in state is returned.
+        $this->stateCopier->expects($this->once())
+            ->method('copy')
+            ->willReturnArgument(0);
+
         $eventCopied = new EventCopied(
             '9211e93b-bba5-4828-9936-f8fc47e29102',
             $this->eventId,
