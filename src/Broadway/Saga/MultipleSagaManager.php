@@ -8,9 +8,7 @@ use Broadway\Saga\Metadata\MetadataFactoryInterface;
 use Broadway\Saga\SagaInterface;
 use Broadway\Saga\SagaManagerInterface;
 use Broadway\Saga\State;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteriaInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\RepositoryInterface;
-use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateManagerInterface;
 
 /**
@@ -45,32 +43,24 @@ class MultipleSagaManager implements SagaManagerInterface
     private $eventDispatcher;
 
     /**
-     * @var StateCopierInterface
-     */
-    private $stateCopier;
-
-    /**
      * @param RepositoryInterface $repository
      * @param array $sagas
      * @param StateManagerInterface $stateManager
      * @param MetadataFactoryInterface $metadataFactory
      * @param EventDispatcherInterface $eventDispatcher
-     * @param StateCopierInterface $stateCopier
      */
     public function __construct(
         RepositoryInterface $repository,
         array $sagas,
         StateManagerInterface $stateManager,
         MetadataFactoryInterface $metadataFactory,
-        EventDispatcherInterface $eventDispatcher,
-        StateCopierInterface $stateCopier
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->repository      = $repository;
         $this->sagas           = $sagas;
         $this->stateManager    = $stateManager;
         $this->metadataFactory = $metadataFactory;
         $this->eventDispatcher = $eventDispatcher;
-        $this->stateCopier     = $stateCopier;
     }
 
     /**
@@ -99,10 +89,6 @@ class MultipleSagaManager implements SagaManagerInterface
                 // If actual criteria are given, fetch all matching states and
                 // update them one by one.
                 foreach ($this->stateManager->findBy($criteria, $sagaType) as $state) {
-                    if ($criteria instanceof CopiedCriteriaInterface) {
-                        $state = $this->stateCopier->copy($state);
-                    }
-
                     $this->handleEventBySagaWithState($sagaType, $saga, $event, $state);
                 }
             }

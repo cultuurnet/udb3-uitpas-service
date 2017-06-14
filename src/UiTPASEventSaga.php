@@ -27,6 +27,7 @@ use CultuurNet\UDB3\PriceInfo\Price;
 use CultuurNet\UDB3\PriceInfo\PriceInfo;
 use CultuurNet\UDB3\PriceInfo\Tariff;
 use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\Criteria\CopiedCriteria;
+use CultuurNet\UDB3\UiTPASService\Broadway\Saga\State\StateCopierInterface;
 use CultuurNet\UDB3\UiTPASService\OrganizerLabelReadRepository\OrganizerLabelReadRepositoryInterface;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\RegisterUiTPASEvent;
 use CultuurNet\UDB3\UiTPASService\Sync\Command\UpdateUiTPASEvent;
@@ -77,12 +78,18 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
     private $cultureFeedUitpas;
 
     /**
+     * @var StateCopierInterface
+     */
+    private $stateCopier;
+
+    /**
      * @param CommandBusInterface $commandBus
      * @param EventCdbIdExtractorInterface $eventCdbIdExtractor
      * @param PriceDescriptionParser $priceDescriptionParser
      * @param LabelCollection $uitpasLabels
      * @param OrganizerLabelReadRepositoryInterface $organizerLabelRepository
      * @param \CultureFeed_Uitpas $cultureFeedUitpas
+     * @param StateCopierInterface $stateCopier
      */
     public function __construct(
         CommandBusInterface $commandBus,
@@ -90,7 +97,8 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         PriceDescriptionParser $priceDescriptionParser,
         LabelCollection $uitpasLabels,
         OrganizerLabelReadRepositoryInterface $organizerLabelRepository,
-        \CultureFeed_Uitpas $cultureFeedUitpas
+        \CultureFeed_Uitpas $cultureFeedUitpas,
+        StateCopierInterface $stateCopier
     ) {
         $this->commandBus = $commandBus;
         $this->eventCdbIdExtractor = $eventCdbIdExtractor;
@@ -98,6 +106,7 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
         $this->uitpasLabels = $uitpasLabels;
         $this->organizerLabelRepository = $organizerLabelRepository;
         $this->cultureFeedUitpas = $cultureFeedUitpas;
+        $this->stateCopier = $stateCopier;
 
         $this->logger = new NullLogger();
     }
@@ -182,12 +191,14 @@ class UiTPASEventSaga extends Saga implements StaticallyConfiguredSagaInterface,
      */
     public function handleEventCopied(EventCopied $eventCopied, State $state)
     {
-        $state->set('uitpasAggregateId', $eventCopied->getItemId());
-        $state->set('syncCount', 0);
+        $copiedState = $this->stateCopier->copy($state);
 
-        $this->triggerSyncWhenConditionsAreMet($state);
+        $copiedState->set('uitpasAggregateId', $eventCopied->getItemId());
+        $copiedState->set('syncCount', 0);
 
-        return $state;
+        $this->triggerSyncWhenConditionsAreMet($copiedState);
+
+        return $copiedState;
     }
 
     /**
