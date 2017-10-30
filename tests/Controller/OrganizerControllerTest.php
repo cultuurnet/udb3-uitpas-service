@@ -122,7 +122,7 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $actualResponseContent = $this->controller->getDistributionKeys($organizerId)
+        $actualResponseContent = $this->controller->getCardSystems($organizerId)
             ->getContent();
 
         $this->assertEquals($expectedResponseContent, $actualResponseContent);

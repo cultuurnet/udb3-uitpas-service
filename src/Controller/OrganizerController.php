@@ -24,7 +24,7 @@ class OrganizerController
      * @param string $organizerId
      * @return Response
      */
-    public function getDistributionKeys($organizerId)
+    public function getCardSystems($organizerId)
     {
         // Method is called getDistributionKeysForOrganizer() but returns
         // card systems. (Historically it returned distribution keys.)
