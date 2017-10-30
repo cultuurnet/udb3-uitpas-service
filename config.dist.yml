@@ -1,11 +1,5 @@
 debug: false
 bootstrap: []
-log.command_bus:
-  - type: file
-    path: ../log/command_bus.log
-    level: DEBUG
-  - type: socketioemitter
-    level: INFO
 uitid:
   consumer:
     key: ***
@@ -19,5 +13,3 @@ jwt:
       file: public.pem
   validation:
     iss: http://culudb-jwt-provider.dev
-uitpas_sync: true # Optional, defaults to true if not defined
-handle_replay: false # Optional, defaults to false if not defined

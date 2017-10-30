@@ -16,9 +16,7 @@ class EventControllerProvider implements ControllerProviderInterface
         $app['uitpas.event_controller'] = $app->share(
             function (Application $app) {
                 return new EventController(
-                    $app['uitpas_command_bus_out'],
-                    $app['culturefeed_uitpas_client'],
-                    $app['udb3.event_permission']
+                    $app['culturefeed_uitpas_client']
                 );
             }
         );
@@ -29,16 +27,6 @@ class EventControllerProvider implements ControllerProviderInterface
         $controllers->get(
             '/{eventId}/distributionKeys/',
             'uitpas.event_controller' . ':get'
-        );
-
-        $controllers->put(
-            '/{eventId}/distributionKeys/',
-            'uitpas.event_controller' . ':update'
-        );
-
-        $controllers->delete(
-            '/{eventId}/distributionKeys/',
-            'uitpas.event_controller' . ':clear'
         );
 
         return $controllers;

@@ -27,7 +27,7 @@ class OrganizerControllerProvider implements ControllerProviderInterface
 
         $controllers->get(
             '/{organizerId}/cardSystems/',
-            'uitpas.organizer_controller' . ':getDistributionKeys'
+            'uitpas.organizer_controller:getDistributionKeys'
         );
 
         return $controllers;
