@@ -11,11 +11,6 @@ use ValueObjects\Identity\UUID;
 class EventControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var CommandBusInterface|\PHPUnit_Framework_MockObject_MockObject
-     */
-    private $commandBus;
-
-    /**
      * @var \CultureFeed_Uitpas|\PHPUnit_Framework_MockObject_MockObject
      */
     private $cultureFeedUitpas;
@@ -27,12 +22,9 @@ class EventControllerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->commandBus = $this->createMock(CommandBusInterface::class);
-
         $this->cultureFeedUitpas = $this->createMock(\CultureFeed_Uitpas::class);
 
         $this->eventController = new EventController(
-            $this->commandBus,
             $this->cultureFeedUitpas
         );
     }
