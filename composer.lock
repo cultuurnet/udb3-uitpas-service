@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "edff84c3b196a82d0dc709457fde0e01",
+    "content-hash": "6e0e9417be722cbec047176013e41296",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -436,16 +436,16 @@
         },
         {
             "name": "cultuurnet/culturefeed-php",
-            "version": "v1.6.5",
+            "version": "dev-feature/III-2331",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/culturefeed-php.git",
-                "reference": "9f0c5c6b2274e666a2021b48529c889fe5248221"
+                "reference": "9e4ef716a6b0d75f94bdeb7b875f2c0dfe5932db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/9f0c5c6b2274e666a2021b48529c889fe5248221",
-                "reference": "9f0c5c6b2274e666a2021b48529c889fe5248221",
+                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/9e4ef716a6b0d75f94bdeb7b875f2c0dfe5932db",
+                "reference": "9e4ef716a6b0d75f94bdeb7b875f2c0dfe5932db",
                 "shasum": ""
             },
             "require": {
@@ -500,7 +500,7 @@
                 }
             ],
             "description": "Culturefeed PHP library",
-            "time": "2017-07-20T10:44:03+00:00"
+            "time": "2017-10-31 15:00:19"
         },
         {
             "name": "cultuurnet/deserializer",
@@ -4448,9 +4448,18 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "1.6",
+            "alias_normalized": "1.6.0.0",
+            "version": "dev-feature/III-2331",
+            "package": "cultuurnet/culturefeed-php"
+        }
+    ],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "cultuurnet/culturefeed-php": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],

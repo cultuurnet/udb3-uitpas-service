@@ -2,7 +2,7 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
-class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
+class OrganizerCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var \CultureFeed_Uitpas|\PHPUnit_Framework_MockObject_MockObject
@@ -10,14 +10,14 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
     private $uitpas;
 
     /**
-     * @var OrganizerController
+     * @var OrganizerCardSystemsController
      */
     private $controller;
 
     public function setUp()
     {
         $this->uitpas = $this->createMock(\CultureFeed_Uitpas::class);
-        $this->controller = new OrganizerController($this->uitpas);
+        $this->controller = new OrganizerCardSystemsController($this->uitpas);
     }
 
     /**
@@ -61,23 +61,9 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
             $distributionKey4,
         ];
 
-        $distributionKeyParent1 = clone $distributionKey1;
-        $distributionKeyParent1->cardSystem = $cardSystem1;
-
-        $distributionKeyParent2 = clone $distributionKey2;
-        $distributionKeyParent2->cardSystem = $cardSystem1;
-
-        $distributionKeyParent3 = clone $distributionKey3;
-        $distributionKeyParent3->cardSystem = $cardSystem2;
-
-        $distributionKeyParent4 = clone $distributionKey4;
-        $distributionKeyParent4->cardSystem = $cardSystem2;
-
         $cardSystems = [
-            $distributionKeyParent1,
-            $distributionKeyParent2,
-            $distributionKeyParent3,
-            $distributionKeyParent4,
+            $cardSystem1,
+            $cardSystem2,
         ];
 
         $resultSet = new \CultureFeed_ResultSet();
@@ -85,45 +71,44 @@ class OrganizerControllerTest extends \PHPUnit_Framework_TestCase
         $resultSet->total = 2;
 
         $this->uitpas->expects($this->once())
-            ->method('getDistributionKeysForOrganizer')
+            ->method('getCardSystemsForOrganizer')
             ->with($organizerId)
             ->willReturn($resultSet);
 
-        $expectedResponseContent = json_encode(
-            [
-                [
-                    'id' => 'card-system-1',
-                    'name' => 'Card system 1',
-                    'distributionKeys' => [
-                        [
-                            'id' => 'distribution-key-1',
-                            'name' => 'Distribution key 1',
-                        ],
-                        [
-                            'id' => 'distribution-key-2',
-                            'name' => 'Distribution key 2',
-                        ],
+        $expectedResponseContent = (object) [
+            'card-system-1' => (object) [
+                'id' => 'card-system-1',
+                'name' => 'Card system 1',
+                'distributionKeys' => (object) [
+                    'distribution-key-1' => (object) [
+                        'id' => 'distribution-key-1',
+                        'name' => 'Distribution key 1',
+                    ],
+                    'distribution-key-2' => (object) [
+                        'id' => 'distribution-key-2',
+                        'name' => 'Distribution key 2',
                     ],
                 ],
-                [
-                    'id' => 'card-system-2',
-                    'name' => 'Card system 2',
-                    'distributionKeys' => [
-                        [
-                            'id' => 'distribution-key-3',
-                            'name' => 'Distribution key 3',
-                        ],
-                        [
-                            'id' => 'distribution-key-4',
-                            'name' => 'Distribution key 4',
-                        ],
+            ],
+            'card-system-2' => (object) [
+                'id' => 'card-system-2',
+                'name' => 'Card system 2',
+                'distributionKeys' => (object) [
+                    'distribution-key-3' => (object) [
+                        'id' => 'distribution-key-3',
+                        'name' => 'Distribution key 3',
+                    ],
+                    'distribution-key-4' => (object) [
+                        'id' => 'distribution-key-4',
+                        'name' => 'Distribution key 4',
                     ],
                 ],
-            ]
-        );
+            ],
+        ];
 
-        $actualResponseContent = $this->controller->getCardSystems($organizerId)
-            ->getContent();
+        $actualResponseContent = json_decode(
+            $this->controller->get($organizerId)->getContent()
+        );
 
         $this->assertEquals($expectedResponseContent, $actualResponseContent);
     }
