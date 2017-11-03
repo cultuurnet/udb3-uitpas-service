@@ -118,4 +118,59 @@ class EventCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedResponseContent, $actualResponseContent);
     }
+
+    /**
+     * @test
+     */
+    public function it_can_add_a_card_system_with_an_automatic_distribution_key_to_an_event()
+    {
+        $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
+        $cardSystemId = '15';
+
+        $this->uitpas->expects($this->once())
+            ->method('addCardSystemToEvent')
+            ->with($eventId, $cardSystemId)
+            ->willReturn(null);
+
+        $response = $this->controller->add($eventId, $cardSystemId);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_add_a_card_system_with_a_manual_distribution_key_to_an_event()
+    {
+        $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
+        $cardSystemId = '27';
+        $distributionKey = '1';
+
+        $this->uitpas->expects($this->once())
+            ->method('addCardSystemToEvent')
+            ->with($eventId, $cardSystemId, $distributionKey)
+            ->willReturn(null);
+
+        $response = $this->controller->add($eventId, $cardSystemId, $distributionKey);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_remove_a_card_system_from_an_event()
+    {
+        $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
+        $cardSystemId = '15';
+
+        $this->uitpas->expects($this->once())
+            ->method('deleteCardSystemFromEvent')
+            ->with($eventId, $cardSystemId)
+            ->willReturn(null);
+
+        $response = $this->controller->delete($eventId, $cardSystemId);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
 }
