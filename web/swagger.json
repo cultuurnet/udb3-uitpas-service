@@ -124,7 +124,7 @@
                 }
             }
         },
-        "/events/{cdbid}/cardSystems/{cardSystemId}/{distributionKeyId}": {
+        "/events/{cdbid}/cardSystems/{cardSystemId}/distributionKey/{distributionKeyId}": {
             "put": {
                 "summary": "Add a card system (with a manual distribution key) to the event.",
                 "operationId": "addCardSystemWithManualDistributionKey",
