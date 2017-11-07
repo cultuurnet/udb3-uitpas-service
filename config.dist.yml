@@ -1,13 +1,47 @@
 debug: false
 bootstrap: []
+consumerExecutionDelay: 0
+url: http://udb-uitpas.dev
+amqp:
+  host: 127.0.0.1
+  port: 5672
+  vhost: udb3-vagrant
+  user: ***
+  password: ***
+  consumer_tag: udb3-vagrant
+  consumers:
+    uitpas:
+      exchange: ***
+      queue: ***
+labels:
+  PASPARTOE: 'Paspartoe'
+  UITPAS: 'UiTPAS'
+  UITPAS_GENT: 'UiTPAS Gent'
+  UITPAS_OOSTENDE: 'UiTPAS Oostende'
+  UITPAS_REGIO_AALST: 'UiTPAS regio Aalst'
+  UITPAS_DENDER: 'UiTPAS Dender'
+  UITPAS_ZUIDWEST: 'UiTPAS Zuidwest'
+  UITPAS_MECHELEN: 'UiTPAS Mechelen'
+  UITPAS_KEMPEN: 'UiTPAS Kempen'
+  UITPAS_MAASMECHELEN: 'UiTPAS Maasmechelen'
+log.command_bus:
+  - type: file
+    path: ../log/command_bus.log
+    level: DEBUG
+  - type: socketioemitter
+    level: INFO
 uitid:
   consumer:
     key: ***
     secret: ***
   base_url: https://acc.uitid.be/uitid/rest/
 jwt:
-  keys:
-    public:
-      file: public.pem
-  validation:
-    iss: http://culudb-jwt-provider.dev
+ keys:
+   public:
+     file: public.pem
+ validation:
+   iss: http://culudb-jwt-provider.dev
+cors:
+  origins:
+    - http://udb-app.dev
+    - http://localhost:9999
