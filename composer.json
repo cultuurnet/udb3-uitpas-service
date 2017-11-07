@@ -46,11 +46,5 @@
         "branch-alias": {
             "dev-master": "0.x-dev"
         }
-    },
-    "config": {
-        "platform": {
-            "ext-redis": "2.2.7.0",
-            "ext-mongo": "1.6.14"
-        }
     }
 }

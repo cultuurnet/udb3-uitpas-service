@@ -9,5 +9,3 @@ script:
 - ./vendor/bin/phing test
 after_script:
 - ./vendor/bin/coveralls -vvv
-before_install:
-- echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini || return 0
