@@ -1,5 +1,29 @@
 debug: false
 bootstrap: []
+consumerExecutionDelay: 0
+url: http://udb-uitpas.dev
+amqp:
+  host: 127.0.0.1
+  port: 5672
+  vhost: udb3-vagrant
+  user: ***
+  password: ***
+  consumer_tag: udb3-vagrant
+  consumers:
+    uitpas:
+      exchange: ***
+      queue: ***
+labels:
+  PASPARTOE: 'Paspartoe'
+  UITPAS: 'UiTPAS'
+  UITPAS_GENT: 'UiTPAS Gent'
+  UITPAS_OOSTENDE: 'UiTPAS Oostende'
+  UITPAS_REGIO_AALST: 'UiTPAS regio Aalst'
+  UITPAS_DENDER: 'UiTPAS Dender'
+  UITPAS_ZUIDWEST: 'UiTPAS Zuidwest'
+  UITPAS_MECHELEN: 'UiTPAS Mechelen'
+  UITPAS_KEMPEN: 'UiTPAS Kempen'
+  UITPAS_MAASMECHELEN: 'UiTPAS Maasmechelen'
 log.command_bus:
   - type: file
     path: ../log/command_bus.log
@@ -11,13 +35,13 @@ uitid:
     key: ***
     secret: ***
   base_url: https://acc.uitid.be/uitid/rest/
-udb3_organizer_base_url: http://udb-silex.dev/organizers/ # Trailing slash required!
-udb3_permission_base_url: http://udb-silex.dev/event/%s/permission
 jwt:
-  keys:
-    public:
-      file: public.pem
-  validation:
-    iss: http://culudb-jwt-provider.dev
-uitpas_sync: true # Optional, defaults to true if not defined
-handle_replay: false # Optional, defaults to false if not defined
+ keys:
+   public:
+     file: public.pem
+ validation:
+   iss: http://culudb-jwt-provider.dev
+cors:
+  origins:
+    - http://udb-app.dev
+    - http://localhost:9999

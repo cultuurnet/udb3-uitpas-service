@@ -13,12 +13,10 @@ class EventControllerProvider implements ControllerProviderInterface
      */
     public function connect(Application $app)
     {
-        $app['uitpas.event_controller'] = $app->share(
+        $app['uitpas.event_card_systems_controller'] = $app->share(
             function (Application $app) {
-                return new EventController(
-                    $app['uitpas_command_bus_out'],
-                    $app['culturefeed_uitpas_client'],
-                    $app['udb3.event_permission']
+                return new EventCardSystemsController(
+                    $app['culturefeed_uitpas_client']
                 );
             }
         );
@@ -27,18 +25,22 @@ class EventControllerProvider implements ControllerProviderInterface
         $controllers = $app['controllers_factory'];
 
         $controllers->get(
-            '/{eventId}/distributionKeys/',
-            'uitpas.event_controller' . ':get'
+            '/{eventId}/cardSystems/',
+            'uitpas.event_card_systems_controller:get'
         );
 
         $controllers->put(
-            '/{eventId}/distributionKeys/',
-            'uitpas.event_controller' . ':update'
+            '/{eventId}/cardSystems/{cardSystemId}',
+            'uitpas.event_card_systems_controller:add'
+        );
+        $controllers->put(
+            '/{eventId}/cardSystems/{cardSystemId}/distributionKey/{distributionKeyId}',
+            'uitpas.event_card_systems_controller:add'
         );
 
         $controllers->delete(
-            '/{eventId}/distributionKeys/',
-            'uitpas.event_controller' . ':clear'
+            '/{eventId}/cardSystems/{cardSystemId}',
+            'uitpas.event_card_systems_controller:delete'
         );
 
         return $controllers;
