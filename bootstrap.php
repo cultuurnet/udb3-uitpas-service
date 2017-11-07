@@ -80,7 +80,7 @@ $app['current_user'] = $app->share(
 );
 
 $app['logger.amqp.uitpas_incoming'] = $app->share(
-    function (Application $app) {
+    function () {
         $logger = new Monolog\Logger('amqp.uitpas_incoming');
         $logger->pushHandler(new StreamHandler('php://stdout'));
 
@@ -95,7 +95,7 @@ $app['logger.amqp.uitpas_incoming'] = $app->share(
 );
 
 $app['deserializer_locator'] = $app->share(
-    function (Application $app) {
+    function () {
         $deserializerLocator = new SimpleDeserializerLocator();
         return $deserializerLocator;
     }
@@ -141,7 +141,7 @@ foreach (['uitpas'] as $consumerId) {
 }
 
 $app['event_bus.uitpas'] = $app->share(
-    function (Application $app) {
+    function () {
         $bus =  new SimpleEventBus();
         return $bus;
     }
