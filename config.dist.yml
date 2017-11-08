@@ -2,17 +2,6 @@ debug: false
 bootstrap: []
 consumerExecutionDelay: 0
 url: http://udb-uitpas.dev
-amqp:
-  host: 127.0.0.1
-  port: 5672
-  vhost: udb3-vagrant
-  user: ***
-  password: ***
-  consumer_tag: udb3-vagrant
-  consumers:
-    uitpas:
-      exchange: ***
-      queue: ***
 labels:
   PASPARTOE: 'Paspartoe'
   UITPAS: 'UiTPAS'
@@ -24,12 +13,6 @@ labels:
   UITPAS_MECHELEN: 'UiTPAS Mechelen'
   UITPAS_KEMPEN: 'UiTPAS Kempen'
   UITPAS_MAASMECHELEN: 'UiTPAS Maasmechelen'
-log.command_bus:
-  - type: file
-    path: ../log/command_bus.log
-    level: DEBUG
-  - type: socketioemitter
-    level: INFO
 uitid:
   consumer:
     key: ***
