@@ -2,12 +2,6 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
-use Broadway\CommandHandling\CommandBusInterface;
-use CultuurNet\UDB3\UiTPASService\Permissions\EventPermissionInterface;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\ClearDistributionKeys;
-use CultuurNet\UDB3\UiTPASService\UiTPASAggregate\Command\UpdateDistributionKeys;
-use ValueObjects\Identity\UUID;
-
 class EventCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
