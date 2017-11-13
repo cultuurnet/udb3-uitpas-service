@@ -7,7 +7,7 @@
     "require": {
         "broadway/broadway": "~0.10.0",
         "cultuurnet/broadway-amqp": "~0.1",
-        "cultuurnet/culturefeed-php": "~1.7",
+        "cultuurnet/culturefeed-php": "~1.8",
         "cultuurnet/deserializer": "~0.1",
         "cultuurnet/silex-amqp": "~0.1",
         "cultuurnet/silex-service-provider-jwt": "~0.1",
