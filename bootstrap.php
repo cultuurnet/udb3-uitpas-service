@@ -1,18 +1,11 @@
 <?php
 
-use Broadway\EventHandling\SimpleEventBus;
-use CultuurNet\BroadwayAMQP\EventBusForwardingConsumerFactory;
-use CultuurNet\Deserializer\SimpleDeserializerLocator;
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtUserToken;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Lcobucci\JWT\Token as Jwt;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
 use Silex\Application;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use ValueObjects\Number\Natural;
-use ValueObjects\StringLiteral\StringLiteral;
 
 $app = new Application();
 
