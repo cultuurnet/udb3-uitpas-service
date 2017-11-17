@@ -8,11 +8,25 @@ use Silex\ControllerProviderInterface;
 
 class EventControllerProvider implements ControllerProviderInterface
 {
+    const EVENT_DETAIL = 'event.detail';
+    const EVENT_CARD_SYSTEMS = 'event.card_systems';
+
     /**
      * @inheritdoc
      */
     public function connect(Application $app)
     {
+        $app['uitpas.event_detail_controller'] = $app->share(
+            function (Application $app) {
+                return new EventDetailController(
+                    $app['culturefeed_uitpas_client'],
+                    $app['url_generator'],
+                    self::EVENT_DETAIL,
+                    self::EVENT_CARD_SYSTEMS
+                );
+            }
+        );
+
         $app['uitpas.event_card_systems_controller'] = $app->share(
             function (Application $app) {
                 return new EventCardSystemsController(
@@ -25,9 +39,14 @@ class EventControllerProvider implements ControllerProviderInterface
         $controllers = $app['controllers_factory'];
 
         $controllers->get(
+            '/{eventId}',
+            'uitpas.event_detail_controller:get'
+        )->bind(self::EVENT_DETAIL);
+
+        $controllers->get(
             '/{eventId}/cardSystems/',
             'uitpas.event_card_systems_controller:get'
-        );
+        )->bind(self::EVENT_CARD_SYSTEMS);
 
         $controllers->put(
             '/{eventId}/cardSystems/{cardSystemId}',
