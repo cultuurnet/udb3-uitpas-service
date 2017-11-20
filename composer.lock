@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "19fa57738307902272de2964caad2d48",
+    "content-hash": "ffcad935231cc4a5f5f6ee176359a26e",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -54,7 +54,7 @@
                 }
             ],
             "description": " Library for creating collection classes with strict typing.",
-            "time": "2015-12-16 09:28:40"
+            "time": "2015-12-16T09:28:40+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -356,7 +356,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2017-04-20 12:39:24"
+            "time": "2017-04-20T12:39:24+00:00"
         },
         {
             "name": "cultuurnet/cdb",
@@ -432,20 +432,20 @@
                 }
             ],
             "description": "Clock abstraction library",
-            "time": "2015-06-08 16:12:34"
+            "time": "2015-06-08T16:12:34+00:00"
         },
         {
             "name": "cultuurnet/culturefeed-php",
-            "version": "dev-feature/III-2390",
+            "version": "1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/culturefeed-php.git",
-                "reference": "23e35baa3e403f8ecb8ea0b08f948ddcfbc1c3c6"
+                "reference": "5b7d83a2f0c78e63f59e96479b41b5e3c89b3984"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/23e35baa3e403f8ecb8ea0b08f948ddcfbc1c3c6",
-                "reference": "23e35baa3e403f8ecb8ea0b08f948ddcfbc1c3c6",
+                "url": "https://api.github.com/repos/cultuurnet/culturefeed-php/zipball/5b7d83a2f0c78e63f59e96479b41b5e3c89b3984",
+                "reference": "5b7d83a2f0c78e63f59e96479b41b5e3c89b3984",
                 "shasum": ""
             },
             "require": {
@@ -500,7 +500,7 @@
                 }
             ],
             "description": "Culturefeed PHP library",
-            "time": "2017-11-16 15:43:49"
+            "time": "2017-11-20T08:54:20+00:00"
         },
         {
             "name": "cultuurnet/deserializer",
@@ -547,7 +547,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2017-04-19 11:56:39"
+            "time": "2017-04-19T11:56:39+00:00"
         },
         {
             "name": "cultuurnet/silex-amqp",
@@ -590,7 +590,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2017-02-23 10:54:33"
+            "time": "2017-02-23T10:54:33+00:00"
         },
         {
             "name": "cultuurnet/silex-service-provider-jwt",
@@ -632,7 +632,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT authentication for Silex",
-            "time": "2017-02-23 11:22:30"
+            "time": "2017-02-23T11:22:30+00:00"
         },
         {
             "name": "cultuurnet/symfony-security-jwt",
@@ -674,7 +674,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT implementation for the Symfony Security component",
-            "time": "2017-02-23 11:20:01"
+            "time": "2017-02-23T11:20:01+00:00"
         },
         {
             "name": "cultuurnet/udb3-http-foundation",
@@ -715,7 +715,7 @@
             "license": [
                 "Apache-2.0"
             ],
-            "time": "2017-02-23 11:57:27"
+            "time": "2017-02-23T11:57:27+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -764,7 +764,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2017-04-19 11:59:07"
+            "time": "2017-04-19T11:59:07+00:00"
         },
         {
             "name": "cultuurnet/valueobjects",
@@ -4454,18 +4454,9 @@
             "time": "2016-11-23T20:04:58+00:00"
         }
     ],
-    "aliases": [
-        {
-            "alias": "1.8",
-            "alias_normalized": "1.8.0.0",
-            "version": "dev-feature/III-2390",
-            "package": "cultuurnet/culturefeed-php"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "cultuurnet/culturefeed-php": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
