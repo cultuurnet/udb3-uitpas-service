@@ -5,6 +5,7 @@ use DerAlex\Silex\YamlConfigServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Lcobucci\JWT\Token as Jwt;
 use Silex\Application;
+use Silex\Provider\UrlGeneratorServiceProvider;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 $app = new Application();
@@ -18,6 +19,8 @@ $app->register(new CorsServiceProvider(), array(
     "cors.allowOrigin" => implode(" ", $app['config']['cors']['origins']),
     "cors.allowCredentials" => true
 ));
+
+$app->register(new UrlGeneratorServiceProvider());
 
 /**
  * Turn debug on or off.

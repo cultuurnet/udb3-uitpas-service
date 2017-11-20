@@ -21,7 +21,7 @@
         "/organizers/{cdbid}/cardSystems": {
             "get": {
                 "summary": "View the card systems coupled to the organizer.",
-                "operationId": "getCardSystemsForOrganizer",
+                "operationId": "getOrganizerCardSystems",
                 "produces": [
                     "application/json"
                 ],
@@ -43,10 +43,35 @@
                 }
             }
         },
+        "/events/{cdbid}": {
+            "get": {
+                "summary": "View the details of a cultural event.",
+                "operationId": "getEventDetails",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/cdbid"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The event details.",
+                        "schema": {
+                            "$ref": "#/definitions/EventDetails"
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/responses/APIProblem"
+                    }
+                }
+            }
+        },
         "/events/{cdbid}/cardSystems": {
             "get": {
                 "summary": "View the card systems coupled to the cultural event.",
-                "operationId": "getCardSystemsForEvent",
+                "operationId": "getEventCardSystems",
                 "produces": [
                     "application/json"
                 ],
@@ -71,7 +96,7 @@
         "/events/{cdbid}/cardSystems/{cardSystemId}": {
             "put": {
                 "summary": "Add a card system (with an automatic distribution key) to the event.",
-                "operationId": "addCardSystemWithAutomaticDistributionKey",
+                "operationId": "addEventCardSystemWithAutomaticDistributionKey",
                 "produces": [
                     "text/plain",
                     "application/json"
@@ -98,7 +123,7 @@
             },
             "delete": {
                 "summary": "Remove a card system from the event.",
-                "operationId": "removeCardSystem",
+                "operationId": "removeEventCardSystem",
                 "produces": [
                     "text/plain",
                     "application/json"
@@ -127,7 +152,7 @@
         "/events/{cdbid}/cardSystems/{cardSystemId}/distributionKey/{distributionKeyId}": {
             "put": {
                 "summary": "Add a card system (with a manual distribution key) to the event.",
-                "operationId": "addCardSystemWithManualDistributionKey",
+                "operationId": "addEventCardSystemWithManualDistributionKey",
                 "produces": [
                     "text/plain",
                     "application/json"
@@ -159,6 +184,23 @@
     },
     "tags": [],
     "definitions": {
+        "EventDetails": {
+            "type": "object",
+            "properties": {
+                "@id": {
+                    "type": "string",
+                    "example": "http://uitpas.dev/events/0823f57e-a6bd-450a-b4f5-8459b4b11043"
+                },
+                "cardSystems": {
+                    "type": "string",
+                    "example": "http://uitpas.dev/events/0823f57e-a6bd-450a-b4f5-8459b4b11043/cardSystems/"
+                },
+                "hasTicketSales": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
         "CardSystems": {
             "type": "array",
             "items": {
