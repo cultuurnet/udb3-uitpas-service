@@ -2,7 +2,7 @@
     "name": "cultuurnet/udb3-uitpas-service",
     "description": "Silex application for UiTPAS integration",
     "type": "project",
-    "license": "GPLv3",
+    "license": "GPL-3.0-only",
     "authors": [],
     "require": {
         "broadway/broadway": "~0.10.0",
