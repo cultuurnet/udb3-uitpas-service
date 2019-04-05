@@ -1,6 +1,5 @@
 debug: false
 bootstrap: []
-consumerExecutionDelay: 0
 url: http://udb-uitpas.dev
 labels:
   PASPARTOE: 'Paspartoe'
