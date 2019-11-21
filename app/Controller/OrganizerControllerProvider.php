@@ -8,10 +8,6 @@ use Silex\ControllerProviderInterface;
 
 class OrganizerControllerProvider implements ControllerProviderInterface
 {
-
-    /**
-     * @inheritdoc
-     */
     public function connect(Application $app)
     {
         $app['uitpas.organizer_card_systems_controller'] = $app->share(

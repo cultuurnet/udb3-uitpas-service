@@ -2,12 +2,19 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
-class OrganizerCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
+use CultureFeed_ResultSet;
+use CultureFeed_Uitpas;
+use CultureFeed_Uitpas_CardSystem;
+use CultureFeed_Uitpas_DistributionKey;
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
+
+class OrganizerCardSystemsControllerTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \CultureFeed_Uitpas|\PHPUnit_Framework_MockObject_MockObject
+     * @var CultureFeed_Uitpas|PHPUnit_Framework_MockObject_MockObject
      */
-    private $uitpas;
+    private $uitPas;
 
     /**
      * @var OrganizerCardSystemsController
@@ -16,8 +23,8 @@ class OrganizerCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->uitpas = $this->createMock(\CultureFeed_Uitpas::class);
-        $this->controller = new OrganizerCardSystemsController($this->uitpas);
+        $this->uitPas = $this->createMock(CultureFeed_Uitpas::class);
+        $this->controller = new OrganizerCardSystemsController($this->uitPas);
     }
 
     /**
@@ -27,15 +34,15 @@ class OrganizerCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
     {
         $organizerId = 'db93a8d0-331a-4575-a23d-2c78d4ceb925';
 
-        $cardSystem1 = new \CultureFeed_Uitpas_CardSystem();
+        $cardSystem1 = new CultureFeed_Uitpas_CardSystem();
         $cardSystem1->id = 'card-system-1';
         $cardSystem1->name = 'Card system 1';
 
-        $distributionKey1 = new \CultureFeed_Uitpas_DistributionKey();
+        $distributionKey1 = new CultureFeed_Uitpas_DistributionKey();
         $distributionKey1->id = 'distribution-key-1';
         $distributionKey1->name = 'Distribution key 1';
 
-        $distributionKey2 = new \CultureFeed_Uitpas_DistributionKey();
+        $distributionKey2 = new CultureFeed_Uitpas_DistributionKey();
         $distributionKey2->id = 'distribution-key-2';
         $distributionKey2->name = 'Distribution key 2';
 
@@ -44,15 +51,15 @@ class OrganizerCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
             $distributionKey2,
         ];
 
-        $cardSystem2 = new \CultureFeed_Uitpas_CardSystem();
+        $cardSystem2 = new CultureFeed_Uitpas_CardSystem();
         $cardSystem2->id = 'card-system-2';
         $cardSystem2->name = 'Card system 2';
 
-        $distributionKey3 = new \CultureFeed_Uitpas_DistributionKey();
+        $distributionKey3 = new CultureFeed_Uitpas_DistributionKey();
         $distributionKey3->id = 'distribution-key-3';
         $distributionKey3->name = 'Distribution key 3';
 
-        $distributionKey4 = new \CultureFeed_Uitpas_DistributionKey();
+        $distributionKey4 = new CultureFeed_Uitpas_DistributionKey();
         $distributionKey4->id = 'distribution-key-4';
         $distributionKey4->name = 'Distribution key 4';
 
@@ -66,11 +73,11 @@ class OrganizerCardSystemsControllerTest extends \PHPUnit_Framework_TestCase
             $cardSystem2,
         ];
 
-        $resultSet = new \CultureFeed_ResultSet();
+        $resultSet = new CultureFeed_ResultSet();
         $resultSet->objects = $cardSystems;
         $resultSet->total = 2;
 
-        $this->uitpas->expects($this->once())
+        $this->uitPas->expects($this->once())
             ->method('getCardSystemsForOrganizer')
             ->with($organizerId)
             ->willReturn($resultSet);

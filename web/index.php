@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use CultuurNet\SilexServiceProviderJwt\JwtServiceProvider;
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\HttpFoundation\RequestMatcher\AnyOfRequestMatcher;
 use CultuurNet\UDB3\HttpFoundation\RequestMatcher\PreflightRequestMatcher;
@@ -9,7 +10,9 @@ use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
 use Silex\Application;
+use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestMatcher;
 
 /** @var Application $app */
@@ -28,10 +31,10 @@ $app->register(new ErrorHandlerProvider());
 /**
  * Security & firewall
  */
-$app->register(new \Silex\Provider\SecurityServiceProvider());
-$app->register(new \CultuurNet\SilexServiceProviderJwt\JwtServiceProvider());
+$app->register(new SecurityServiceProvider());
+$app->register(new JwtServiceProvider());
 
-$app['cors_preflight_request_matcher'] = $app->share(
+$app['cors_preflight_request_matcher'] = $app::share(
     function () {
         return new PreflightRequestMatcher();
     }
@@ -62,7 +65,7 @@ $app['security.firewalls'] = array(
     ),
 );
 
-$app['security.entry_point.form._proto'] = $app->protect(
+$app['security.entry_point.form._proto'] = $app::protect(
     function () use ($app) {
         return $app->share(
             function () {
@@ -75,7 +78,7 @@ $app['security.entry_point.form._proto'] = $app->protect(
 $app->get(
     'labels',
     function(Application $app) {
-        return new \Symfony\Component\HttpFoundation\JsonResponse(
+        return new JsonResponse(
             $app['config']['labels']
         );
     }
@@ -84,6 +87,6 @@ $app->get(
 $app->mount('/events', new EventControllerProvider());
 $app->mount('/organizers', new OrganizerControllerProvider());
 
-$app->after($app["cors"]);
+$app->after($app['cors']);
 
 $app->run();

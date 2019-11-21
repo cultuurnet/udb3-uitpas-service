@@ -11,9 +11,6 @@ class EventControllerProvider implements ControllerProviderInterface
     const EVENT_DETAIL = 'event.detail';
     const EVENT_CARD_SYSTEMS = 'event.card_systems';
 
-    /**
-     * @inheritdoc
-     */
     public function connect(Application $app)
     {
         $app['uitpas.event_detail_controller'] = $app->share(
