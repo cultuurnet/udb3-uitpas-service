@@ -2,16 +2,18 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Controller\Response;
 
+use CultureFeed_Uitpas_CardSystem;
+use CultureFeed_Uitpas_DistributionKey;
 use Symfony\Component\HttpFoundation\Response;
 
 class CardSystemsJsonResponse extends Response
 {
     /**
-     * @param \CultureFeed_Uitpas_CardSystem[] $cardSystems
+     * @param CultureFeed_Uitpas_CardSystem[] $cardSystems
      * @param int $status
      * @param array $headers
      */
-    public function __construct(array $cardSystems, $status = 200, array $headers = array())
+    public function __construct(array $cardSystems, int $status = 200, array $headers = array())
     {
         $data = [];
         foreach ($cardSystems as $cardSystem) {
@@ -23,11 +25,7 @@ class CardSystemsJsonResponse extends Response
         parent::__construct($content, $status, $headers);
     }
 
-    /**
-     * @param \CultureFeed_Uitpas_CardSystem $cardSystem
-     * @return array
-     */
-    private function convertCardSystemToArray(\CultureFeed_Uitpas_CardSystem $cardSystem)
+    private function convertCardSystemToArray(CultureFeed_Uitpas_CardSystem $cardSystem): array
     {
         $distributionKeys = [];
         foreach ($cardSystem->distributionKeys as $distributionKey) {
@@ -41,11 +39,7 @@ class CardSystemsJsonResponse extends Response
         ];
     }
 
-    /**
-     * @param \CultureFeed_Uitpas_DistributionKey $distributionKey
-     * @return array
-     */
-    private function convertDistributionKeyToArray(\CultureFeed_Uitpas_DistributionKey $distributionKey)
+    private function convertDistributionKeyToArray(CultureFeed_Uitpas_DistributionKey $distributionKey): array
     {
         return [
             'id' => $distributionKey->id,

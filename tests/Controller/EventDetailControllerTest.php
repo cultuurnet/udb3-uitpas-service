@@ -2,20 +2,23 @@
 
 namespace CultuurNet\UDB3\UiTPASService\Controller;
 
+use CultureFeed_Uitpas;
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-class EventDetailControllerTest extends \PHPUnit_Framework_TestCase
+class EventDetailControllerTest extends PHPUnit_Framework_TestCase
 {
-    const EVENT_DETAIL = 'mock.event.detail';
-    const EVENT_CARD_SYSTEMS = 'mock.event.card_systems';
+    private const EVENT_DETAIL = 'mock.event.detail';
+    private const EVENT_CARD_SYSTEMS = 'mock.event.card_systems';
 
     /**
-     * @var \CultureFeed_Uitpas|\PHPUnit_Framework_MockObject_MockObject
+     * @var CultureFeed_Uitpas|PHPUnit_Framework_MockObject_MockObject
      */
     private $uitpas;
 
     /**
-     * @var UrlGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @var UrlGeneratorInterface|PHPUnit_Framework_MockObject_MockObject
      */
     private $urlGenerator;
 
@@ -26,7 +29,7 @@ class EventDetailControllerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->uitpas = $this->createMock(\CultureFeed_Uitpas::class);
+        $this->uitpas = $this->createMock(CultureFeed_Uitpas::class);
         $this->urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $this->controller = new EventDetailController(
             $this->uitpas,

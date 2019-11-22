@@ -1,5 +1,4 @@
 debug: false
-bootstrap: []
 url: http://udb-uitpas.dev
 labels:
   PASPARTOE: 'Paspartoe'
