@@ -68,7 +68,7 @@
                 }
             }
         },
-        "/events/{cdbid}/cardSystems": {
+        "/events/{cdbid}/cardSystems/": {
             "get": {
                 "summary": "View the card systems coupled to the cultural event.",
                 "operationId": "getEventCardSystems",
@@ -88,6 +88,40 @@
                         }
                     },
                     "404": {
+                        "$ref": "#/responses/APIProblem"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Set the card systems coupled to the cultural event. If the event is not known by UiTPAS, it will still be saved and applied when it becomes known.",
+                "operationId": "setEventCardSystems",
+                "produces": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/cdbid"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "An array containing card system ids to set on the event.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "51423b80-01f5-43a0-8a2e-6c47c92e0efe"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The event's card systems have been updated."
+                    },
+                    "400": {
                         "$ref": "#/responses/APIProblem"
                     }
                 }
