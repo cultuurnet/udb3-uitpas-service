@@ -46,6 +46,10 @@ class EventControllerProvider implements ControllerProviderInterface
         )->bind(self::EVENT_CARD_SYSTEMS);
 
         $controllers->put(
+            '/{eventId}/cardSystems/',
+            'uitpas.event_card_systems_controller:set'
+        );
+        $controllers->put(
             '/{eventId}/cardSystems/{cardSystemId}',
             'uitpas.event_card_systems_controller:add'
         );
