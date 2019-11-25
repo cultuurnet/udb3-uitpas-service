@@ -143,6 +143,25 @@ class EventCardSystemsControllerTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function it_returns_an_error_response_if_the_list_of_card_system_ids_is_not_an_array()
+    {
+        $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
+        $cardSystemIds = 3;
+
+        $request = new Request([], [], [], [], [], [], json_encode($cardSystemIds));
+
+        $this->uitpas->expects($this->never())
+            ->method('setCardSystemsForEvent')
+            ->willReturn(null);
+
+        $response = $this->controller->set($eventId, $request);
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
     public function it_can_add_a_card_system_with_an_automatic_distribution_key_to_an_event()
     {
         $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
