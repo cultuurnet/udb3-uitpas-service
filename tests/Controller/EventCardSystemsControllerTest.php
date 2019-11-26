@@ -7,6 +7,7 @@ use CultureFeed_Uitpas_CardSystem;
 use CultureFeed_Uitpas_DistributionKey;
 use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 class EventCardSystemsControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -117,6 +118,45 @@ class EventCardSystemsControllerTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($expectedResponseContent, $actualResponseContent);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_set_a_list_of_card_systems_to_an_event()
+    {
+        $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
+        $cardSystemIds = ['3', '15'];
+
+        $request = new Request([], [], [], [], [], [], json_encode($cardSystemIds));
+
+        $this->uitpas->expects($this->once())
+            ->method('setCardSystemsForEvent')
+            ->with($eventId, $cardSystemIds)
+            ->willReturn(null);
+
+        $response = $this->controller->set($eventId, $request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_an_error_response_if_the_list_of_card_system_ids_is_not_an_array()
+    {
+        $eventId = '52943e99-51c8-4ba9-95ef-ec7d93f16ed9';
+        $cardSystemIds = 3;
+
+        $request = new Request([], [], [], [], [], [], json_encode($cardSystemIds));
+
+        $this->uitpas->expects($this->never())
+            ->method('setCardSystemsForEvent')
+            ->willReturn(null);
+
+        $response = $this->controller->set($eventId, $request);
+
+        $this->assertEquals(400, $response->getStatusCode());
     }
 
     /**
