@@ -6,6 +6,7 @@ use CultuurNet\SilexServiceProviderJwt\JwtServiceProvider;
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\HttpFoundation\RequestMatcher\AnyOfRequestMatcher;
 use CultuurNet\UDB3\HttpFoundation\RequestMatcher\PreflightRequestMatcher;
+use CultuurNet\UDB3\UiTPASService\ApiGuardServiceProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
@@ -22,6 +23,11 @@ $app = require __DIR__ . '/../bootstrap.php';
  * Allow to use services as controllers.
  */
 $app->register(new ServiceControllerServiceProvider());
+
+/**
+ * Check api keys for requests.
+ */
+$app->register(new ApiGuardServiceProvider());
 
 /**
  * Handle errors by returning an API problem response.

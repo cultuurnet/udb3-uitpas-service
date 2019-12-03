@@ -1,6 +1,7 @@
 <?php
 
 use CultuurNet\SymfonySecurityJwt\Authentication\JwtUserToken;
+use CultuurNet\UDB3\UiTPASService\CultureFeedServiceProvider;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Lcobucci\JWT\Token as Jwt;
@@ -66,16 +67,6 @@ $app['current_user'] = $app::share(
     }
 );
 
-$app['culturefeed_uitpas_client'] = $app::share(
-    function (Application $app) {
-        $oauthClient = new CultureFeed_DefaultOAuthClient(
-            $app['config']['uitid']['consumer']['key'],
-            $app['config']['uitid']['consumer']['secret']
-        );
-        $oauthClient->setEndpoint($app['config']['uitid']['base_url']);
-        $cf = new CultureFeed($oauthClient);
-        return $cf->uitpas();
-    }
-);
+$app->register(new CultureFeedServiceProvider());
 
 return $app;
