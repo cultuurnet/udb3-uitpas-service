@@ -318,12 +318,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "2e195059374b19b95485293cc3da8ae25ad7ca2f"
+                "reference": "743ce678f246acc5309f102feda9eb14ebd1d6a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/2e195059374b19b95485293cc3da8ae25ad7ca2f",
-                "reference": "2e195059374b19b95485293cc3da8ae25ad7ca2f",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/743ce678f246acc5309f102feda9eb14ebd1d6a3",
+                "reference": "743ce678f246acc5309f102feda9eb14ebd1d6a3",
                 "shasum": ""
             },
             "require": {
@@ -336,9 +336,8 @@
             },
             "require-dev": {
                 "phing/phing": "~2.11",
-                "phpunit/php-token-stream": "1.4.6",
-                "phpunit/phpunit": "~5.7",
-                "satooshi/php-coveralls": "~0.7",
+                "php-coveralls/php-coveralls": "^2.1",
+                "phpunit/phpunit": "^7.5",
                 "squizlabs/php_codesniffer": "2.6.1"
             },
             "type": "library",
@@ -357,7 +356,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2017-04-20T12:39:24+00:00"
+            "time": "2019-08-29T07:58:48+00:00"
         },
         {
             "name": "cultuurnet/cdb",
@@ -488,12 +487,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "62d7572ec0dd9dec48ecb6cc43117849202f24a9"
+                "reference": "ec7830eb860ea83f7c28c38649b0057177ade784"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/62d7572ec0dd9dec48ecb6cc43117849202f24a9",
-                "reference": "62d7572ec0dd9dec48ecb6cc43117849202f24a9",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/ec7830eb860ea83f7c28c38649b0057177ade784",
+                "reference": "ec7830eb860ea83f7c28c38649b0057177ade784",
                 "shasum": ""
             },
             "require": {
@@ -527,7 +526,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2017-04-19T11:56:39+00:00"
+            "time": "2018-06-29T14:27:41+00:00"
         },
         {
             "name": "cultuurnet/silex-amqp",
@@ -535,12 +534,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-amqp.git",
-                "reference": "a63eebb9453e6538dffca0151b5d773526f18c13"
+                "reference": "4d5f4a81e0b2f0a1ce509080aae6130e6d0a3649"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/a63eebb9453e6538dffca0151b5d773526f18c13",
-                "reference": "a63eebb9453e6538dffca0151b5d773526f18c13",
+                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/4d5f4a81e0b2f0a1ce509080aae6130e6d0a3649",
+                "reference": "4d5f4a81e0b2f0a1ce509080aae6130e6d0a3649",
                 "shasum": ""
             },
             "require": {
@@ -570,7 +569,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2017-02-23T10:54:33+00:00"
+            "time": "2018-06-29T14:15:23+00:00"
         },
         {
             "name": "cultuurnet/silex-service-provider-jwt",
@@ -578,12 +577,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-service-provider-jwt.git",
-                "reference": "c1138d669b8131f6634683165edd4d566dde97b7"
+                "reference": "a861b82c5f036d0d2e80685c9d41901cdbf69701"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-service-provider-jwt/zipball/c1138d669b8131f6634683165edd4d566dde97b7",
-                "reference": "c1138d669b8131f6634683165edd4d566dde97b7",
+                "url": "https://api.github.com/repos/cultuurnet/silex-service-provider-jwt/zipball/a861b82c5f036d0d2e80685c9d41901cdbf69701",
+                "reference": "a861b82c5f036d0d2e80685c9d41901cdbf69701",
                 "shasum": ""
             },
             "require": {
@@ -612,7 +611,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT authentication for Silex",
-            "time": "2017-02-23T11:22:30+00:00"
+            "time": "2018-06-29T14:29:16+00:00"
         },
         {
             "name": "cultuurnet/symfony-security-jwt",
@@ -620,12 +619,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/symfony-security-jwt.git",
-                "reference": "8b599e0ce1cbf56de5f516fcf5e494735dacd744"
+                "reference": "f155d6cbd89aa5faef1b122d8d36b60b40ebd8db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/symfony-security-jwt/zipball/8b599e0ce1cbf56de5f516fcf5e494735dacd744",
-                "reference": "8b599e0ce1cbf56de5f516fcf5e494735dacd744",
+                "url": "https://api.github.com/repos/cultuurnet/symfony-security-jwt/zipball/f155d6cbd89aa5faef1b122d8d36b60b40ebd8db",
+                "reference": "f155d6cbd89aa5faef1b122d8d36b60b40ebd8db",
                 "shasum": ""
             },
             "require": {
@@ -654,7 +653,7 @@
                 "Apache-2.0"
             ],
             "description": "JWT implementation for the Symfony Security component",
-            "time": "2017-02-23T11:20:01+00:00"
+            "time": "2018-06-29T14:29:57+00:00"
         },
         {
             "name": "cultuurnet/udb3-api-guard",
@@ -713,12 +712,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-http-foundation.git",
-                "reference": "85281d5e146bc4139fe2ae6153dc073f125b6dc9"
+                "reference": "96f234a269ae988785df8a27d9d19868ea1efdf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-http-foundation/zipball/85281d5e146bc4139fe2ae6153dc073f125b6dc9",
-                "reference": "85281d5e146bc4139fe2ae6153dc073f125b6dc9",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-http-foundation/zipball/96f234a269ae988785df8a27d9d19868ea1efdf1",
+                "reference": "96f234a269ae988785df8a27d9d19868ea1efdf1",
                 "shasum": ""
             },
             "require": {
@@ -746,7 +745,7 @@
             "license": [
                 "Apache-2.0"
             ],
-            "time": "2017-02-23T11:57:27+00:00"
+            "time": "2018-06-29T14:28:42+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -754,12 +753,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-jwt.git",
-                "reference": "df4932e232533184c9854bfb02783f32f1098945"
+                "reference": "5c4e4ec6a1ff9db779f3818e0d78f1c9fc454ccc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/df4932e232533184c9854bfb02783f32f1098945",
-                "reference": "df4932e232533184c9854bfb02783f32f1098945",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/5c4e4ec6a1ff9db779f3818e0d78f1c9fc454ccc",
+                "reference": "5c4e4ec6a1ff9db779f3818e0d78f1c9fc454ccc",
                 "shasum": ""
             },
             "require": {
@@ -795,7 +794,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2017-04-19T11:59:07+00:00"
+            "time": "2018-06-29T14:15:52+00:00"
         },
         {
             "name": "cultuurnet/valueobjects",
@@ -1024,7 +1023,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -1986,16 +1985,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v2.7.38",
+            "version": "v2.7.51",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "332e85cee2a7376a67124c7512fb48ae1689fe8c"
+                "reference": "b67e5cbd2bf837fb3681f2c4965826d6c6758532"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/332e85cee2a7376a67124c7512fb48ae1689fe8c",
-                "reference": "332e85cee2a7376a67124c7512fb48ae1689fe8c",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b67e5cbd2bf837fb3681f2c4965826d6c6758532",
+                "reference": "b67e5cbd2bf837fb3681f2c4965826d6c6758532",
                 "shasum": ""
             },
             "require": {
@@ -2038,7 +2037,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2017-11-13T17:34:39+00:00"
+            "time": "2019-04-16T09:58:21+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -2125,16 +2124,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.6.0",
+            "version": "v1.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296"
+                "reference": "7b4aab9743c30be783b73de055d24a39cf4b954f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296",
-                "reference": "2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/7b4aab9743c30be783b73de055d24a39cf4b954f",
+                "reference": "7b4aab9743c30be783b73de055d24a39cf4b954f",
                 "shasum": ""
             },
             "require": {
@@ -2146,7 +2145,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6-dev"
+                    "dev-master": "1.13-dev"
                 }
             },
             "autoload": {
@@ -2180,7 +2179,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-10-11T12:05:26+00:00"
+            "time": "2019-11-27T14:18:11+00:00"
         },
         {
             "name": "symfony/polyfill-php55",
@@ -2559,7 +2558,7 @@
             ],
             "authors": [
                 {
-                    "name": "William Durand",
+                    "name": "William DURAND",
                     "email": "william.durand1@gmail.com"
                 }
             ],
