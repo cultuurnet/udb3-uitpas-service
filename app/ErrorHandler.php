@@ -22,7 +22,7 @@ class ErrorHandler
     private function formatMessage(\Exception $exception): string
     {
         $message = $exception->getMessage();
-        return preg_replace('/URL CALLED.*/','',$message);
+        return preg_replace('/URL CALLED.*/', '', $message);
     }
 
 }
