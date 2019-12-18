@@ -2,7 +2,6 @@
 
 namespace CultuurNet\UDB3\UiTPASService;
 
-use Exception;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -10,11 +9,13 @@ class ErrorHandlerProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app->error(
-            function (Exception $e) {
-                return (new ErrorHandler())->__invoke($e);
+        $app['error_handler'] = $app::share(
+            function () {
+                return new ErrorHandler();
             }
         );
+
+        $app->error($app['error_handler']);
     }
 
     public function boot(Application $app)
