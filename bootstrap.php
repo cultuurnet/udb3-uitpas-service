@@ -1,10 +1,11 @@
 <?php
 
-use CultuurNet\SymfonySecurityJwt\Authentication\JwtUserToken;
+use CultuurNet\UDB3\Jwt\Symfony\Authentication\JwtUserToken;
+
+use CultuurNet\UDB3\Jwt\Udb3Token;
 use CultuurNet\UDB3\UiTPASService\CultureFeedServiceProvider;
 use DerAlex\Silex\YamlConfigServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
-use Lcobucci\JWT\Token as Jwt;
 use Silex\Application;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -50,15 +51,14 @@ $app['jwt'] = $app::share(
 
 $app['current_user'] = $app::share(
     function (Application $app) {
-        /* @var Jwt|null $jwt */
         $jwt = $app['jwt'];
 
-        if ($jwt instanceof Jwt) {
+        if ($jwt instanceof Udb3Token) {
             $cfUser = new CultureFeed_User();
 
-            $cfUser->id = $jwt->getClaim('uid');
-            $cfUser->nick = $jwt->getClaim('nick');
-            $cfUser->mbox = $jwt->getClaim('email');
+            $cfUser->id = $jwt->id();
+            $cfUser->nick = $jwt->userName();
+            $cfUser->mbox = $jwt->email();
 
             return $cfUser;
         }
