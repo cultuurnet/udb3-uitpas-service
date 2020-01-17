@@ -3,6 +3,6 @@
 /log
 /config.yml
 /.idea
-public.pem
+*.pem
 external_id_mapping_place.yml
 external_id_mapping_organizer.yml

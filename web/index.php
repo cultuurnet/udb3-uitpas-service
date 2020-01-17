@@ -1,9 +1,8 @@
 <?php
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-use CultuurNet\SilexServiceProviderJwt\JwtServiceProvider;
-use CultuurNet\SymfonySecurityJwt\Authentication\JwtAuthenticationEntryPoint;
+use CultuurNet\UDB3\Jwt\Silex\JwtServiceProvider;
+use CultuurNet\UDB3\Jwt\Symfony\Authentication\JwtAuthenticationEntryPoint;
 use CultuurNet\UDB3\HttpFoundation\RequestMatcher\AnyOfRequestMatcher;
 use CultuurNet\UDB3\HttpFoundation\RequestMatcher\PreflightRequestMatcher;
 use CultuurNet\UDB3\UiTPASService\ApiGuardServiceProvider;
@@ -59,13 +58,23 @@ $app['security.firewalls'] = array(
     'secured' => array(
         'pattern' => '^.*$',
         'jwt' => [
-            'validation' => $app['config']['jwt']['validation'],
-            'required_claims' => [
-                'uid',
-                'nick',
-                'email',
+            'uitid' => [
+                'validation' => $app['config']['jwt']['uitid']['validation'],
+                'required_claims' => [
+                    'uid',
+                    'nick',
+                    'email',
+                ],
+                'public_key' => 'file://' . __DIR__ . '/../' . $app['config']['jwt']['uitid']['keys']['public']['file']
             ],
-            'public_key' => 'file://' . __DIR__ . '/../' . $app['config']['jwt']['keys']['public']['file'],
+            'auth0' => [
+                'validation' => $app['config']['jwt']['auth0']['validation'],
+                'required_claims' => [
+                    'email',
+                    'sub',
+                ],
+                'public_key' => 'file://' . __DIR__ . '/../' . $app['config']['jwt']['auth0']['keys']['public']['file']
+            ],
         ],
         'stateless' => true,
     ),
