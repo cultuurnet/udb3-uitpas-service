@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46f4869d0d74b9ffc1ac453fa0ede7c2",
+    "content-hash": "4ff2651ef30c99f3e6e76940855943be",
     "packages": [
         {
             "name": "2dotstwice/collection",
@@ -318,12 +318,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/broadway-amqp.git",
-                "reference": "2e195059374b19b95485293cc3da8ae25ad7ca2f"
+                "reference": "743ce678f246acc5309f102feda9eb14ebd1d6a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/2e195059374b19b95485293cc3da8ae25ad7ca2f",
-                "reference": "2e195059374b19b95485293cc3da8ae25ad7ca2f",
+                "url": "https://api.github.com/repos/cultuurnet/broadway-amqp/zipball/743ce678f246acc5309f102feda9eb14ebd1d6a3",
+                "reference": "743ce678f246acc5309f102feda9eb14ebd1d6a3",
                 "shasum": ""
             },
             "require": {
@@ -336,9 +336,8 @@
             },
             "require-dev": {
                 "phing/phing": "~2.11",
-                "phpunit/php-token-stream": "1.4.6",
-                "phpunit/phpunit": "~5.7",
-                "satooshi/php-coveralls": "~0.7",
+                "php-coveralls/php-coveralls": "^2.1",
+                "phpunit/phpunit": "^7.5",
                 "squizlabs/php_codesniffer": "2.6.1"
             },
             "type": "library",
@@ -357,7 +356,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Broadway library",
-            "time": "2017-04-20T12:39:24+00:00"
+            "time": "2019-08-29T07:58:48+00:00"
         },
         {
             "name": "cultuurnet/cdb",
@@ -488,12 +487,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/deserializer.git",
-                "reference": "62d7572ec0dd9dec48ecb6cc43117849202f24a9"
+                "reference": "ec7830eb860ea83f7c28c38649b0057177ade784"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/62d7572ec0dd9dec48ecb6cc43117849202f24a9",
-                "reference": "62d7572ec0dd9dec48ecb6cc43117849202f24a9",
+                "url": "https://api.github.com/repos/cultuurnet/deserializer/zipball/ec7830eb860ea83f7c28c38649b0057177ade784",
+                "reference": "ec7830eb860ea83f7c28c38649b0057177ade784",
                 "shasum": ""
             },
             "require": {
@@ -527,7 +526,7 @@
                 }
             ],
             "description": "Internet media type deserialization library",
-            "time": "2017-04-19T11:56:39+00:00"
+            "time": "2018-06-29T14:27:41+00:00"
         },
         {
             "name": "cultuurnet/silex-amqp",
@@ -535,12 +534,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/silex-amqp.git",
-                "reference": "a63eebb9453e6538dffca0151b5d773526f18c13"
+                "reference": "4d5f4a81e0b2f0a1ce509080aae6130e6d0a3649"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/a63eebb9453e6538dffca0151b5d773526f18c13",
-                "reference": "a63eebb9453e6538dffca0151b5d773526f18c13",
+                "url": "https://api.github.com/repos/cultuurnet/silex-amqp/zipball/4d5f4a81e0b2f0a1ce509080aae6130e6d0a3649",
+                "reference": "4d5f4a81e0b2f0a1ce509080aae6130e6d0a3649",
                 "shasum": ""
             },
             "require": {
@@ -570,7 +569,7 @@
                 "Apache-2.0"
             ],
             "description": "AMQP integration for Silex projects",
-            "time": "2017-02-23T10:54:33+00:00"
+            "time": "2018-06-29T14:15:23+00:00"
         },
         {
             "name": "cultuurnet/udb3-api-guard",
@@ -629,12 +628,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-http-foundation.git",
-                "reference": "85281d5e146bc4139fe2ae6153dc073f125b6dc9"
+                "reference": "96f234a269ae988785df8a27d9d19868ea1efdf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-http-foundation/zipball/85281d5e146bc4139fe2ae6153dc073f125b6dc9",
-                "reference": "85281d5e146bc4139fe2ae6153dc073f125b6dc9",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-http-foundation/zipball/96f234a269ae988785df8a27d9d19868ea1efdf1",
+                "reference": "96f234a269ae988785df8a27d9d19868ea1efdf1",
                 "shasum": ""
             },
             "require": {
@@ -662,7 +661,7 @@
             "license": [
                 "Apache-2.0"
             ],
-            "time": "2017-02-23T11:57:27+00:00"
+            "time": "2018-06-29T14:28:42+00:00"
         },
         {
             "name": "cultuurnet/udb3-jwt",
@@ -670,12 +669,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/cultuurnet/udb3-jwt.git",
-                "reference": "38626f4e0991086f61ffc582ddfe3b67c9a4d0e9"
+                "reference": "7d9e151a586791d4f672575d377bec0d35965a51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/38626f4e0991086f61ffc582ddfe3b67c9a4d0e9",
-                "reference": "38626f4e0991086f61ffc582ddfe3b67c9a4d0e9",
+                "url": "https://api.github.com/repos/cultuurnet/udb3-jwt/zipball/7d9e151a586791d4f672575d377bec0d35965a51",
+                "reference": "7d9e151a586791d4f672575d377bec0d35965a51",
                 "shasum": ""
             },
             "require": {
@@ -717,7 +716,7 @@
                 }
             ],
             "description": "Provides JWT service classes",
-            "time": "2020-01-16T13:49:48+00:00"
+            "time": "2020-01-21T16:55:27+00:00"
         },
         {
             "name": "cultuurnet/valueobjects",
@@ -822,6 +821,7 @@
             "keywords": [
                 "silex"
             ],
+            "abandoned": true,
             "time": "2014-01-29T15:54:57+00:00"
         },
         {
@@ -946,7 +946,7 @@
             ],
             "authors": [
                 {
-                    "name": "KnpLabs",
+                    "name": "Knplabs",
                     "homepage": "http://knplabs.com"
                 }
             ],
@@ -1589,12 +1589,12 @@
             ],
             "authors": [
                 {
-                    "name": "Marijn Huizendveld",
-                    "email": "marijn.huizendveld@gmail.com"
-                },
-                {
                     "name": "Ben Ramsey",
                     "homepage": "http://benramsey.com"
+                },
+                {
+                    "name": "Marijn Huizendveld",
+                    "email": "marijn.huizendveld@gmail.com"
                 }
             ],
             "description": "A PHP 5.3+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).",
@@ -2275,6 +2275,65 @@
             "time": "2019-11-27T13:56:44+00:00"
         },
         {
+            "name": "symfony/polyfill-php70",
+            "version": "v1.13.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php70.git",
+                "reference": "af23c7bb26a73b850840823662dda371484926c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php70/zipball/af23c7bb26a73b850840823662dda371484926c4",
+                "reference": "af23c7bb26a73b850840823662dda371484926c4",
+                "shasum": ""
+            },
+            "require": {
+                "paragonie/random_compat": "~1.0|~2.0|~9.99",
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.13-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php70\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 7.0+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2019-11-27T13:56:44+00:00"
+        },
+        {
             "name": "symfony/polyfill-util",
             "version": "v1.13.1",
             "source": {
@@ -2325,6 +2384,66 @@
                 "shim"
             ],
             "time": "2019-11-27T13:56:44+00:00"
+        },
+        {
+            "name": "symfony/property-access",
+            "version": "v3.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/property-access.git",
+                "reference": "a4f1a668d0a269a65790f07d9ab2a97dd060fccb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/property-access/zipball/a4f1a668d0a269a65790f07d9ab2a97dd060fccb",
+                "reference": "a4f1a668d0a269a65790f07d9ab2a97dd060fccb",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\PropertyAccess\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony PropertyAccess Component",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "access",
+                "array",
+                "extraction",
+                "index",
+                "injection",
+                "object",
+                "property",
+                "property path",
+                "reflection"
+            ],
+            "time": "2016-07-30T07:22:48+00:00"
         },
         {
             "name": "symfony/routing",
@@ -2403,61 +2522,128 @@
         },
         {
             "name": "symfony/security",
-            "version": "v2.7.8",
+            "version": "v2.8.52",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security.git",
-                "reference": "88b9dd021f396ecea0ed312b26e2e8fe5b98feeb"
+                "reference": "b9e9130cf348d4e85e37ba1d0d27263e33b97534"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security/zipball/88b9dd021f396ecea0ed312b26e2e8fe5b98feeb",
-                "reference": "88b9dd021f396ecea0ed312b26e2e8fe5b98feeb",
+                "url": "https://api.github.com/repos/symfony/security/zipball/b9e9130cf348d4e85e37ba1d0d27263e33b97534",
+                "reference": "b9e9130cf348d4e85e37ba1d0d27263e33b97534",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.9",
-                "symfony/event-dispatcher": "~2.2",
-                "symfony/http-foundation": "~2.1",
-                "symfony/http-kernel": "~2.4"
+                "symfony/event-dispatcher": "~2.2|~3.0.0",
+                "symfony/http-foundation": "^2.7.38|~3.3.13",
+                "symfony/http-kernel": "~2.4|~3.0.0",
+                "symfony/polyfill-php55": "~1.0",
+                "symfony/polyfill-php56": "~1.0",
+                "symfony/polyfill-php70": "~1.0",
+                "symfony/polyfill-util": "~1.0",
+                "symfony/property-access": "~2.3|~3.0.0",
+                "symfony/security-acl": "~2.7|~3.0.0"
+            },
+            "conflict": {
+                "symfony/http-foundation": "~2.8,<2.8.31"
             },
             "replace": {
-                "symfony/security-acl": "self.version",
                 "symfony/security-core": "self.version",
                 "symfony/security-csrf": "self.version",
+                "symfony/security-guard": "self.version",
                 "symfony/security-http": "self.version"
             },
             "require-dev": {
-                "doctrine/common": "~2.2",
-                "doctrine/dbal": "~2.2",
-                "ircmaxell/password-compat": "~1.0",
                 "psr/log": "~1.0",
-                "symfony/expression-language": "~2.6",
-                "symfony/finder": "~2.3",
-                "symfony/intl": "~2.3",
-                "symfony/routing": "~2.2",
-                "symfony/validator": "~2.5,>=2.5.9"
+                "symfony/expression-language": "~2.6|~3.0.0",
+                "symfony/finder": "~2.3|~3.0.0",
+                "symfony/ldap": "~2.8|~3.0.0",
+                "symfony/polyfill-intl-icu": "~1.0",
+                "symfony/routing": "~2.2|~3.0.0",
+                "symfony/validator": "~2.7.25|^2.8.18|~3.2.5"
             },
             "suggest": {
-                "doctrine/dbal": "For using the built-in ACL implementation",
-                "ircmaxell/password-compat": "For using the BCrypt password encoder in PHP <5.5",
-                "paragonie/random_compat": "",
-                "symfony/class-loader": "For using the ACL generateSql script",
                 "symfony/expression-language": "For using the expression voter",
-                "symfony/finder": "For using the ACL generateSql script",
                 "symfony/form": "",
+                "symfony/ldap": "For using the LDAP user and authentication providers",
                 "symfony/routing": "For using the HttpUtils class to create sub-requests, redirect the user, and match URLs",
                 "symfony/validator": "For using the user password constraint"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.7-dev"
+                    "dev-master": "2.8-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
                     "Symfony\\Component\\Security\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Core/Tests/",
+                    "/Csrf/Tests/",
+                    "/Guard/Tests/",
+                    "/Http/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Security Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-04-16T10:01:12+00:00"
+        },
+        {
+            "name": "symfony/security-acl",
+            "version": "v3.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/security-acl.git",
+                "reference": "dc8f10b3bda34e9ddcad49edc7accf61f31fce43"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/security-acl/zipball/dc8f10b3bda34e9ddcad49edc7accf61f31fce43",
+                "reference": "dc8f10b3bda34e9ddcad49edc7accf61f31fce43",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9",
+                "symfony/security-core": "^2.8|^3.0|^4.0|^5.0"
+            },
+            "require-dev": {
+                "doctrine/common": "~2.2",
+                "doctrine/dbal": "~2.2",
+                "psr/log": "~1.0",
+                "symfony/phpunit-bridge": "^2.8|^3.0|^4.0|^5.0"
+            },
+            "suggest": {
+                "doctrine/dbal": "For using the built-in ACL implementation",
+                "symfony/class-loader": "For using the ACL generateSql script",
+                "symfony/finder": "For using the ACL generateSql script"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Security\\Acl\\": ""
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -2477,9 +2663,9 @@
                     "homepage": "https://symfony.com/contributors"
                 }
             ],
-            "description": "Symfony Security Component",
+            "description": "Symfony Security Component - ACL (Access Control List)",
             "homepage": "https://symfony.com",
-            "time": "2015-12-23T18:13:52+00:00"
+            "time": "2019-12-12T09:55:57+00:00"
         },
         {
             "name": "symfony/serializer",
@@ -2644,7 +2830,7 @@
             ],
             "authors": [
                 {
-                    "name": "William Durand",
+                    "name": "William DURAND",
                     "email": "william.durand1@gmail.com"
                 }
             ],
