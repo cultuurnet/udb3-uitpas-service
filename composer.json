@@ -5,6 +5,7 @@
     "license": "GPL-3.0-only",
     "authors": [],
     "require": {
+        "php": "^7.1",
         "broadway/broadway": "~0.10.0",
         "cultuurnet/broadway-amqp": "~0.1",
         "cultuurnet/culturefeed-php": "~1.10",
