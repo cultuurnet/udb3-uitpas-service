@@ -5,7 +5,7 @@ namespace CultuurNet\UDB3\UiTPASService;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
-class ErrorHandlerTest extends TestCase
+class ApiErrorHandlerTest extends TestCase
 {
     /**
      * @test
@@ -14,7 +14,7 @@ class ErrorHandlerTest extends TestCase
     {
         $exception = new Exception('Exception message', 500);
 
-        $errorHandler = new ErrorHandler();
+        $errorHandler = new ApiErrorHandler();
         $apiProblemResponse = $errorHandler->__invoke($exception);
 
         $this->assertEquals(
@@ -31,7 +31,7 @@ class ErrorHandlerTest extends TestCase
     {
         $exception = new Exception('Exception message');
 
-        $errorHandler = new ErrorHandler();
+        $errorHandler = new ApiErrorHandler();
         $apiProblemResponse = $errorHandler->__invoke($exception);
 
         $this->assertEquals(
@@ -50,7 +50,7 @@ class ErrorHandlerTest extends TestCase
         // of everything after URL CALLED
         $exception = new Exception('Exception message URL CALLED: https://acc.uitid.be/uitid/rest/uitpas/cultureevent/de343e38-d656-4928-96bc-55578e0d94ec/cardsystems POST DATA: cardSystemId=3');
 
-        $errorHandler = new ErrorHandler();
+        $errorHandler = new ApiErrorHandler();
         $apiProblemResponse = $errorHandler->__invoke($exception);
 
         $this->assertEquals(
