@@ -10,6 +10,7 @@ use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
 use CultuurNet\UDB3\UiTPASService\SentryServiceProvider;
+use CultuurNet\UDB3\UiTPASService\UncaughtErrorHandler;
 use Silex\Application;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
@@ -110,4 +111,9 @@ $app->mount('/organizers', new OrganizerControllerProvider());
 
 $app->after($app['cors']);
 
-$app->run();
+try {
+    $app->run();
+} catch (Throwable $throwable) {
+    $app[UncaughtErrorHandler::class]->handle($throwable);
+    throw $throwable;
+}
