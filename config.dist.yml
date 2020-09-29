@@ -35,3 +35,6 @@ cors:
   origins:
     - http://udb-app.dev
     - http://localhost:9999
+sentry:
+  dsn: *
+  environment: testing

@@ -2,6 +2,7 @@
 
 namespace CultuurNet\UDB3\UiTPASService;
 
+use Sentry\State\HubInterface;
 use Silex\Application;
 use Silex\ServiceProviderInterface;
 
@@ -9,13 +10,18 @@ class ErrorHandlerProvider implements ServiceProviderInterface
 {
     public function register(Application $app)
     {
-        $app['error_handler'] = $app::share(
-            function () {
-                return new ErrorHandler();
+        $app[UncaughtErrorHandler::class] = $app->share(
+            function ($app) {
+                return new UncaughtErrorHandler($app[HubInterface::class]);
             }
         );
 
-        $app->error($app['error_handler']);
+        $app[ApiErrorHandler::class] = $app->share(
+            function () use ($app) {
+                return new ApiErrorHandler($app[UncaughtErrorHandler::class]);
+            }
+        );
+        $app->error($app[ApiErrorHandler::class]);
     }
 
     public function boot(Application $app)
