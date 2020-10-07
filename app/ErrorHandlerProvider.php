@@ -8,7 +8,7 @@ use Silex\ServiceProviderInterface;
 
 class ErrorHandlerProvider implements ServiceProviderInterface
 {
-    public function register(Application $app)
+    public function register(Application $app): void
     {
         $app[UncaughtErrorHandler::class] = $app->share(
             function ($app) {
@@ -24,7 +24,7 @@ class ErrorHandlerProvider implements ServiceProviderInterface
         $app->error($app[ApiErrorHandler::class]);
     }
 
-    public function boot(Application $app)
+    public function boot(Application $app): void
     {
     }
 }
