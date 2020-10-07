@@ -12,7 +12,7 @@ class ApiErrorHandlerTest extends TestCase
     /** @var HubInterface|PHPUnit_Framework_MockObject_MockObject  */
     private $sentryHub;
 
-    /** @var UncaughtErrorHandler */
+    /** @var SentryErrorHandler */
     private $uncaughtErrorHandler;
 
     protected function setUp(): void
@@ -20,7 +20,7 @@ class ApiErrorHandlerTest extends TestCase
         parent::setUp();
 
         $this->sentryHub = $this->createMock(HubInterface::class);
-        $this->uncaughtErrorHandler = new UncaughtErrorHandler($this->sentryHub);
+        $this->uncaughtErrorHandler = new SentryErrorHandler($this->sentryHub);
     }
 
     /**

@@ -10,15 +10,15 @@ class ErrorHandlerProvider implements ServiceProviderInterface
 {
     public function register(Application $app): void
     {
-        $app[UncaughtErrorHandler::class] = $app->share(
+        $app[SentryErrorHandler::class] = $app->share(
             function ($app) {
-                return new UncaughtErrorHandler($app[HubInterface::class]);
+                return new SentryErrorHandler($app[HubInterface::class]);
             }
         );
 
         $app[ApiErrorHandler::class] = $app->share(
             function () use ($app) {
-                return new ApiErrorHandler($app[UncaughtErrorHandler::class]);
+                return new ApiErrorHandler($app[SentryErrorHandler::class]);
             }
         );
         $app->error($app[ApiErrorHandler::class]);

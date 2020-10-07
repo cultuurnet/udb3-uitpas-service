@@ -9,11 +9,11 @@ use Exception;
 class ApiErrorHandler
 {
     /**
-     * @var UncaughtErrorHandler
+     * @var SentryErrorHandler
      */
     private $uncaughtErrorHandler;
 
-    public function __construct(UncaughtErrorHandler $uncaughtErrorHandler)
+    public function __construct(SentryErrorHandler $uncaughtErrorHandler)
     {
         $this->uncaughtErrorHandler = $uncaughtErrorHandler;
     }
