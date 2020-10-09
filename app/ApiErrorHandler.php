@@ -18,7 +18,7 @@ class ApiErrorHandler
         $this->uncaughtErrorHandler = $uncaughtErrorHandler;
     }
 
-    public function __invoke(Exception $exception): ApiProblemJsonResponse
+    public function handle(Exception $exception): ApiProblemJsonResponse
     {
         $this->uncaughtErrorHandler->handle($exception);
 
