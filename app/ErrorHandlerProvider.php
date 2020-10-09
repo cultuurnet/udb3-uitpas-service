@@ -16,7 +16,8 @@ class ErrorHandlerProvider implements ServiceProviderInterface
                 return new SentryErrorHandler(
                     $app[HubInterface::class],
                     $app['jwt'] ?? null,
-                    $app['auth.api_key'] ?? null
+                    $app['auth.api_key'] ?? null,
+                    false
                 );
             }
         );

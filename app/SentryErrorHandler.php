@@ -21,11 +21,15 @@ class SentryErrorHandler
     /** @var ApiKey|null */
     private $apiKey;
 
-    public function __construct(HubInterface $sentryHub, ?Udb3Token $udb3Token, ?ApiKey $apiKey)
+    /** @var boolean */
+    private $console;
+
+    public function __construct(HubInterface $sentryHub, ?Udb3Token $udb3Token, ?ApiKey $apiKey, bool $console)
     {
         $this->sentryHub = $sentryHub;
         $this->udb3Token = $udb3Token;
         $this->apiKey = $apiKey;
+        $this->console = $console;
     }
 
     public function handle(Throwable $throwable): void
@@ -36,7 +40,7 @@ class SentryErrorHandler
 
         $this->sentryHub->configureScope(function (Scope $scope) {
             $scope->setUser($this->createUser($this->udb3Token));
-            $scope->setTags($this->createTags($this->apiKey));
+            $scope->setTags($this->createTags($this->apiKey, $this->console));
         });
 
         $this->sentryHub->captureException($throwable);
@@ -56,10 +60,11 @@ class SentryErrorHandler
         ];
     }
 
-    private function createTags(?ApiKey $apiKey): array
+    private function createTags(?ApiKey $apiKey, bool $console): array
     {
         return [
             'api_key' => $apiKey ? $apiKey->toNative() : 'null',
+            'runtime.env' => $console ? 'cli' : 'web',
         ];
     }
 }
