@@ -12,7 +12,7 @@ class ApiErrorHandlerTest extends TestCase
     /** @var HubInterface|PHPUnit_Framework_MockObject_MockObject  */
     private $sentryHub;
 
-    /** @var UncaughtErrorHandler */
+    /** @var SentryErrorHandler */
     private $uncaughtErrorHandler;
 
     protected function setUp(): void
@@ -20,7 +20,12 @@ class ApiErrorHandlerTest extends TestCase
         parent::setUp();
 
         $this->sentryHub = $this->createMock(HubInterface::class);
-        $this->uncaughtErrorHandler = new UncaughtErrorHandler($this->sentryHub);
+        $this->uncaughtErrorHandler = new SentryErrorHandler(
+            $this->sentryHub,
+            null,
+            null,
+            false
+        );
     }
 
     /**
@@ -34,7 +39,7 @@ class ApiErrorHandlerTest extends TestCase
         $this->sentryHub->expects($this->once())
             ->method('captureException');
 
-        $apiProblemResponse = $errorHandler->__invoke($exception);
+        $apiProblemResponse = $errorHandler->handle($exception);
 
         $this->assertEquals(
             '{"title":"Exception message","type":"about:blank","status":500}',
@@ -54,7 +59,7 @@ class ApiErrorHandlerTest extends TestCase
         $this->sentryHub->expects($this->once())
             ->method('captureException');
 
-        $apiProblemResponse = $errorHandler->__invoke($exception);
+        $apiProblemResponse = $errorHandler->handle($exception);
 
         $this->assertEquals(
             '{"title":"Exception message","type":"about:blank","status":400}',
@@ -74,7 +79,7 @@ class ApiErrorHandlerTest extends TestCase
         $this->sentryHub->expects($this->never())
             ->method('captureException');
 
-        $apiProblemResponse = $errorHandler->__invoke($exception);
+        $apiProblemResponse = $errorHandler->handle($exception);
 
         $this->assertEquals(
             '{"title":"Exception message","type":"about:blank","status":404}',
@@ -96,7 +101,7 @@ class ApiErrorHandlerTest extends TestCase
         $this->sentryHub->expects($this->once())
             ->method('captureException');
         
-        $apiProblemResponse = $errorHandler->__invoke($exception);
+        $apiProblemResponse = $errorHandler->handle($exception);
 
         $this->assertEquals(
             '{"title":"Exception message ","type":"about:blank","status":400}',

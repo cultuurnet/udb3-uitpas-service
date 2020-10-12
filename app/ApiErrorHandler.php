@@ -9,16 +9,16 @@ use Exception;
 class ApiErrorHandler
 {
     /**
-     * @var UncaughtErrorHandler
+     * @var SentryErrorHandler
      */
     private $uncaughtErrorHandler;
 
-    public function __construct(UncaughtErrorHandler $uncaughtErrorHandler)
+    public function __construct(SentryErrorHandler $uncaughtErrorHandler)
     {
         $this->uncaughtErrorHandler = $uncaughtErrorHandler;
     }
 
-    public function __invoke(Exception $exception): ApiProblemJsonResponse
+    public function handle(Exception $exception): ApiProblemJsonResponse
     {
         $this->uncaughtErrorHandler->handle($exception);
 

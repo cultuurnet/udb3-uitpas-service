@@ -10,7 +10,7 @@ use CultuurNet\UDB3\UiTPASService\Controller\EventControllerProvider;
 use CultuurNet\UDB3\UiTPASService\Controller\OrganizerControllerProvider;
 use CultuurNet\UDB3\UiTPASService\ErrorHandlerProvider;
 use CultuurNet\UDB3\UiTPASService\SentryServiceProvider;
-use CultuurNet\UDB3\UiTPASService\UncaughtErrorHandler;
+use CultuurNet\UDB3\UiTPASService\SentryErrorHandler;
 use Silex\Application;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
@@ -114,6 +114,6 @@ $app->after($app['cors']);
 try {
     $app->run();
 } catch (Throwable $throwable) {
-    $app[UncaughtErrorHandler::class]->handle($throwable);
+    $app[SentryErrorHandler::class]->handle($throwable);
     throw $throwable;
 }
