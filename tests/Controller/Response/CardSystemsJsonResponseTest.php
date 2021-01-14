@@ -4,8 +4,9 @@ namespace CultuurNet\UDB3\UiTPASService\Controller\Response;
 
 use CultureFeed_Uitpas_CardSystem;
 use CultureFeed_Uitpas_DistributionKey;
+use PHPUnit\Framework\TestCase;
 
-class CardSystemsJsonResponseTest extends \PHPUnit_Framework_TestCase
+class CardSystemsJsonResponseTest extends TestCase
 {
     /**
      * @test

@@ -5,14 +5,14 @@ namespace CultuurNet\UDB3\UiTPASService\Controller;
 use CultureFeed_Uitpas;
 use CultureFeed_Uitpas_CardSystem;
 use CultureFeed_Uitpas_DistributionKey;
-use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-class EventCardSystemsControllerTest extends PHPUnit_Framework_TestCase
+class EventCardSystemsControllerTest extends TestCase
 {
     /**
-     * @var CultureFeed_Uitpas|PHPUnit_Framework_MockObject_MockObject
+     * @var CultureFeed_Uitpas|MockObject
      */
     private $uitpas;
 

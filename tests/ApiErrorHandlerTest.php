@@ -3,13 +3,13 @@
 namespace CultuurNet\UDB3\UiTPASService;
 
 use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PHPUnit_Framework_MockObject_MockObject;
 use Sentry\State\HubInterface;
 
 class ApiErrorHandlerTest extends TestCase
 {
-    /** @var HubInterface|PHPUnit_Framework_MockObject_MockObject  */
+    /** @var HubInterface|MockObject  */
     private $sentryHub;
 
     /** @var SentryErrorHandler */
