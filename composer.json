@@ -3,7 +3,12 @@
     "description": "Silex application for UiTPAS integration",
     "type": "project",
     "license": "GPL-3.0-only",
-    "authors": [],
+    "authors": [
+        {
+            "name": "publiq vzw",
+            "email": "info@publiq.be"
+        }
+    ],
     "require": {
         "php": "^7.1",
         "broadway/broadway": "~0.10.0",
@@ -24,11 +29,10 @@
         "sentry/sdk": "^2.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.7",
+        "phpunit/phpunit": "^7.5",
         "escapestudios/symfony2-coding-standard": "~2.9",
         "squizlabs/php_codesniffer": "~2.5.1",
-        "phing/phing": "~2.14",
-        "satooshi/php-coveralls": "~1.0"
+        "phing/phing": "~2.14"
     },
     "autoload": {
         "psr-4": {
@@ -49,5 +53,8 @@
         "branch-alias": {
             "dev-master": "0.x-dev"
         }
+    },
+    "scripts": {
+        "phing": "./vendor/bin/phing test"
     }
 }

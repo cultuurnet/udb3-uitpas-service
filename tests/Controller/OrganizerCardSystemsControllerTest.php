@@ -6,13 +6,13 @@ use CultureFeed_ResultSet;
 use CultureFeed_Uitpas;
 use CultureFeed_Uitpas_CardSystem;
 use CultureFeed_Uitpas_DistributionKey;
-use PHPUnit_Framework_MockObject_MockObject;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class OrganizerCardSystemsControllerTest extends PHPUnit_Framework_TestCase
+class OrganizerCardSystemsControllerTest extends TestCase
 {
     /**
-     * @var CultureFeed_Uitpas|PHPUnit_Framework_MockObject_MockObject
+     * @var CultureFeed_Uitpas|MockObject
      */
     private $uitPas;
 
