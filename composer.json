@@ -3,7 +3,12 @@
     "description": "Silex application for UiTPAS integration",
     "type": "project",
     "license": "GPL-3.0-only",
-    "authors": [],
+    "authors": [
+        {
+            "name": "publiq vzw",
+            "email": "info@publiq.be"
+        }
+    ],
     "require": {
         "php": "^7.1",
         "broadway/broadway": "~0.10.0",
